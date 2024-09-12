@@ -88,4 +88,4 @@ if each==True:
 # Adjust layout to prevent overlapping
 plt.tight_layout()
 # Show the plots
-plt.savefig("magnetization_vs_correlation.png")
+plt.savefig("magnetization_vs_correlation_h.png")
