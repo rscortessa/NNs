@@ -148,22 +148,19 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
     sampler = nk.sampler.MetropolisLocal(hi) #Sampler in the Hilbert Space
     vstate= nk.vqs.MCState(sampler,model,n_samples=n_sample) ;
     optimizer= nk.optimizer.Sgd(learning_rate=0.05) ;
-    log=nk.logging.RuntimeLog() ;
-    
+    log=nk.logging.RuntimeLog() ;    
     energy_history=np.zeros(Nh)
     S_hist=np.zeros(Nh)
     m=np.zeros(Nh)
     Hts=[Ham(Gamma,V+dh*i) for i in range(Nh)]
     gs=nk.driver.VMC(Hts[0], optimizer, variational_state=vstate,preconditioner=nk.optimizer.SR(diag_shift=0.1))
-    
     eps=10**(-6)
     
     if each==False:
         s_is_j=np.zeros(L-1)
         for i in range(Nh):
             gs._ham=Hts[i];
-            gs.run(n_iter=n_run,out=None,show_progress=False) ;
-            #gs.iter(n_run)
+            gs.advance(n_run) ;
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(Hts[i]);
             S_hist[i]=S_PCA(A,eps)
@@ -174,8 +171,7 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
         s_is_j=np.zeros((Nh,L-1))
         for i in range(Nh):
             gs._ham=Hts[i];
-            gs.run(n_iter=n_run,out=None,show_progress=False) ;
-            #gs.iter(n_run)
+            gs.advance(n_run);
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(Hts[i]);
             S_hist[i]=S_PCA(A,eps)
