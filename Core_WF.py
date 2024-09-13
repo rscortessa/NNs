@@ -118,24 +118,29 @@ def v_state(model,n_sample,hi,n_run,L,each=False):
     
     if each==False:
         s_is_j=np.zeros(L-1)
-        for i in range(n_run):
-            gs.run(n_iter=1,out=None,show_progress=False) ;
+        it=0
+            #gs.run(n_iter=1,out=None,show_progress=False) ;
+        for step in gs.iter(n_run):
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(H);
-            S_hist[i]=S_PCA(A,eps)
-            m[i]=M(A,n_sample,L)
-            energy_history[i]=E.mean.real
+            S_hist[it]=S_PCA(A,eps)
+            m[it]=M(A,n_sample,L)
+            energy_history[it]=E.mean.real
+            it+=1          
         s_is_j=SiSj(A,n_sample,L)
     else:
         s_is_j=np.zeros((n_run,L-1))
-        for i in range(n_run):
-            gs.run(n_iter=1,out=None,show_progress=False) ;
+        #for i in range(n_run):
+        it=0
+        for step in gs.iter(n_run):
+            #gs.run(n_iter=1,out=None,show_progress=False) ;
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(H);
-            S_hist[i]=S_PCA(A,eps)
-            m[i]=M(A,n_sample,L)
-            energy_history[i]=E.mean.real
-            s_is_j[i]=SiSj(A,n_sample,L)
+            S_hist[it]=S_PCA(A,eps)
+            m[it]=M(A,n_sample,L)
+            energy_history[it]=E.mean.real
+            s_is_j[it]=SiSj(A,n_sample,L)
+            it+=1
     return s_is_j,m,energy_history,S_hist
 
 
@@ -148,17 +153,19 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
     energy_history=np.zeros(Nh)
     S_hist=np.zeros(Nh)
     m=np.zeros(Nh)
+    Hts=[Ham(Gamma,V+dh*i) for i in range(Nh)]
+    gs=nk.driver.VMC(Hts[0], optimizer, variational_state=vstate,preconditioner=nk.optimizer.SR(diag_shift=0.1))
     
     eps=10**(-6)
     
     if each==False:
         s_is_j=np.zeros(L-1)
         for i in range(Nh):
-            H_aux=Ham(Gamma,V+dh*i)
-            gs=nk.driver.VMC(H_aux, optimizer, variational_state=vstate,preconditioner=nk.optimizer.SR(diag_shift=0.1)) ;
+            gs._ham=Hts[i];
             gs.run(n_iter=n_run,out=None,show_progress=False) ;
+            #gs.iter(n_run)
             A=np.array(vstate.samples).reshape((n_sample,L))
-            E= vstate.expect(H_aux);
+            E= vstate.expect(Hts[i]);
             S_hist[i]=S_PCA(A,eps)
             m[i]=M(A,n_sample,L)
             energy_history[i]=E.mean.real
@@ -166,11 +173,11 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
     else:
         s_is_j=np.zeros((Nh,L-1))
         for i in range(Nh):
-            H_aux=Ham(Gamma,V+dh*i)
-            gs=nk.driver.VMC(H_aux, optimizer, variational_state=vstate,preconditioner=nk.optimizer.SR(diag_shift=0.1)) ;
+            gs._ham=Hts[i];
             gs.run(n_iter=n_run,out=None,show_progress=False) ;
+            #gs.iter(n_run)
             A=np.array(vstate.samples).reshape((n_sample,L))
-            E= vstate.expect(H_aux);
+            E= vstate.expect(Hts[i]);
             S_hist[i]=S_PCA(A,eps)
             m[i]=M(A,n_sample,L)
             energy_history[i]=E.mean.real
@@ -187,7 +194,6 @@ def Exact_Calculation(n_sample,n_run,n_mean,L):
     for i in range(n_mean):
         vstate_exact = nk.vqs.MCState(sampler, EWF(eig_vec=tuple(eig_vecs[:,0])), n_samples=n_sample)
         A_exact=np.array(vstate_exact.samples).reshape((n_sample,L))
-        print("a")
         S_exact[i]=S_PCA(A_exact,eps)
         m_exact[i]=M(A_exact,n_sample,L)        
         s_is_j_exact[i,:]=SiSj(A_exact,n_sample,L)
@@ -206,10 +212,11 @@ def Exact_Calculation_steady(n_sample,n_run,n_mean,L,Nh,dh):
     S_exact=np.zeros((Nh,n_mean))
     m_exact=np.zeros((Nh,n_mean))
     s_is_j_exact=np.zeros((Nh,n_mean,L-1))
+    eig_vals=np.zeros(Nh)
+    Hts=[Ham(Gamma,V+dh*j) for j in range(Nh)] 
     for j in range(Nh):
-        H=Ham(Gamma,V)
-        sp_h=H.to_sparse()
-        eig_vals, eig_vecs = eigsh(sp_h,k=1,which="SA")
+        sp_h=Hts[j].to_sparse()
+        eig_vals[j], eig_vecs = eigsh(sp_h,k=1,which="SA")
 
         for i in range(n_mean):
             vstate_exact = nk.vqs.MCState(sampler, EWF(eig_vec=tuple(eig_vecs[:,0])), n_samples=n_sample)
@@ -223,7 +230,7 @@ def Exact_Calculation_steady(n_sample,n_run,n_mean,L,Nh,dh):
     var_sisj_exact=np.var(s_is_j_exact,axis=1)
     s_is_j_exact=np.mean(s_is_j_exact,axis=1)
         
-    return S_exact,m_exact,var_sisj_exact,s_is_j_exact 
+    return eig_vals,S_exact,m_exact,var_sisj_exact,s_is_j_exact 
 
 
 

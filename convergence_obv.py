@@ -34,55 +34,119 @@ s_is_j=np.sum(sisj,axis=0)/n_mean
 m=np.sum(m,axis=0)/n_mean
 
 S_exact,m_exact,var_sisj_exact,s_is_j_exact=Exact_Calculation(8192*2,n_run,n_mean,L)
+name="V"+str(V)+"G"+str(Gamma)+"L"+str(L)+"N_S"+str(n_sample)+"N_M"+str(n_mean)
+
+fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+# First plot on the right
+axs[0].set_title(r'$\Delta \; E$'+"\n"+r"$L="+str(L)+"$"+r" $N_{samples}="+str(n_sample)+"$ "+r"$N_{average}="+str(n_mean)+"$")
+axs[1].set_title(r'$\Delta \; S_{PCA} $ '+"\n"+r"$L="+str(L)+"$ "+r" $N_{samples}="+str(n_sample)+"$"+r" $N_{average}="+str(n_mean)+"$")
+for i in range(n):
+    axs[0].set_yscale("log")
+    axs[0].plot(np.abs((En[i]-eig_vals[0])/eig_vals[0]),label=method[i])
+axs[0].set_xlabel('steps',fontsize=15)
+axs[0].set_ylabel(r'$\Delta \; E$',fontsize=15)
+axs[0].legend()
+for i in range(n):
+    axs[1].set_yscale("log")
+    axs[1].plot(np.abs(S_ent[i]-S_exact)/S_exact,label=method[i])
+axs[1].set_xlabel('steps',fontsize=15)
+axs[1].set_ylabel(r'$\Delta \; S_{PCA}$',fontsize=15)
+axs[1].legend()
+# Adjust layout to prevent overlapping
+plt.tight_layout()
+# Show the plots
+plt.savefig(name+"EEE.png")
 
 
 fig, axs = plt.subplots(1, 2, figsize=(10, 5))
 # First plot on the right
 axs[0].set_title('Energy '+"\n"+r"$L="+str(L)+"$"+r" $N_{samples}="+str(n_sample)+"$ "+r"$N_{average}="+str(n_mean)+"$")
-axs[1].set_title(r'$S_{PCA} $ '+"\n"+r"$L=12$ "+r" $N_{samples}="+str(n_sample)+"$"+r" $N_{average}="+str(n_mean)+"$")
+axs[1].set_title(r'$S_{PCA} $ '+"\n"+r"$L="+str(L)+"$ "+r" $N_{samples}="+str(n_sample)+"$"+r" $N_{average}="+str(n_mean)+"$")
+
 for i in range(n):
     axs[0].set_yscale("log")
-    axs[0].plot(np.abs((En[i]-eig_vals[0])/eig_vals[0]),label=method[i])
-axs[0].set_xlabel('steps')
-axs[0].set_ylabel('Energy')
+    axs[0].plot(-eig_vals[0]+En[i],label=method[i])
+
+axs[0].set_xlabel('steps',fontsize=15)
+axs[0].set_ylabel('$E-E_{G.S}$',fontsize=15)
 axs[0].legend()
 for i in range(n):
     axs[1].set_yscale("log")
-    axs[1].plot(np.abs(S_ent[i]-S_exact)/S_exact,label=method[i])
-axs[1].set_xlabel('steps')
-axs[1].set_ylabel('Entropy')
+    axs[1].plot(np.abs(S_ent[i]),label=method[i])
+axs[1].axhline(y=S_exact,label="exact",linestyle="dashed")
+axs[1].set_xlabel('steps',fontsize=15)
+axs[1].set_ylabel('$S_{PCA}$',fontsize=15)
 axs[1].legend()
 # Adjust layout to prevent overlapping
 plt.tight_layout()
 # Show the plots
-plt.savefig("Energy_vs_Entropy.png")
+plt.savefig(name+"EE.png")
+
+
+
 
 fig, axs = plt.subplots(1, 2, figsize=(10, 5))
 # First plot on the right
 axs[0].set_title('Magnetization '+"\n"+r"$L="+str(L)+"$"+r" $N_{samples}="+str(n_sample)+"$ "+r"$N_{average}="+str(n_mean)+"$")
-axs[1].set_title(r'$\langle S_0 \cdot S_{i} \rangle $ '+"\n"+r"$L=12$ "+r" $N_{samples}="+str(n_sample)+" $"+r" $N_{average}="+str(n_mean)+"$")
 for i in range(n):
     axs[0].plot(m[i],label=method[i])
 axs[0].axhline(y=m_exact,label="exact",markersize=12,linestyle="dashed")
-axs[0].set_xlabel('steps')
-axs[0].set_ylabel('m')
+axs[0].set_xlabel('steps',fontsize=15)
+axs[0].set_ylabel('m',fontsize=15)
 axs[0].legend()
 if each==False:
-    corr=np.array([[np.abs(s_is_j[i,j]-s_is_j_exact[j])/s_is_j_exact[j] for j in range(L-1)] for i in range(n)])
+    a=""
+    axs[1].set_title(r'$\Delta \; \langle S_0 \cdot S_{i} \rangle $ '+"\n"+r"$L=12$ "+r" $N_{samples}="+str(n_sample)+" $"+r" $N_{average}="+str(n_mean)+"$")
+    corr=np.array([[np.abs((s_is_j[i,j]-s_is_j_exact[j])/s_is_j_exact[j]) for j in range(L-1)] for i in range(n)])
     for i in range(n):
         axs[1].set_yscale("log")
         axs[1].plot(corr[i,:],label=method[i])
-    axs[1].set_xlabel('site i')
-    axs[1].set_ylabel(r"$ |\langle S_0 \cdot S_{i} \rangle_{exact} -\langle S_0 \cdot S_{"+str(k)+r"} \rangle|/ \langle S_0 \cdot S_{"+str(k)+r"} \rangle_{exact} $",fontsize=15)
+    axs[1].set_xlabel('site i',fontsize=15)
+    axs[1].set_ylabel(r"$ \Delta \; \langle S_0 \cdot S_{i} \rangle $",fontsize=15)
 if each==True:
-    corr=np.array([[[np.abs(s_is_j[l,i,j]-s_is_j_exact[j])/s_is_j_exact[j] for j in range(L-1)] for i in range(n_run)] for l in range(n)])
+    a="K"+str(k)
+    axs[1].set_title(r"$\Delta \; \langle S_0 \cdot S_{"+str(k)+r"} \rangle $ "+"\n"+r"$L=12$ "+r" $N_{samples}="+str(n_sample)+" $"+r" $N_{average}="+str(n_mean)+"$")
+    corr=np.array([[[np.abs((s_is_j[l,i,j]-s_is_j_exact[j])/s_is_j_exact[j]) for j in range(L-1)] for i in range(n_run)] for l in range(n)])
     axs[1].set_yscale("log")
     for i in range(n):
         axs[1].plot(corr[i,:,k],label=method[i])
-    axs[1].set_xlabel('site i')
-    axs[1].set_ylabel(r"$ |\langle S_0 \cdot S_{i} \rangle_{exact} -\langle S_0 \cdot S_{"+str(k)+r"} \rangle|/ \langle S_0 \cdot S_{"+str(k)+r"} \rangle_{exact} $",fontsize=15)
-    axs[1].legend()
+    axs[1].set_xlabel('site i',fontsize=15)
+    axs[1].set_ylabel(r"$ \Delta \; \langle S_0 \cdot S_{"+str(k)+r"} \rangle $",fontsize=15)
+
+axs[1].legend()
 # Adjust layout to prevent overlapping
 plt.tight_layout()
 # Show the plots
-plt.savefig("magnetization_vs_correlation.png")
+plt.savefig(a+name+"EMC.png")
+
+
+
+fig, axs = plt.subplots(1, 2, figsize=(10, 5))
+# First plot on the right
+axs[0].set_title('Magnetization '+"\n"+r"$L="+str(L)+"$"+r" $N_{samples}="+str(n_sample)+"$ "+r"$N_{average}="+str(n_mean)+"$")
+axs[1].set_title(r'$\langle S_0 \cdot S_{i} \rangle $ '+"\n"+r"$L="+str(L)+"$ "+r" $N_{samples}="+str(n_sample)+" $"+r" $N_{average}="+str(n_mean)+"$")
+for i in range(n):
+    axs[0].plot(m[i],label=method[i])
+axs[0].axhline(y=m_exact,label="exact",markersize=12,linestyle="dashed")
+axs[0].set_xlabel('steps',fontsize=15)
+axs[0].set_ylabel('m',fontsize=15)
+axs[0].legend()
+if each==False:
+    a=""
+    for i in range(n):
+        axs[1].plot(s_is_j[i,:],label=method[i])
+    axs[1].plot(s_is_j_exact,label="Exact",linestyle="dashed")
+    axs[1].set_xlabel('site i',fontsize=15)
+    axs[1].set_ylabel(r"$\langle S_0 \cdot S_{i} \rangle $",fontsize=15)
+if each==True:
+    a="K"+str(k)
+    for i in range(n):
+        axs[1].plot(s_is_j[i,:,k],label=method[i])
+    axs[1].axhline(y=s_is_j_exact[k],label="Exact",linestyle="dashed")
+    axs[1].set_xlabel('site i',fontsize=15)
+    axs[1].set_ylabel(r"$\langle S_0 \cdot S_{"+str(k)+r"} \rangle $",fontsize=15)
+axs[1].legend()
+# Adjust layout to prevent overlapping
+plt.tight_layout()
+# Show the plots
+plt.savefig(a+name+"MC.png")
