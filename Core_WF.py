@@ -42,7 +42,16 @@ sp_h=H.to_sparse()
 eig_vals, eig_vecs = eigsh(sp_h,k=1,which="SA")
 print("eig vals: ",eig_vals)
 
+
+def change_to_int(x):
+    Aux=jnp.array([2**(N-1-i) for i in range(N)])
+    Z=jnp.array(jnp.mod(1+x,3)/2,int)
+    return np.sum(Aux*Z,axis=-1)
+
+
 ## Define the variational Ansatz
+
+
 
 
 class MF(nn.Module):
@@ -54,13 +63,13 @@ class MF(nn.Module):
 
 class EWF(nn.Module):
     eig_vec:tuple
-    @nn.compact
+    def setup(self):
+        self.aux=jnp.array(self.eig_vec)
+        self.j1=self.param("j1", nn.initializers.normal(),(1,),float)
+    
     def __call__(self,x):
-        j1=self.param("j1", nn.initializers.normal(),(1,),float)
-        aux = jnp.array(self.eig_vec)
-        indices = hi.states_to_numbers(x)
-        A = [aux[idx] for idx in indices]
-        #A=[np.conjugate(self.eig_vec[hi.states_to_numbers(x[i,:])])]
+        indices = change_to_int(x)
+        A = [self.aux[idx] for idx in indices]
         return jnp.log(jnp.array(A))
         
 class JasShort(nn.Module):
