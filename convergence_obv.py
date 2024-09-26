@@ -11,7 +11,7 @@ import flax.linen as nn # What is this?
 from sklearn.decomposition import PCA
 
 from Core_WF import Ham, MF, JasShort, FFN, v_state, Exact_Calculation
-from Core_WF import hi, H, n_sample, n_run, n_mean, each, k, L, Gamma, V,eig_vals
+from Core_WF import hi, H, n_sample, n_run, n_mean, each, k, L, Gamma, V,eig_vals,eig_vecs
 
 n=3
 model=[MF(),JasShort(),FFN(alpha=1)]
@@ -26,14 +26,14 @@ else:
 
 for j in range(n_mean):
     for i in range(n):
-        sisj[j,i,:],m[j,i,:],En[j,i,:],S_ent[j,i,:]=v_state(model[i],n_sample,hi,n_run,L,each) ;
+        sisj[j,i,:],m[j,i,:],En[j,i,:],S_ent[j,i,:]=v_state(model[i],n_sample,hi,n_run,L,V,Gamma,each) ;
         
 En=np.sum(En,axis=0)/n_mean
 S_ent=np.sum(S_ent,axis=0)/n_mean
 s_is_j=np.sum(sisj,axis=0)/n_mean
 m=np.sum(m,axis=0)/n_mean
 
-S_exact,m_exact,var_sisj_exact,s_is_j_exact=Exact_Calculation(8192*2,n_run,n_mean,L)
+S_exact,m_exact,var_sisj_exact,s_is_j_exact=Exact_Calculation(8192*2,n_run,n_mean,L,eig_vecs[:,0])
 name="V"+str(V)+"G"+str(Gamma)+"L"+str(L)+"N_S"+str(n_sample)+"N_M"+str(n_mean)
 
 fig, axs = plt.subplots(1, 2, figsize=(10, 5))

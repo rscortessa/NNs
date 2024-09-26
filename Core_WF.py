@@ -20,7 +20,7 @@ parameters=[int(parameters[x]) for x in range(1,n_par)]
 print(parameters)
 N=parameters[0]
 Gamma=parameters[1]*(-0.01)
-V=parameters[2]*(-0.01)
+V=-1.0
 n_sample=parameters[3]
 print(n_sample)
 n_run=parameters[4]
@@ -98,10 +98,14 @@ def min_d(vr,eps):
         if np.abs(vr[i])<eps:
             return i
     
-def S_PCA(D,eps):
+def S_PCA(D,eps,V,h,exact=False):
     pca=PCA()
+    lenght=len(D)
+    if np.abs(h)<0.9 and not exact:
+        D[:lenght,:]=(-1)*D[:lenght,:]
+        
     E=pca.fit(D)
-    vr=E.explained_variance_ratio_
+    vr=E.explained_variance_ratio_ 
     Sin=-vr[0:min_d(vr,eps)]*np.log(vr[0:min_d(vr,eps)])
     return np.sum(Sin)
     
@@ -113,7 +117,7 @@ def SiSj(D,Nsamples,L):
     return np.sum(E,axis=1)/(Nsamples)
 
 
-def v_state(model,n_sample,hi,n_run,L,each=False):
+def v_state(model,n_sample,hi,n_run,L,V,h,each=False):
     sampler = nk.sampler.MetropolisLocal(hi) #Sampler in the Hilbert Space
     vstate= nk.vqs.MCState(sampler,model,n_samples=n_sample) ;
     optimizer= nk.optimizer.Sgd(learning_rate=0.05) ;
@@ -132,7 +136,7 @@ def v_state(model,n_sample,hi,n_run,L,each=False):
         for step in gs.iter(n_run):
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(H);
-            S_hist[it]=S_PCA(A,eps)
+            S_hist[it]=S_PCA(A,eps,V,h)
             m[it]=M(A,n_sample,L)
             energy_history[it]=E.mean.real
             it+=1          
@@ -145,7 +149,7 @@ def v_state(model,n_sample,hi,n_run,L,each=False):
             #gs.run(n_iter=1,out=None,show_progress=False) ;
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(H);
-            S_hist[it]=S_PCA(A,eps)
+            S_hist[it]=S_PCA(A,eps,V,h)
             m[it]=M(A,n_sample,L)
             energy_history[it]=E.mean.real
             s_is_j[it]=SiSj(A,n_sample,L)
@@ -161,21 +165,20 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
     energy_history=np.zeros(Nh)
     S_hist=np.zeros(Nh)
     m=np.zeros(Nh)
-    Hts=[Ham(Gamma,V+dh*i) for i in range(Nh)]
+    Hts=[Ham(Gamma+dh*i,V) for i in range(Nh)]
     gs=nk.driver.VMC(Hts[0], optimizer, variational_state=vstate,preconditioner=nk.optimizer.SR(diag_shift=0.1))
     eps=10**(-6)
     
     if each==False:
-        s_is_j=np.zeros(L-1)
         for i in range(Nh):
             gs._ham=Hts[i];
             gs.advance(n_run) ;
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(Hts[i]);
-            S_hist[i]=S_PCA(A,eps)
+            S_hist[i]=S_PCA(A,eps,V,Gamma+dh*i)
             m[i]=M(A,n_sample,L)
             energy_history[i]=E.mean.real
-        s_is_j=SiSj(A,n_sample,L)
+        return m,energy_history,S_hist
     else:
         s_is_j=np.zeros((Nh,L-1))
         for i in range(Nh):
@@ -183,33 +186,39 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
             gs.advance(n_run);
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(Hts[i]);
-            S_hist[i]=S_PCA(A,eps)
+            S_hist[i]=S_PCA(A,eps,V,Gamma+dh*i)
             m[i]=M(A,n_sample,L)
             energy_history[i]=E.mean.real
             s_is_j[i]=SiSj(A,n_sample,L)
     return s_is_j,m,energy_history,S_hist
 
-def Exact_Calculation(n_sample,n_run,n_mean,L):
+def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,corr=True):
     sampler = nk.sampler.MetropolisLocal(hi)
     eps=10**(-6)
     S_exact=np.zeros((n_mean))
     m_exact=np.zeros((n_mean))
-    s_is_j_exact=np.zeros((n_mean,L-1))
+    if corr==True:
+        s_is_j_exact=np.zeros((n_mean,L-1))
+    aux=tuple(eig_st)
     
     for i in range(n_mean):
-        vstate_exact = nk.vqs.MCState(sampler, EWF(eig_vec=tuple(eig_vecs[:,0])), n_samples=n_sample)
+        vstate_exact = nk.vqs.MCState(sampler, EWF(eig_vec=aux), n_samples=n_sample)
         A_exact=np.array(vstate_exact.samples).reshape((n_sample,L))
-        S_exact[i]=S_PCA(A_exact,eps)
-        m_exact[i]=M(A_exact,n_sample,L)        
-        s_is_j_exact[i,:]=SiSj(A_exact,n_sample,L)
+        S_exact[i]=S_PCA(A_exact,eps,1,1,True)
+        m_exact[i]=M(A_exact,n_sample,L)
+        if corr==True:
+            s_is_j_exact[i,:]=SiSj(A_exact,n_sample,L)
 
     S_exact=np.mean(S_exact)
     m_exact=np.mean(m_exact)
-    var_sisj_exact=np.var(s_is_j_exact,axis=0)
-    s_is_j_exact=np.mean(s_is_j_exact,axis=0)
     
-    return S_exact,m_exact,var_sisj_exact,s_is_j_exact 
-
+    if corr==True:
+        var_sisj_exact=np.var(s_is_j_exact,axis=0)
+        s_is_j_exact=np.mean(s_is_j_exact,axis=0)    
+        return S_exact,m_exact,var_sisj_exact,s_is_j_exact
+    else:
+        return S_exact,m_exact
+                                      
 
 def Exact_Calculation_steady(n_sample,n_run,n_mean,L,Nh,dh):
     sampler = nk.sampler.MetropolisLocal(hi)
