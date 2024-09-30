@@ -209,7 +209,9 @@ def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,corr=True):
         if corr==True:
             s_is_j_exact[i,:]=SiSj(A_exact,n_sample,L)
 
+    S_error=np.std(S_exact)/(np.sqrt(n_sample))
     S_exact=np.mean(S_exact)
+    m_error=np.std(m_exact)/(np.sqrt(n_sample))
     m_exact=np.mean(m_exact)
     
     if corr==True:
@@ -217,7 +219,7 @@ def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,corr=True):
         s_is_j_exact=np.mean(s_is_j_exact,axis=0)    
         return S_exact,m_exact,var_sisj_exact,s_is_j_exact
     else:
-        return S_exact,m_exact
+        return S_error,S_exact,m_error,m_exact
                                       
 
 def Exact_Calculation_steady(n_sample,n_run,n_mean,L,Nh,dh):
@@ -239,7 +241,9 @@ def Exact_Calculation_steady(n_sample,n_run,n_mean,L,Nh,dh):
             m_exact[j,i]=M(A_exact,n_sample,L)        
             s_is_j_exact[j,i,:]=SiSj(A_exact,n_sample,L)
 
+    S_error=np.std(S_exact,axis=1)
     S_exact=np.mean(S_exact,axis=1)
+    m_error=np.std(m_exact,axis=1)
     m_exact=np.mean(m_exact,axis=1)
     var_sisj_exact=np.var(s_is_j_exact,axis=1)
     s_is_j_exact=np.mean(s_is_j_exact,axis=1)

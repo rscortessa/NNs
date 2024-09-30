@@ -37,21 +37,22 @@ for j in range(4):
 for j in range(3):
     data_2[j]["E"]=data_1[j]["E"]-data_1[3]["E"]
     data_2[j]["S"]=np.abs(data_1[j]["S"]-data_1[3]["S"])/data_1[3]["S"]
-    
-    
+    data_2[j]["dE"]=data_1[j]["dE"]-data_1[3]["dE"]
+    data_2[j]["dS"]=data_2[j]["S"]*((data_1[j]["dS"]+data_1[3]["dS"])/np.abs(data_1[j]["S"]-data_1[3]["S"])+data_1[3]["dS"]/data_1[3]["S"])
 
+    
 fig, axs = plt.subplots(1, 2, figsize=(10, 5))
 # First plot on the right
 axs[0].set_title('Energy '+"\n"+r"$L="+str(L)+"$"+r" $N_{samples}="+str(n_sample)+"$ "+r"$N_{average}="+str(n_mean)+"$")
 axs[1].set_title(r'$S_{PCA} $ '+"\n"+r"$L="+str(L)+"$ "+r" $N_{samples}="+str(n_sample)+"$"+r" $N_{average}="+str(n_mean)+"$")
 for i in range(n):
-    axs[0].plot(data_1[i]["G"],data_1[i]["E"],label=method[i])
+    axs[0].errorbar(data_1[i]["G"],data_1[i]["E"],data_1[i]["dE"],marker="o",label=method[i])
 axs[0].set_xlabel('h')
 axs[0].set_ylabel('Energy')
 axs[0].legend()
 for i in range(n):
     axs[1].set_yscale("log")
-    axs[1].plot(data_1[i]["G"],np.abs(data_1[i]["S"]),label=method[i])
+    axs[1].errorbar(data_1[i]["G"],np.abs(data_1[i]["S"]),data_1[i]["dS"],marker="o",label=method[i])
 axs[1].set_xlabel('h')
 axs[1].set_ylabel('Entropy')
 axs[1].legend()
@@ -66,13 +67,13 @@ axs[0].set_title('Energy '+"\n"+r"$L="+str(L)+"$"+r" $N_{samples}="+str(n_sample
 axs[1].set_title(r'$S_{PCA} $ '+"\n"+r"$L="+str(L)+"$ "+r" $N_{samples}="+str(n_sample)+"$"+r" $N_{average}="+str(n_mean)+"$")
 for i in range(n):
     axs[0].set_yscale("log")
-    axs[0].plot(data_1[i]["G"],data_2[i]["E"],label=method[i])
+    axs[0].errorbar(data_1[i]["G"],data_2[i]["E"],data_2[i]["dE"],marker="o",label=method[i])
 axs[0].set_xlabel('h')
 axs[0].set_ylabel(r'$\% Energy$')
 axs[0].legend()
 for i in range(n):
     axs[1].set_yscale("log")
-    axs[1].plot(data_1[i]["G"],data_2[i]["S"],label=method[i])
+    axs[1].errorbar(data_1[i]["G"],data_2[i]["S"],data_2[i]["dS"],marker="o",label=method[i])
 axs[1].set_xlabel('h')
 axs[1].set_ylabel(r'$\% S_{PCA}$')
 axs[1].legend()
@@ -88,7 +89,7 @@ plt.savefig("Error_Energy_vs_Entropy_h.png")
 plt.figure()
 plt.title('Magnetization '+"\n"+r"$L="+str(L)+"$"+r" $N_{samples}="+str(n_sample)+"$ "+r"$N_{average}="+str(n_mean)+"$")
 for i in range(n):
-    plt.plot(data_1[i]["G"],data_1[i]["m"],label=method[i])
+    plt.errorbar(data_1[i]["G"],data_1[i]["m"],data_1[i]["dm"],marker="o",label=method[i])
 plt.xlabel('$h$')
 plt.ylabel('$m$')
 plt.legend()
