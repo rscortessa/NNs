@@ -101,7 +101,7 @@ def min_d(vr,eps):
 def S_PCA(D,eps,V,h,exact=False):
     pca=PCA()
     lenght=len(D)
-    if np.abs(h)<0.9 and not exact:
+    if np.abs(h)<1.1 and not exact:
         D[:int(lenght/2),:]=(-1)*D[:int(lenght/2),:]
         
     E=pca.fit(D)
