@@ -40,11 +40,9 @@ hi=nk.hilbert.Spin(s=1 / 2,N=L)
 for gg in range(NG):
     Gnew=Gamma+(GammaF-Gamma)/(NG)*gg
     H=Ham(Gnew,V)
-    sp_h=H.to_dense()
-    eig_vals, eig_vecs = eigh(sp_h)
-    S_error,S_exact,m_error,m_exact=Exact_Calculation(8192*2,n_run,n_mean,L,eig_vecs[:,0],Gnew,False)
+    sp_h=H.to_sparse()
+    eig_vals, eig_vecs = eigsh(sp_h,k=2,which="SA")
+    S_error,S_exact,m_error,m_exact=Exact_Calculation(8192*2,n_run,n_mean,L,np.abs(eig_vecs[:,0]),Gnew,False)
     file.write(str(Gnew)+"\t"+str(0)+"\t"+str(eig_vals[0])+"\t"+str(S_error)+"\t"+str(S_exact)+"\t"+str(m_error)+"\t"+str(m_exact)+"\n")
-    
-    
 
 

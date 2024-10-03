@@ -219,12 +219,12 @@ def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,h,corr=True):
         vstate_exact = nk.vqs.MCState(sampler, EWF(eig_vec=aux), n_samples=n_sample)
         A_exact=np.array(vstate_exact.samples).reshape((n_sample,L))
         aux_2=S_PCA_WF(A_exact,eps,1,h,True)
-        aux_1=S_PCA(A_exact,eps,1,h,True)
-        if aux_1>aux_2:
-            S_exact[i]=aux_2
-        else:
-            S_exact[i]=aux_1
-            
+        #aux_1=S_PCA(A_exact,eps,1,h,True)
+        #if aux_1>aux_2:
+        #    S_exact[i]=aux_2
+        #else:
+        #    S_exact[i]=aux_1
+        S_exact[i]=aux_2    
         m_exact[i]=M(A_exact,n_sample,L)
         if corr==True:
             s_is_j_exact[i,:]=SiSj(A_exact,n_sample,L)
