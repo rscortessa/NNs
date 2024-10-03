@@ -1,7 +1,7 @@
 import sys
 import netket as nk
 import matplotlib.pyplot as plt
-from netket.operator.spin import sigmax,sigmaz
+from netket.operator.spin import sigmax,sigmaz,identity
 from scipy.sparse.linalg import eigsh
 import jax.numpy as jnp
 import flax
@@ -10,6 +10,7 @@ import flax.linen as nn
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.decomposition import PCA
+import random as rn
 
 ## Define the parameters
 parameters=sys.argv
@@ -36,7 +37,14 @@ def Ham(Gamma,V):
     H=sum([Gamma*sigmax(hi,i) for i in range(N)])
     H+=sum([V*sigmaz(hi,i)*sigmaz(hi,(i+1)%N) for i in range(N)])
     return H
+
+def break_sym(eps):
+    Vin=sum([rn.random()*eps*sigmaz(hi,i)+rn.random()*eps/2.0*identity(hi) for i in range(N)])
+    return Vin
     
+
+
+
 H=Ham(Gamma,V)
 sp_h=H.to_sparse()
 eig_vals, eig_vecs = eigsh(sp_h,k=1,which="SA")
@@ -101,14 +109,20 @@ def min_d(vr,eps):
 def S_PCA(D,eps,V,h,exact=False):
     pca=PCA()
     lenght=len(D)
-    if np.abs(h)<1.1 and not exact:
-        D[:int(lenght/2),:]=(-1)*D[:int(lenght/2),:]
-        
+    if np.abs(h)<1.0:
+        D[:int(lenght/2),:]=(-1)*D[:int(lenght/2),:]        
     E=pca.fit(D)
     vr=E.explained_variance_ratio_ 
     Sin=-vr[0:min_d(vr,eps)]*np.log(vr[0:min_d(vr,eps)])
     return np.sum(Sin)
-    
+
+def S_PCA_WF(D,eps,V,h,exact=False):
+    pca=PCA()
+    E=pca.fit(D)
+    vr=E.explained_variance_ratio_ 
+    Sin=-vr[0:min_d(vr,eps)]*np.log(vr[0:min_d(vr,eps)])
+    return np.sum(Sin)
+
 def M(D,Nsamples,L):
     return np.sum(D)/(Nsamples*L)
 
@@ -192,7 +206,7 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
             s_is_j[i]=SiSj(A,n_sample,L)
     return s_is_j,m,energy_history,S_hist
 
-def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,corr=True):
+def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,h,corr=True):
     sampler = nk.sampler.MetropolisLocal(hi)
     eps=10**(-6)
     S_exact=np.zeros((n_mean))
@@ -204,7 +218,13 @@ def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,corr=True):
     for i in range(n_mean):
         vstate_exact = nk.vqs.MCState(sampler, EWF(eig_vec=aux), n_samples=n_sample)
         A_exact=np.array(vstate_exact.samples).reshape((n_sample,L))
-        S_exact[i]=S_PCA(A_exact,eps,1,1,True)
+        aux_2=S_PCA_WF(A_exact,eps,1,h,True)
+        aux_1=S_PCA(A_exact,eps,1,h,True)
+        if aux_1>aux_2:
+            S_exact[i]=aux_2
+        else:
+            S_exact[i]=aux_1
+            
         m_exact[i]=M(A_exact,n_sample,L)
         if corr==True:
             s_is_j_exact[i,:]=SiSj(A_exact,n_sample,L)
@@ -237,6 +257,7 @@ def Exact_Calculation_steady(n_sample,n_run,n_mean,L,Nh,dh):
         for i in range(n_mean):
             vstate_exact = nk.vqs.MCState(sampler, EWF(eig_vec=tuple(eig_vecs[:,0])), n_samples=n_sample)
             A_exact=np.array(vstate_exact.samples).reshape((n_sample,L))
+
             S_exact[j,i]=S_PCA(A_exact,eps)
             m_exact[j,i]=M(A_exact,n_sample,L)        
             s_is_j_exact[j,i,:]=SiSj(A_exact,n_sample,L)
