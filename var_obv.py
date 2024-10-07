@@ -10,7 +10,7 @@ import jax
 import flax.linen as nn # What is this?
 from sklearn.decomposition import PCA
 import sys
-from Core_WF import hi,Ham,Exact_Calculation,MF,JasShort,FFN,v_state_steady
+from Core_WF import Ham,Exact_Calculation,MF,JasShort,FFN,v_state_steady
 
 ## Define the parameters
 parameters=sys.argv
@@ -32,6 +32,7 @@ NG=parameters[7]
 n=parameters[8]
 L=N
 dh=(GammaF-Gamma)/(1.0*NG)
+hi=nk.hilbert.Spin(s=1 / 2,N=L)
 
 if each!=False:
     sisj=np.zeros((n_mean,Nh,L-1))
@@ -45,10 +46,10 @@ m=np.zeros((n_mean,NG))
 
 if each==False:
     for j in range(n_mean):
-        m[j,:],En[j,:],S_ent[j,:]=v_state_steady(model[n],n_sample,hi,n_run,L,dh,NG,each) ;
+        m[j,:],En[j,:],S_ent[j,:]=v_state_steady(model[n],n_sample,hi,n_run,L,Gamma,dh,NG,each) ;
 else:
     for j in range(n_mean):
-        sisj[j,:],m[j,:],En[j,:],S_ent[j,:]=v_state_steady(model[n],n_sample,hi,n_run,L,dh,NG,each) ;
+        sisj[j,:],m[j,:],En[j,:],S_ent[j,:]=v_state_steady(model[n],n_sample,hi,n_run,L,Gamma,dh,NG,each) ;
 
 En_error=np.std(En,axis=0)/np.sqrt(n_mean)        
 En=np.mean(En,axis=0)

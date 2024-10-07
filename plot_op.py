@@ -26,12 +26,12 @@ method=["Mean field","Jastrow MF", "Neural Network","Exact"]
 
 
 # Open the files ...
-name="VAR1"+"G"+str(parameters[1])+"GF"+str(parameters[2])+"L"+str(L)+"N_S"+str(n_sample)+"N_M"+str(n_mean)+".txt"
+name="VAR1"+"G"+str(parameters[1])+"GF"+str(parameters[2])+"L"+str(L)+"N_S"+str(n_sample)+"N_M"+str(n_mean)
 data_1=[0 for i in range(4)]
 data_2=[0 for i in range(4)]
 for j in range(4):
-    data_1[j]=pd.read_csv(str(j)+name,delim_whitespace=True)
-    data_2[j]=pd.read_csv(str(j)+name,delim_whitespace=True)
+    data_1[j]=pd.read_csv(str(j)+name+".txt",delim_whitespace=True)
+    data_2[j]=pd.read_csv(str(j)+name+".txt",delim_whitespace=True)
 
     
 for j in range(3):
@@ -59,7 +59,7 @@ axs[1].legend()
 # Adjust layout to prevent overlapping
 plt.tight_layout()
 # Show the plots
-plt.savefig("Energy_vs_Entropy_h.png")
+plt.savefig(name+"ES.png")
 
 fig, axs = plt.subplots(1, 2, figsize=(10, 5))
 # First plot on the right
@@ -80,7 +80,7 @@ axs[1].legend()
 # Adjust layout to prevent overlapping
 plt.tight_layout()
 # Show the plots
-plt.savefig("Error_Energy_vs_Entropy_h.png")
+plt.savefig(name+"ErES.png")
 
 
 

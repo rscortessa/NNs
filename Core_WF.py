@@ -13,29 +13,29 @@ from sklearn.decomposition import PCA
 import random as rn
 
 ## Define the parameters
-parameters=sys.argv
-n_par=len(parameters)
-print(parameters)
-parameters=[int(parameters[x]) for x in range(1,n_par)]
+#parameters=sys.argv
+#n_par=len(parameters)
+#print(parameters)
+#parameters=[int(parameters[x]) for x in range(1,n_par)]
 #...
-print(parameters)
-N=parameters[0]
-Gamma=parameters[1]*(-0.01)
-V=-1.0
-n_sample=parameters[3]
-print(n_sample)
-n_run=parameters[4]
-n_mean=parameters[5]
-each=bool(parameters[6])
-k=parameters[7]
-L=N
+#print(parameters)
+#N=parameters[0]
+#Gamma=parameters[1]*(-0.01)
+#V=-1.0
+#n_sample=parameters[2]
+#print(n_sample)
+#n_run=parameters[3]
+#n_mean=parameters[4]
+#each=bool(parameters[5])
+#k=parameters[6]
+#L=N
 
-hi=nk.hilbert.Spin(s=1 / 2,N=L)
+#hi=nk.hilbert.Spin(s=1 / 2,N=L)
 ## Define the Hamiltonian
 
-def Ham(Gamma,V):
-    H=sum([Gamma*sigmax(hi,i) for i in range(N)])
-    H+=sum([V*sigmaz(hi,i)*sigmaz(hi,(i+1)%N) for i in range(N)])
+def Ham(Gamma,V,L,hi):
+    H=sum([Gamma*sigmax(hi,i) for i in range(L)])
+    H+=sum([V*sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L)])
     return H
 
 def break_sym(eps):
@@ -45,14 +45,14 @@ def break_sym(eps):
 
 
 
-H=Ham(Gamma,V)
-sp_h=H.to_sparse()
-eig_vals, eig_vecs = eigsh(sp_h,k=1,which="SA")
-print("eig vals: ",eig_vals)
+#H=Ham(Gamma,V,L,hi)
+#sp_h=H.to_sparse()
+#eig_vals, eig_vecs = eigsh(sp_h,k=1,which="SA")
+#print("eig vals: ",eig_vals)
 
 
-def change_to_int(x):
-    Aux=jnp.array([2**(N-1-i) for i in range(N)])
+def change_to_int(x,L):
+    Aux=jnp.array([2**(L-1-i) for i in range(L)])
     Z=jnp.array(jnp.mod(1+x,3)/2,int)
     return np.sum(Aux*Z,axis=-1)
 
@@ -71,12 +71,13 @@ class MF(nn.Module):
 
 class EWF(nn.Module):
     eig_vec:tuple
+    L:float
     def setup(self):
         self.aux=jnp.array(self.eig_vec)
         self.j1=self.param("j1", nn.initializers.normal(),(1,),float)
     
     def __call__(self,x):
-        indices = change_to_int(x)
+        indices = change_to_int(x,self.L)
         A = [self.aux[idx] for idx in indices]
         return jnp.log(jnp.array(A))
         
@@ -106,22 +107,26 @@ def min_d(vr,eps):
         if np.abs(vr[i])<eps:
             return i
     
-def S_PCA(D,eps,V,h,exact=False):
+def S_PCA(D,eps,V,h,exact=False,exvar=False):
     pca=PCA()
     lenght=len(D)
-    if np.abs(h)<1.0:
+    if np.abs(h)<1.5:
         D[:int(lenght/2),:]=(-1)*D[:int(lenght/2),:]        
     E=pca.fit(D)
     vr=E.explained_variance_ratio_ 
     Sin=-vr[0:min_d(vr,eps)]*np.log(vr[0:min_d(vr,eps)])
-    return np.sum(Sin)
+    if exvar==False:
+        return np.sum(Sin)
+    else:
+        return np.sum(Sin),vr
+    
 
-def S_PCA_WF(D,eps,V,h,exact=False):
+def S_PCA_WF(D,eps):
     pca=PCA()
     E=pca.fit(D)
     vr=E.explained_variance_ratio_ 
     Sin=-vr[0:min_d(vr,eps)]*np.log(vr[0:min_d(vr,eps)])
-    return np.sum(Sin)
+    return np.sum(Sin),np.array(vr)
 
 def M(D,Nsamples,L):
     return np.sum(D)/(Nsamples*L)
@@ -131,7 +136,7 @@ def SiSj(D,Nsamples,L):
     return np.sum(E,axis=1)/(Nsamples)
 
 
-def v_state(model,n_sample,hi,n_run,L,V,h,each=False):
+def v_state(model,n_sample,hi,n_run,L,V,h,q,H,each=False,var=False):
     sampler = nk.sampler.MetropolisLocal(hi) #Sampler in the Hilbert Space
     vstate= nk.vqs.MCState(sampler,model,n_samples=n_sample) ;
     optimizer= nk.optimizer.Sgd(learning_rate=0.05) ;
@@ -140,38 +145,37 @@ def v_state(model,n_sample,hi,n_run,L,V,h,each=False):
     
     energy_history=np.zeros(n_run)
     S_hist=np.zeros(n_run)
-    m=np.zeros(n_run)
+    Kback=np.zeros(n_run)
     eps=10**(-6)
-    
-    if each==False:
-        s_is_j=np.zeros(L-1)
-        it=0
-            #gs.run(n_iter=1,out=None,show_progress=False) ;
+    it=0
+
+    if var==True:
+        ex_var=np.zeros((n_run,L))
+  
         for step in gs.iter(n_run):
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(H);
-            S_hist[it]=S_PCA(A,eps,V,h)
-            m[it]=M(A,n_sample,L)
+            
+            S_hist[it],ex_var[it,:]=S_PCA(A,eps,V,h,exact=False,exvar=var)
+            Kback[it]=PDF(A,q,L)
             energy_history[it]=E.mean.real
-            it+=1          
-        s_is_j=SiSj(A,n_sample,L)
-    else:
-        s_is_j=np.zeros((n_run,L-1))
-        #for i in range(n_run):
-        it=0
-        for step in gs.iter(n_run):
-            #gs.run(n_iter=1,out=None,show_progress=False) ;
-            A=np.array(vstate.samples).reshape((n_sample,L))
-            E= vstate.expect(H);
-            S_hist[it]=S_PCA(A,eps,V,h)
-            m[it]=M(A,n_sample,L)
-            energy_history[it]=E.mean.real
-            s_is_j[it]=SiSj(A,n_sample,L)
             it+=1
-    return s_is_j,m,energy_history,S_hist
+        return Kback,energy_history,S_hist,ex_var
+    else:
+        for step in gs.iter(n_run):
+            A=np.array(vstate.samples).reshape((n_sample,L))
+            E= vstate.expect(H);
+            S_hist[it]=S_PCA(A,eps,V,h,exact=False,exvar=var)
+            Kback[it]=PDF(A,q,L)
+            energy_history[it]=E.mean.real
+            it+=1
+            
+        return Kback,energy_history,S_hist
 
 
-def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
+
+
+def v_state_steady(model,n_sample,hi,n_run,L,Gamma,dh,Nh,each=False):
     sampler = nk.sampler.MetropolisLocal(hi) #Sampler in the Hilbert Space
     vstate= nk.vqs.MCState(sampler,model,n_samples=n_sample) ;
     optimizer= nk.optimizer.Sgd(learning_rate=0.05) ;
@@ -179,7 +183,7 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
     energy_history=np.zeros(Nh)
     S_hist=np.zeros(Nh)
     m=np.zeros(Nh)
-    Hts=[Ham(Gamma+dh*i,V) for i in range(Nh)]
+    Hts=[Ham(Gamma+dh*i,-1.0,L,hi) for i in range(Nh)]
     gs=nk.driver.VMC(Hts[0], optimizer, variational_state=vstate,preconditioner=nk.optimizer.SR(diag_shift=0.1))
     eps=10**(-6)
     
@@ -189,7 +193,7 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
             gs.advance(n_run) ;
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(Hts[i]);
-            S_hist[i]=S_PCA(A,eps,V,Gamma+dh*i)
+            S_hist[i]=S_PCA(A,eps,-1.0,Gamma+dh*i)
             m[i]=M(A,n_sample,L)
             energy_history[i]=E.mean.real
         return m,energy_history,S_hist
@@ -200,46 +204,31 @@ def v_state_steady(model,n_sample,hi,n_run,L,dh,Nh,each=False):
             gs.advance(n_run);
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(Hts[i]);
-            S_hist[i]=S_PCA(A,eps,V,Gamma+dh*i)
+            S_hist[i]=S_PCA(A,eps,-1.0,Gamma+dh*i)
             m[i]=M(A,n_sample,L)
             energy_history[i]=E.mean.real
             s_is_j[i]=SiSj(A,n_sample,L)
     return s_is_j,m,energy_history,S_hist
 
-def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,h,corr=True):
+def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,hi):
     sampler = nk.sampler.MetropolisLocal(hi)
     eps=10**(-6)
     S_exact=np.zeros((n_mean))
-    m_exact=np.zeros((n_mean))
-    if corr==True:
-        s_is_j_exact=np.zeros((n_mean,L-1))
+    Pv=np.zeros((n_mean,L))
     aux=tuple(eig_st)
-    
-    for i in range(n_mean):
-        vstate_exact = nk.vqs.MCState(sampler, EWF(eig_vec=aux), n_samples=n_sample)
-        A_exact=np.array(vstate_exact.samples).reshape((n_sample,L))
-        aux_2=S_PCA_WF(A_exact,eps,1,h,True)
-        #aux_1=S_PCA(A_exact,eps,1,h,True)
-        #if aux_1>aux_2:
-        #    S_exact[i]=aux_2
-        #else:
-        #    S_exact[i]=aux_1
-        S_exact[i]=aux_2    
-        m_exact[i]=M(A_exact,n_sample,L)
-        if corr==True:
-            s_is_j_exact[i,:]=SiSj(A_exact,n_sample,L)
 
+    for i in range(n_mean):
+        vstate_exact = nk.vqs.MCState(sampler, EWF(eig_vec=aux,L=L), n_samples=n_sample)
+        A_exact=np.array(vstate_exact.samples).reshape((n_sample,L))
+        S_exact[i],Pv[i]=S_PCA_WF(A_exact,eps)
+        
+  
     S_error=np.std(S_exact)/(np.sqrt(n_sample))
     S_exact=np.mean(S_exact)
-    m_error=np.std(m_exact)/(np.sqrt(n_sample))
-    m_exact=np.mean(m_exact)
+    Pv=np.mean(Pv,axis=0)
     
-    if corr==True:
-        var_sisj_exact=np.var(s_is_j_exact,axis=0)
-        s_is_j_exact=np.mean(s_is_j_exact,axis=0)    
-        return S_exact,m_exact,var_sisj_exact,s_is_j_exact
-    else:
-        return S_error,S_exact,m_error,m_exact
+    kback_exact=np.sum(np.array([(x**2)*np.log(x**2) for x in eig_st]))
+    return S_error,S_exact,kback_exact,Pv
                                       
 
 def Exact_Calculation_steady(n_sample,n_run,n_mean,L,Nh,dh):
@@ -249,7 +238,7 @@ def Exact_Calculation_steady(n_sample,n_run,n_mean,L,Nh,dh):
     m_exact=np.zeros((Nh,n_mean))
     s_is_j_exact=np.zeros((Nh,n_mean,L-1))
     eig_vals=np.zeros(Nh)
-    Hts=[Ham(Gamma,V+dh*j) for j in range(Nh)] 
+    Hts=[Ham(Gamma,V+dh*j,L,hi) for j in range(Nh)] 
     for j in range(Nh):
         sp_h=Hts[j].to_sparse()
         eig_vals[j], eig_vecs = eigsh(sp_h,k=1,which="SA")
@@ -270,6 +259,19 @@ def Exact_Calculation_steady(n_sample,n_run,n_mean,L,Nh,dh):
     s_is_j_exact=np.mean(s_is_j_exact,axis=1)
         
     return eig_vals,S_exact,m_exact,var_sisj_exact,s_is_j_exact 
+
+
+def PDF(x,q,L):
+    aux=change_to_int(x,L)
+    aux=np.sort(aux)
+    size=len(aux)
+    aux_1=aux.tolist()
+    aux_2=list(set(aux_1))
+    aux_3=[aux_1.count(xx)/(size*1.0) for xx in aux_2]
+    kback=sum([q[aux_2[ii]]*(np.log(q[aux_2[ii]])-np.log(aux_3[ii])) for ii in range(len(aux_2))])
+    return kback
+
+    
 
 
 

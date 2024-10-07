@@ -1,5 +1,4 @@
 import netket as nk
-import Core_WF
 import numpy as np
 import matplotlib.pyplot as plt
 from netket.operator.spin import sigmax,sigmaz
@@ -11,7 +10,7 @@ import jax
 import flax.linen as nn # What is this?
 from sklearn.decomposition import PCA
 import sys
-from Core_WF import Ham,Exact_Calculation, break_sym
+from oldCore_WF import Ham,Exact_Calculation, break_sym
 
 ## Define the parameters
 parameters=sys.argv
