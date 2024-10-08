@@ -38,6 +38,15 @@ def Ham(Gamma,V,L,hi):
     H+=sum([V*sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L)])
     return H
 
+def Diag(H,eigv=False):
+    sp_h=H.to_sparse()
+    eig_vals, eig_vecs = eigsh(sp_h,k=1,which="SA")
+    if eigv==False:
+        return eig_vecs
+    else:
+        return eig_vals,eig_vecs
+    
+
 def break_sym(eps):
     Vin=sum([rn.random()*eps*sigmaz(hi,i)+rn.random()*eps/2.0*identity(hi) for i in range(N)])
     return Vin
@@ -107,7 +116,7 @@ def min_d(vr,eps):
         if np.abs(vr[i])<eps:
             return i
     
-def S_PCA(D,eps,V,h,exact=False,exvar=False):
+def S_PCA(D,eps,V,h,exvar=False):
     pca=PCA()
     lenght=len(D)
     if np.abs(h)<1.5:
@@ -118,7 +127,7 @@ def S_PCA(D,eps,V,h,exact=False,exvar=False):
     if exvar==False:
         return np.sum(Sin)
     else:
-        return np.sum(Sin),vr
+        return [np.sum(Sin),vr]
     
 
 def S_PCA_WF(D,eps):
@@ -134,6 +143,7 @@ def M(D,Nsamples,L):
 def SiSj(D,Nsamples,L):
     E= np.array([D[:,0]*D[:,i] for i in range(1,L)])
     return np.sum(E,axis=1)/(Nsamples)
+
 
 
 def v_state(model,n_sample,hi,n_run,L,V,h,q,H,each=False,var=False):
@@ -156,7 +166,7 @@ def v_state(model,n_sample,hi,n_run,L,V,h,q,H,each=False,var=False):
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(H);
             
-            S_hist[it],ex_var[it,:]=S_PCA(A,eps,V,h,exact=False,exvar=var)
+            S_hist[it],ex_var[it,:]=S_PCA(A,eps,V,h,exvar=var)
             Kback[it]=PDF(A,q,L)
             energy_history[it]=E.mean.real
             it+=1
@@ -165,7 +175,7 @@ def v_state(model,n_sample,hi,n_run,L,V,h,q,H,each=False,var=False):
         for step in gs.iter(n_run):
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(H);
-            S_hist[it]=S_PCA(A,eps,V,h,exact=False,exvar=var)
+            S_hist[it]=S_PCA(A,eps,V,h,exvar=var)
             Kback[it]=PDF(A,q,L)
             energy_history[it]=E.mean.real
             it+=1
@@ -175,15 +185,16 @@ def v_state(model,n_sample,hi,n_run,L,V,h,q,H,each=False,var=False):
 
 
 
-def v_state_steady(model,n_sample,hi,n_run,L,Gamma,dh,Nh,each=False):
+def v_state_steady(model,n_sample,hi,n_run,L,Gamma,dh,Nh,Hts,Eigvs,each=False,exvar=False):
     sampler = nk.sampler.MetropolisLocal(hi) #Sampler in the Hilbert Space
     vstate= nk.vqs.MCState(sampler,model,n_samples=n_sample) ;
     optimizer= nk.optimizer.Sgd(learning_rate=0.05) ;
     log=nk.logging.RuntimeLog() ;    
     energy_history=np.zeros(Nh)
-    S_hist=np.zeros(Nh)
+    S_hist=[0 for i in range(Nh)]
+    Kback=np.zeros(Nh)
     m=np.zeros(Nh)
-    Hts=[Ham(Gamma+dh*i,-1.0,L,hi) for i in range(Nh)]
+    #Hts=[Ham(Gamma+dh*i,-1.0,L,hi) for i in range(Nh)]
     gs=nk.driver.VMC(Hts[0], optimizer, variational_state=vstate,preconditioner=nk.optimizer.SR(diag_shift=0.1))
     eps=10**(-6)
     
@@ -193,10 +204,12 @@ def v_state_steady(model,n_sample,hi,n_run,L,Gamma,dh,Nh,each=False):
             gs.advance(n_run) ;
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(Hts[i]);
-            S_hist[i]=S_PCA(A,eps,-1.0,Gamma+dh*i)
+            Kback[i]=PDF(A,(Eigvs[i][:,0])**2,L)
+            S_hist[i]=S_PCA(A,eps,-1.0,Gamma+dh*i,exvar)
             m[i]=M(A,n_sample,L)
             energy_history[i]=E.mean.real
-        return m,energy_history,S_hist
+        return m,energy_history,Kback,S_hist
+
     else:
         s_is_j=np.zeros((Nh,L-1))
         for i in range(Nh):
@@ -204,11 +217,14 @@ def v_state_steady(model,n_sample,hi,n_run,L,Gamma,dh,Nh,each=False):
             gs.advance(n_run);
             A=np.array(vstate.samples).reshape((n_sample,L))
             E= vstate.expect(Hts[i]);
-            S_hist[i]=S_PCA(A,eps,-1.0,Gamma+dh*i)
+            Kback[i]=PDF(A,(Eigvs[i][:,0])**2,L)
+            S_hist[i]=S_PCA(A,eps,-1.0,Gamma+dh*i,exvar)
             m[i]=M(A,n_sample,L)
             energy_history[i]=E.mean.real
             s_is_j[i]=SiSj(A,n_sample,L)
-    return s_is_j,m,energy_history,S_hist
+    return s_is_j,m,energy_history,Kback,S_hist
+
+
 
 def Exact_Calculation(n_sample,n_run,n_mean,L,eig_st,hi):
     sampler = nk.sampler.MetropolisLocal(hi)
