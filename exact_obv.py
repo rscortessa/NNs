@@ -34,14 +34,14 @@ eps=10**(-4)
 
 name="3VAR1"+"G"+str(parameters[1])+"GF"+str(parameters[2])+"L"+str(L)+"N_S"+str(n_sample)+"N_M"+str(n_mean)
 file=open(name+".txt","w")
-file.write("G"+"\t"+" dE"+"\t"+" E"+"\t"+" dS"+"\t"+" S"+"\t"+" Kb"+"\n")
+file.write("G"+"\t"+" dE"+"\t"+" E"+"\t"+" dS"+"\t"+" S"+"\t"+" Kb"+"\t "+"dI"+" \t"+" I"+"\n")
 hi=nk.hilbert.Spin(s=1 / 2,N=L)
 for gg in range(NG):
     Gnew=Gamma+(GammaF-Gamma)/(NG)*gg
     H=Ham(Gnew,V,L,hi)
     sp_h=H.to_sparse()
     eig_vals, eig_vecs = eigsh(sp_h,k=2,which="SA")
-    S_error,S_exact,kback_exact,pv=Exact_Calculation(8192*2,n_run,n_mean,L,np.abs(eig_vecs[:,0]),hi)
-    file.write(str(Gnew)+"\t"+str(0)+"\t"+str(eig_vals[0])+"\t"+str(S_error)+"\t"+str(S_exact)+"\t"+str(kback_exact)+"\n")
+    I_d_error,I_d,S_error,S_exact,kback_exact,pv=Exact_Calculation(8192*2,n_run,n_mean,L,np.abs(eig_vecs[:,0]),hi)
+    file.write(str(Gnew)+"\t"+str(0)+"\t"+str(eig_vals[0])+"\t"+str(S_error)+"\t"+str(S_exact)+"\t"+str(kback_exact)+"\t"+str(I_d_error)+" \t"+str(I_d)+"\n")
 
 
