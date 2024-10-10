@@ -74,7 +74,7 @@ En_error=np.std(En,axis=0)/np.sqrt(n_mean)
 En=np.mean(En,axis=0)
 S_error=np.std(S_ent,axis=0)/np.sqrt(n_mean)
 S_ent=np.mean(S_ent,axis=0)
-I_d_error=np.std(I_d,axis=0)
+I_d_error=np.std(I_d,axis=0)/np.sqrt(n_mean)
 I_d=np.mean(I_d,axis=0)
 
 Kb_error=np.std(Kback,axis=0)/np.sqrt(n_mean)
