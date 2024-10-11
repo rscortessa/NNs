@@ -11,6 +11,9 @@ import flax.linen as nn # What is this?
 from sklearn.decomposition import PCA
 import sys
 from Core_WF import Ham,Exact_Calculation,MF,JasShort,FFN,v_state_steady,Diag
+import os
+
+
 
 ## Define the parameters
 parameters=sys.argv

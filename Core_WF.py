@@ -144,7 +144,7 @@ def Id(data,eps,h=2.0):
     LL=len(data[0,:])
     if np.abs(h)<1.5:
         data[:int(lenght/2),:]=(-1)*data[:int(lenght/2),:]
-    data=np.vstack((data,np.random.rand(LL)))
+    data=np.column_stack((data,np.random.rand(LL)))
     nbrs = NearestNeighbors(n_neighbors=3, algorithm='auto').fit(data)
     distances, indices = nbrs.kneighbors(data)
     Nele=distances.shape[0]
@@ -224,7 +224,7 @@ def v_state_steady(model,n_sample,hi,n_run,L,Gamma,dh,Nh,Hts,each=False,exvar=Fa
             E= vstate.expect(Hts[i]);
             Kback[i,:]=PDF_aux(A,L)
             S_hist[i]=S_PCA(A,eps,-1.0,Gamma+dh*i,exvar)
-            I_d[i]=Id(np.array(vstate.samples).reshape((n_sample,L)),eps,h)
+            I_d[i]=Id(np.array(vstate.samples).reshape((n_sample,L)),eps,1.0)
             m[i]=M(A,n_sample,L)
             energy_history[i]=E.mean.real
         return m,I_d,energy_history,Kback,S_hist
