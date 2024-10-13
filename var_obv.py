@@ -80,19 +80,28 @@ S_ent=np.mean(S_ent,axis=0)
 I_d_error=np.std(I_d,axis=0)/np.sqrt(n_mean)
 I_d=np.mean(I_d,axis=0)
 
-Kb_error=np.std(Kback,axis=0)/np.sqrt(n_mean)
+aux=np.mean(Kback,axis=0)
+aux[aux==0]=1
+Kb_error=np.sum(np.std(Kback,axis=0)/(np.sqrt(n_mean)*aux),axis=1)
 Kb=np.mean(Kback,axis=0)
 
 print(type(Eigvs),type(Kb))
 print(Eigvs.shape,Kb.shape)
 
-eps=10**(-6)
-Kb[Kb<eps]=1
-#aux=np.log(Kb)
-#aux[np.isnan(aux)]=0
-Eigvs[Eigvs<eps]=1
-Kb=np.matmul(np.log(Eigvs**2)-Kb,(Eigvs**2).T)
+eps=10**(-3)
+print(Kb)
+#Kb[Kb<eps]=1
+print(Eigvs**2)
+aux=Eigvs
+aux_Kb=Kb
+aux[Eigvs<eps]=1
+aux_Kb[Kb<eps]=1
+aux_Kb[Eigvs<eps]=1
 
+Kb=np.matmul(np.log(aux**2)-np.log(Kb),(Eigvs**2).T)
+
+
+print(Kb.shape)
 if exvar==True:
     vars=np.mean(vars,axis=0)
 
@@ -115,7 +124,7 @@ if each!=False:
 
 for gg in range(NG):
     Gnew=Gamma+(GammaF-Gamma)/(NG)*gg
-    file.write(str(Gnew)+"\t"+str(En_error[gg])+"\t"+str(En[gg])+"\t"+str(S_error[gg])+"\t"+str(S_ent[gg])+"\t"+str(m_error[gg])+"\t"+str(m[gg])+"\t"+str(Kb_error[gg])+"\t"+str(Kb[gg])+"\t"+str(I_d_error[gg])+"\t"+str(I_d[gg])+"\n")
+    file.write(str(Gnew)+"\t"+str(En_error[gg])+"\t"+str(En[gg])+"\t"+str(S_error[gg])+"\t"+str(S_ent[gg])+"\t"+str(m_error[gg])+"\t"+str(m[gg])+"\t"+str(Kb_error[gg])+"\t"+str(Kb[gg,gg])+"\t"+str(I_d_error[gg])+"\t"+str(I_d[gg])+"\n")
     if each!=False:
         for jj in range(L-1):
             file2.write(s_is_j[gg,jj]+"\t")

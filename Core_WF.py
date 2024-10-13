@@ -141,10 +141,9 @@ def S_PCA_WF(D,eps):
 
 def Id(data,eps,h=2.0):
     lenght=len(data)
-    LL=len(data[0,:])
     if np.abs(h)<1.5:
         data[:int(lenght/2),:]=(-1)*data[:int(lenght/2),:]
-    data=np.column_stack((data,np.random.rand(LL)))
+    data=np.column_stack((data,np.random.rand(lenght)))
     nbrs = NearestNeighbors(n_neighbors=3, algorithm='auto').fit(data)
     distances, indices = nbrs.kneighbors(data)
     Nele=distances.shape[0]
@@ -152,8 +151,9 @@ def Id(data,eps,h=2.0):
     aux[np.isnan(aux)]=1.0
     aux[np.isinf(aux)]=1.0
     aux[aux<eps]=1.0
-    print(aux)
+    
     dim=Nele/(np.sum(np.log(aux)))
+    print(dim)
     return dim
 
 def M(D,Nsamples,L):
