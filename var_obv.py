@@ -85,8 +85,8 @@ aux[aux==0]=1
 Kb_error=np.sum(np.std(Kback,axis=0)/(np.sqrt(n_mean)*aux),axis=1)
 Kb=np.mean(Kback,axis=0)
 
-print(type(Eigvs),type(Kb))
-print(Eigvs.shape,Kb.shape)
+#print(type(Eigvs),type(Kb))
+#print(Eigvs.shape,Kb.shape)
 
 eps=10**(-3)
 print(Kb)

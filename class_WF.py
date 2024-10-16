@@ -28,6 +28,13 @@ def Ham(Gamma,V,L,hi):
     H+=sum([V*sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L)])                                                                      
     return H    
 
+def Ham_W(Gamma,V,L,W,hi):
+    H=sum([Gamma*sigmax(hi,i%L+int(i/L)*L) for i in range(L*W)])
+    H+=sum([V*(sigmaz(hi,i%L+int(i/L)*L)*sigmaz(hi,(i+1)%L+int(i/L)*L)+sigmaz(hi,i%L+int(i/L)*L)*sigmaz(hi,i%L+((int(i/L)+1)%W)*L)) for i in range(L*W)])
+    return H
+
+
+
 def Diag(H,eigv=False):
     sp_h=H.to_sparse()
     eig_vals, eig_vecs = eigsh(sp_h,k=1,which="SA")
