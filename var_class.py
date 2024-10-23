@@ -11,6 +11,12 @@ eps=10**(-8)
 dx=0.01
 V=-1.0
 n_between=200
+cutoff=2**L
+t1=1
+t2=5
+
+
+
 ## ALMOST CONSTANTS
 n_neurons=1
 n_layers=1
@@ -44,8 +50,8 @@ model=methods[n_method]
 #INSERT PUBLISHER DETAILS AND INITIALIZE IT
 
 if n_method==2:
-    name_var=["M","L","NS","NR","G","GF","NN","NL"]
-    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2],n_neurons,n_layers]
+    name_var=["M","L","NS","NR","G","GF","t1","t2","NN","NL"]
+    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2],t1,t2,n_neurons,n_layers]
 else:
     name_var=["M","L","NS","NR","G","GF"]
     var=[n_method,L,n_samples,n_run,parameters[1],parameters[2]]    
@@ -80,7 +86,7 @@ for gg in range(NG):
 
         aux[hh,0]=E_WF.compute_PCA(eps,A=A)
         aux[hh,1]=E_WF.compute_E()
-        aux[hh,2]=E_WF.compute_ID(eps,A=A)
+        aux[hh,2]=E_WF.compute_3ID(t1,t2,cutoff,eps,A=A)
 
         E_WF.advance(n_between)
         

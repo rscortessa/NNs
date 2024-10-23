@@ -17,6 +17,8 @@ from sklearn.decomposition import PCA
 import random as rn                                                                                                                   
 from math import log,sqrt,pow,exp,lgamma,pi                                                                                           
 from sklearn.neighbors import NearestNeighbors
+from TId import sets,neighbors,n_points,Volume_ratio,func,roots
+
 
 def min_d(vr,eps):
     for i in range(len(vr)):
@@ -30,7 +32,7 @@ def Ham(Gamma,V,L,hi):
 
 def Ham_W(Gamma,V,L,W,hi):
     H=sum([Gamma*sigmax(hi,i%L+int(i/L)*L) for i in range(L*W)])
-    H+=sum([V*(sigmaz(hi,i%L+int(i/L)*L)*sigmaz(hi,(i+1)%L+int(i/L)*L)+sigmaz(hi,i%L+int(i/L)*L)*sigmaz(hi,i%L+((int(i/L)+1)%W)*L)) for i in range(L*W)])
+    H+=sum([V*(sigmaz(hi,i%L+int(i/L)*L)*sigmaz(hi,(i+1)%L+int(i/L)*L)+(W>1)*sigmaz(hi,i%L+int(i/L)*L)*sigmaz(hi,i%L+((int(i/L)+1)%W)*L)) for i in range(L*W)])
     return H
 
 
@@ -67,7 +69,10 @@ def Id(data,eps):
     aux[aux<eps]=1.0                                                                                                                                                                                                                                      
     dim=Nele/(np.sum(np.log(aux)))                                                                                                                                                                                    
     return dim   
-        
+
+
+
+
 class WF:
     L:int
     N_sample:int
@@ -108,10 +113,28 @@ class WF:
         if A is None:
             A=self.sampling()
         return Id(A,eps)
+    
+    def compute_3ID(self,t1,t2,cutoff,eps,A=None,neigh=None,weights=None,states=None):
+        if A is None:
+            A=self.sampling()
+        if  weights or states is None:
+            states,weights=sets(A)
+        if neigh is None:
+            neigh=neighbors(states)
+            
+        V=Volume_ratio(neigh,weights,t1,t2)
+        min=roots(V,cutoff,100,eps,func,t1,t2)
+        Ymin=func(min,t1,t2)-V
+       
+        return min,Ymin,V
+        
     def compute_E(self):
         E=self.user_state.expect(self.H)
         return E.mean.real
 
+
+
+    
 class publisher:
     filename:str
     variables:list

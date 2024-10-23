@@ -11,6 +11,10 @@ eps=10**(-8)
 dx=0.01
 V=-1.0
 n_method=3
+cutoff=2**L
+t1=1
+t2=5
+
 
 ## PARAMETERS
 parameters=sys.argv
@@ -26,8 +30,8 @@ n_mean=parameters[5]
 NG=parameters[6]
 
 #INSERT PUBLISHER DETAILS AND INITIALIZE IT
-name_var=["M","L","NS","NR","G","GF"]
-var=[n_method,L,n_samples,n_run,parameters[1],parameters[2]]
+name_var=["M","L","NS","NR","G","GF","t1","t2"]
+var=[n_method,L,n_samples,n_run,parameters[1],parameters[2],t1,t2]
 variables=["S","E","Id"]
 pub=class_WF.publisher(name_var,var,variables)
 pub.create()
@@ -53,7 +57,7 @@ for gg in range(NG):
         A=E_WF.sampling()
         aux[hh,0]=E_WF.compute_PCA(eps,A=A)
         aux[hh,1]=E_WF.compute_E()
-        aux[hh,2]=E_WF.compute_ID(eps,A=A)
+        aux[hh,2]=E_WF.compute_3ID(t1,t2,cutoff,eps,A=A)
     
     dS=np.std(aux[:,0])/np.sqrt(n_samples)
     S=np.mean(aux[:,0])
