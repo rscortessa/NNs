@@ -88,11 +88,7 @@ for hh in range(n_mean):
 SD=[]
 dSD=[]
 for i in range(tmax):
-
-    dSD.append(np.std(aux[:,i])/np.sqrt(n_mean))
-    SD.append(np.mean(aux[:,i]))
-    
-pub.write([dSD,SD])
+    pub.write([np.std(aux[:,i])/np.sqrt(n_mean),np.mean(aux[:,i])])
 
 pub.close()
 
