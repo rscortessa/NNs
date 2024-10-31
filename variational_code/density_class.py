@@ -85,9 +85,13 @@ for hh in range(n_mean):
 
     E_WF.advance(n_between)    
 
-dD=np.std(aux[:,0])/np.sqrt(n_mean)
-D=np.mean(aux[:,0])
-pub.write([dD,D])
+SD=[]
+for i in range(tmax):
+
+    SD.append(np.std(aux[:,i])/np.sqrt(n_mean))
+    SD.append(np.mean(aux[:,i]))
+    
+pub.write([SD])
 
 pub.close()
 
