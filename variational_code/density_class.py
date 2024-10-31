@@ -86,12 +86,13 @@ for hh in range(n_mean):
     E_WF.advance(n_between)    
 
 SD=[]
+dSD=[]
 for i in range(tmax):
 
-    SD.append(np.std(aux[:,i])/np.sqrt(n_mean))
+    dSD.append(np.std(aux[:,i])/np.sqrt(n_mean))
     SD.append(np.mean(aux[:,i]))
     
-pub.write(SD)
+pub.write([dSD,SD])
 
 pub.close()
 
