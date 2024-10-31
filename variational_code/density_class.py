@@ -91,7 +91,7 @@ for i in range(tmax):
     SD.append(np.std(aux[:,i])/np.sqrt(n_mean))
     SD.append(np.mean(aux[:,i]))
     
-pub.write([SD])
+pub.write(SD)
 
 pub.close()
 
