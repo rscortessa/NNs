@@ -1,1 +1,1 @@
-import variational_code.density_class
+import variational_code.dataset_class

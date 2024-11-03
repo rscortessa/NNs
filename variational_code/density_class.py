@@ -43,6 +43,15 @@ if n_method==2:
 
 methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers)]
 
+#INITIALIZE OBJECTS
+hi=nk.hilbert.Spin(s=1 / 2,N=L)
+H=class_WF.Ham(Gamma,V,L,hi)
+
+if n_method==3:
+    eig_vecs=class_WF.Diag(H)
+    methods.append(var_nk.EWF(eig_vec=tuple(np.abs(eig_vecs[:,0])),L=L))
+
+
 cutoff=2**L
 
 model=methods[n_method]
@@ -62,15 +71,13 @@ variables=["D"]
 pub=class_WF.publisher(name_var,var,variables)
 pub.create()
 
-#INITIALIZE OBJECTS
-hi=nk.hilbert.Spin(s=1 / 2,N=L)
-H=class_WF.Ham(Gamma,V,L,hi)
-eig_vecs=class_WF.Diag(H)
 E_WF=class_WF.WF(L,model,H,n_samples)
+
 aux=np.zeros((n_mean,tmax))
 
 #ITERATION OVER THE GAMMA VALUES:
-E_WF.advance(n_run)
+if n_method!=3:
+    E_WF.advance(n_run)
     
 for hh in range(n_mean):
     
@@ -82,9 +89,11 @@ for hh in range(n_mean):
         B,W=TId.sets(A)
         C=TId.neighbors(B)
         aux[hh,gg]=np.mean(TId.n_points(C,W,gg))
-
-    E_WF.advance(n_between)    
-
+    if n_method !=3:
+        E_WF.advance(n_between)    
+    else:
+        E_state=nk.vqs.MCState(E_WF.user_sampler,model,n_samples=n_samples)
+        E_WF.change_state(E_state)
 SD=[]
 dSD=[]
 for i in range(tmax):

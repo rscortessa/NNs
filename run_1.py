@@ -1,0 +1,1 @@
+import variational_code.stochastic_density_class
