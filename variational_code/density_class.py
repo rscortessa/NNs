@@ -61,11 +61,11 @@ model=methods[n_method]
 #INSERT PUBLISHER DETAILS AND INITIALIZE IT
 
 if n_method==2:
-    name_var=["M","L","NS","NR","G","GF","t1","t2","NN","NL"]
-    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2],t1,t2,n_neurons,n_layers]
+    name_var=["M","L","NS","NR","G","tmax","NN","NL"]
+    var=[n_method,L,n_samples,n_run,parameters[1],tmax,n_neurons,n_layers]
 else:
-    name_var=["M","L","NS","NR","G","GF"]
-    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2]]    
+    name_var=["M","L","NS","NR","G","tmax"]
+    var=[n_method,L,n_samples,n_run,parameters[1],tmax]    
     
 variables=["D"]
 pub=class_WF.publisher(name_var,var,variables)
