@@ -30,10 +30,27 @@ def Ham(Gamma,V,L,hi):
     H+=sum([V*sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L)])                                                                      
     return H    
 
+
+
 def Ham_W(Gamma,V,L,W,hi):
     H=sum([Gamma*sigmax(hi,i%L+int(i/L)*L) for i in range(L*W)])
     H+=sum([V*(sigmaz(hi,i%L+int(i/L)*L)*sigmaz(hi,(i+1)%L+int(i/L)*L)+(W>1)*sigmaz(hi,i%L+int(i/L)*L)*sigmaz(hi,i%L+((int(i/L)+1)%W)*L)) for i in range(L*W)])
     return H
+
+def Ham_PBC(Gamma,V,L,W,hi):
+    A=[L,W]
+    if W<=1:
+        A=[L]
+    graph=nk.graph.Grid(extent=A,pbc=True)
+    H=sum([Gamma*sigmax(hi,i) for i in range(L*W)])
+    H+=sum([V*sigmaz(hi,i)*sigmaz(hi,j) for (i,j) in graph.edges()])
+    return H
+
+def Ham_PBC_XYZ(Gamma):
+    graph=nk.graph.Grid(extent=[L,W],pbc=True)
+    H=sum([Gamma*(sigmaz(hi,i)*sigmaz(hi,j)+sigmax(hi,i)*sigmax(hi,j)+sigmay(hi,i)*sigmay(hi,j)) for (i,j) in graph.edges()])
+    return H
+
 
 
 
