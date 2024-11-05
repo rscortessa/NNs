@@ -11,7 +11,7 @@ eps=10**(-8)
 dx=0.01
 V=-1.0
 n_between=200
-cutoff=2**L
+
 t1=1
 t2=5
 
@@ -35,28 +35,36 @@ n_run=parameters[4]
 n_mean=parameters[5]
 NG=parameters[6]
 n_method=parameters[7]
-
-if n_method==2:
+try:
     n_neurons=parameters[8]
     n_layers=parameters[9]
+except:
+    print("no additional parameters")
 
-methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers)]
-
+cutoff=2**L
     
+name_var=["M","L","NS","NR","G","GF","NN","NL"]
+var=[n_method,L,n_samples,n_run,parameters[1],parameters[2],n_neurons,n_layers]
+print(len(name_var),parameters)
+name_var=name_var[:n_par-1]
+var=var[:n_par-1]
+
+methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons)]
 model=methods[n_method]
+
 
 
 
 #INSERT PUBLISHER DETAILS AND INITIALIZE IT
 
-if n_method==2:
-    name_var=["M","L","NS","NR","G","GF","t1","t2","NN","NL"]
-    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2],t1,t2,n_neurons,n_layers]
-else:
-    name_var=["M","L","NS","NR","G","GF"]
-    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2]]    
+#if n_method==2:
+#    name_var=["M","L","NS","NR","G","GF","t1","t2","NN","NL"]
+#    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2],t1,t2,n_neurons,n_layers]
+#else:
+#    name_var=["M","L","NS","NR","G","GF"]
+#    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2]]    
     
-variables=["S","E","Id"]
+variables=["S","E"]
 pub=class_WF.publisher(name_var,var,variables)
 pub.create()
 
@@ -74,7 +82,7 @@ for gg in range(NG):
     H=class_WF.Ham(G,-1.0,L,hi)
     sampler=nk.sampler.MetropolisLocal(hi)
     E_WF.change_H(H)
-    aux=np.zeros((n_mean,3))
+    aux=np.zeros((n_mean,2))
     
     for hh in range(n_mean):
 
@@ -86,7 +94,7 @@ for gg in range(NG):
 
         aux[hh,0]=E_WF.compute_PCA(eps,A=A)
         aux[hh,1]=E_WF.compute_E()
-        aux[hh,2]=E_WF.compute_3ID(t1,t2,cutoff,eps,A=A)
+        #aux[hh,2]=E_WF.compute_3ID(t1,t2,cutoff,eps,A=A)
 
         E_WF.advance(n_between)
         
@@ -94,9 +102,9 @@ for gg in range(NG):
     S=np.mean(aux[:,0])
     dE=np.std(aux[:,1])/np.sqrt(n_mean)
     E=np.mean(aux[:,1])
-    dID=np.std(aux[:,2])/np.sqrt(n_mean)
-    ID=np.mean(aux[:,2])
-    pub.write([dS,S,dE,E,dID,ID])
+    #dID=np.std(aux[:,2])/np.sqrt(n_mean)
+    #ID=np.mean(aux[:,2])
+    pub.write([dS,S,dE,E])
 
 pub.close()
 
