@@ -51,7 +51,7 @@ function sample_mps_to_file(psi::MPS, filename::String, N::Int)
     println("Sampling complete. Configurations saved to $filename")
 end
 
-filename = "DATAXYZM5L" * ARGS[1] * "NS" * ARGS[2] * "MPSG" * ARGS[1]* ".txt"  # Output file to store configurations
+filename = "DATAXYZM5L" * ARGS[1] * "NS" * ARGS[3] * "MPSG" * ARGS[2]* ".txt"  # Output file to store configurations
 
 # Call the function to sample and save to the file
 sample_mps_to_file(psi, filename, NS)
