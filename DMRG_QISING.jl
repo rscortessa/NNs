@@ -3,19 +3,28 @@ using ITensors, ITensorMPS
 let
   # Define number of spins and create spin-one indices
   N = parse(Int,ARGS[1])
-  h = parse(Float64,ARGS[2])
-  NS = parse(Int,ARGS[3])
-  sites = siteinds("S=1/2", N)
+  W = parse(Int,ARGS[2])
+  h = parse(Float64,ARGS[3])
+  NS = parse(Int,ARGS[4])
+  sites = siteinds("S=1/2", N*W)
 
   # Define the Hamiltonian for the 1D Heisenberg model
   os = OpSum()
-  for j = 1:N-1
-    os += -1.0,"Sz", j, "Sz", j+1
-    os += -h/100, "Sx", j
+  if W>1
+   for i = 0:W-1
+     for j = 0:N-1
+      os += -4.0,"Sz",j+1+i*W, "Sz",(j+1)%N+1+i*N
+      os += -4.0,"Sz",j+1+i*W, "Sz",j+1+((i+1)%W)*N
+      os += -h*0.02, "Sx", j+1+i*W
+     end
+   end
+  else
+   for j = 0:N-1
+     os += -4.0,"Sz",j+1, "Sz",(j+1)%N+1
+     os += -h*0.02, "Sx",j+1
+   end
   end
-  os += -1,0, "Sz", N, "Sz",1
-  os += -h/100, "Sx",N
-    
+  
   H = MPO(os, sites)
 
   # Initialize a random MPS
