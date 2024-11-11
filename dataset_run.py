@@ -1,1 +1,1 @@
-import variational_code.dataset_MPS
+import variational_code.dataset_class
