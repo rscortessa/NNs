@@ -51,28 +51,25 @@ name_var=name_var[:n_par-1]
 var=var[:n_par-1]
 
 methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons),var_nk.SymmModel(alpha=n_neurons,layers=n_layers,L=L,W=W)]
+
+#INITIALIZE OBJECTS
+hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
+H=class_WF.Ham_PBC(Gamma,V,L,W,hi)
+
+#CONDITION IF EXACT
+if n_method==5:
+    eig_vecs=class_WF.Diag(H)
+    methods.append(var_nk.EWF(eig_vec=tuple(np.abs(eig_vecs[:,0])),L=L*W))
+
 model=methods[n_method]
-
-
-
+E_WF=class_WF.WF(L*W,model,H,n_samples)
 
 #INSERT PUBLISHER DETAILS AND INITIALIZE IT
-
-#if n_method==2:
-#    name_var=["M","L","NS","NR","G","GF","t1","t2","NN","NL"]
-#    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2],t1,t2,n_neurons,n_layers]
-#else:
-#    name_var=["M","L","NS","NR","G","GF"]
-#    var=[n_method,L,n_samples,n_run,parameters[1],parameters[2]]    
     
 variables=["S","E"]
 pub=class_WF.publisher(name_var,var,variables)
 pub.create()
 
-#INITIALIZE OBJECTS
-hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
-H=class_WF.Ham_PBC(Gamma,V,L,W,hi)
-E_WF=class_WF.WF(L*W,model,H,n_samples)
 
 #ITERATION OVER THE GAMMA VALUES:
 
@@ -86,8 +83,9 @@ for gg in range(NG):
     aux=np.zeros((n_mean,2))
     
     for hh in range(n_mean):
-
-        E_WF.advance(n_run)
+        
+        if n_method != 5:
+            E_WF.advance(n_run)
         A=E_WF.sampling()
         if n_method==0 or n_method==2:
             lenght=len(A)
@@ -96,8 +94,8 @@ for gg in range(NG):
         aux[hh,0]=E_WF.compute_PCA(eps,A=A)
         aux[hh,1]=E_WF.compute_E()
         #aux[hh,2]=E_WF.compute_3ID(t1,t2,cutoff,eps,A=A)
-
-        E_WF.advance(n_between)
+        if n_method!=5:
+            E_WF.advance(n_between)
         
     dS=np.std(aux[:,0])/np.sqrt(n_mean)
     S=np.mean(aux[:,0])

@@ -15,7 +15,8 @@ dx=0.01
 V=-1.0
 n_between=200
 rng=np.random.default_rng()
-
+n_neurons=1
+n_layers=1
 
 ## PARAMETERS
 parameters=sys.argv
@@ -36,11 +37,11 @@ if n_method==2:
     n_neurons=parameters[9]
     n_layers=parameters[10]
 
-methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers)]
+#methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers)]
 
 cutoff=2**L
 
-model=methods[n_method]
+#model=methods[n_method]
 
 
 
