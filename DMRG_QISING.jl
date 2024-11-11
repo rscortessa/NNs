@@ -7,7 +7,7 @@ let
   h = parse(Float64,ARGS[3])
   NS = parse(Int,ARGS[4])
   sites = siteinds("S=1/2", N*W)
-
+  println("L=$N","W=$W","G=$h","NS=$NS")
   # Define the Hamiltonian for the 1D Heisenberg model
   os = OpSum()
   if W>1
@@ -57,7 +57,7 @@ function sample_mps_to_file(psi::MPS, filename::String, N::Int)
     println("Sampling complete. Configurations saved to $filename")
 end
 
-filename = "DATAM5L" * ARGS[1] * "NS" * ARGS[3] * "MPSG" * ARGS[2]* ".txt"  # Output file to store configurations
+filename = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3]* ".txt"  # Output file to store configurations
 
 # Call the function to sample and save to the file
 sample_mps_to_file(psi, filename, NS)
