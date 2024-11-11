@@ -4,6 +4,7 @@ import flax
 import jax
 import flax.linen as nn
 import numpy as np
+import netket.nn as nknn
 
 def change_to_int(x,L):
     Aux=jnp.array([2**(L-1-i) for i in range(L)])
@@ -52,3 +53,27 @@ class FFN(nn.Module):
             aux = nn.relu(aux_1)
         y=aux
         return jnp.sum(y, axis=-1)
+
+class SymmModel(nn.Module):
+    alpha : int = 1
+    layers : int = 1
+    L : int = 1
+    W : int = 1
+    @nn.compact
+    
+    def __call__(self, x):
+        aux=x.reshape(-1,1,x.shape[-1])
+        
+        for i in range(self.layers):
+            if self.W <= 1:
+                A=[self.L]
+            else:
+                A=[self.L,self.W]
+            graph=nk.graph.Grid(extent=A,pbc=True)
+            aux_1 = nknn.DenseSymm(symmetries=graph.translation_group(),features=self.alpha,kernel_init=nn.initializers.normal(stddev=0.01))(aux)
+            aux = nn.relu(aux_1)
+        y=aux
+        
+        return jnp.sum(y, axis=(-1,-2))
+    
+    
