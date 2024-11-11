@@ -42,11 +42,8 @@ file.astype(float)
 #ITERATION OVER THE GAMMA VALUES:
 
 A=np.array(file)
-
-if n_method==0 or n_method==2:
-    lenght=len(A)
-    A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
-
+lenght=len(A)
+A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
 B,W=TId.sets(A)
 
 
