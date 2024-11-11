@@ -82,8 +82,7 @@ for gg in range(NG):
     E_WF.change_H(H)
     aux=np.zeros((n_mean,2))
     
-    for hh in range(n_mean):
-        
+    for hh in range(n_mean):        
         if n_method != 5:
             E_WF.advance(n_run)
         A=E_WF.sampling()
@@ -96,7 +95,12 @@ for gg in range(NG):
         #aux[hh,2]=E_WF.compute_3ID(t1,t2,cutoff,eps,A=A)
         if n_method!=5:
             E_WF.advance(n_between)
-        
+        else:
+            eig_vecs=class_WF.Diag(H)
+            model=var_nk.EWF(eig_vec=tuple(np.abs(eig_vecs[:,0])),L=L*W)
+            AA=nk.vqs.MCState(E_WF.user_sampler,model,n_samples=n_samples)
+            E_WF.change_state(AA)
+
     dS=np.std(aux[:,0])/np.sqrt(n_mean)
     S=np.mean(aux[:,0])
     dE=np.std(aux[:,1])/np.sqrt(n_mean)
