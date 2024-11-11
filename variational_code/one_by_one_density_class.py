@@ -12,11 +12,24 @@ import sys
 ## CONSTANTS
 eps=10**(-8)
 dx=0.01
-V=-1.0
-n_between=200
 rng=np.random.default_rng()
-n_neurons=1
-n_layers=1
+
+## FUNCTIONS
+
+def finder(A,ns):
+    lth=len(A)
+    i=0
+    while np.sum(A[i]==1)!=ns and i<lth:
+        i=i+1
+    return i if i<lth else lth+1
+
+def finder_string(A,ns):
+    lth=len(A)
+    return [ i for i in range(lth) if np.sum(A[i]==1)==ns or len(A[i])-np.sum(A[i]==1)==ns]
+
+ 
+
+
 
 ## PARAMETERS
 parameters=sys.argv
@@ -28,21 +41,12 @@ Gamma=parameters[1]*(-dx)
 tmax=parameters[2]
 n_samples=parameters[3]
 n_run=parameters[4]
-n_rep=parameters[5]
-neff_sample=parameters[6]
-n_max=parameters[7]
-n_method=parameters[8]
+n_max=int(parameters[5])
+n_method=parameters[6]
 
 if n_method==2:
-    n_neurons=parameters[9]
-    n_layers=parameters[10]
-
-#methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers)]
-
-cutoff=2**L
-
-#model=methods[n_method]
-
+    n_neurons=parameters[7]
+    n_layers=parameters[8]
 
 
 #INSERT PUBLISHER DETAILS AND INITIALIZE IT
@@ -53,59 +57,54 @@ if n_method==2:
 else:
     name_var=["M","L","NS","NR","G"]
     var=[n_method,L,n_samples,n_run,parameters[1]]    
+    
 
 name="DATA"    
 for i in range(len(var)):
     name+=name_var[i]+str(var[i])
 name+=".txt"
-
 name_var.append("NMAX")
 var.append(n_max)
-variables=["D"]
+print(var,name_var)
 
-pub=class_WF.publisher(name_var,var,variables)
+pub=class_WF.publisher(name_var,var,[])
 pub.create()
-
-
-
-
-
-
 file=pd.read_csv(name,delim_whitespace=True,dtype="a")
-file=file.astype(float)
+file.astype(float)
 size=len(file)
+
 A=np.zeros((size,L))
 W=np.zeros(size)
 Wacc=np.zeros(size)
+
 for ii in range(size):
+    w_min=float(file.iloc[ii][L])
     A[ii]=np.array(file.iloc[ii][0:L])
-    W[ii]=file.iloc[ii][L]
+    W[ii]=w_min
     Wacc[ii]=file.iloc[ii][L+1]
 
+Sts=[]
+#for jj in range(n_max):
+#    jj_aux=finder(A,jj)
+#    if jj_aux!=len(A)+1:
+#        Sts.append(jj_aux)
+for jj in range(n_max):
+    jj_aux=finder_string(A,jj)
+    if len(jj_aux)>=1:
+        Sts.append(jj_aux)
+        
 C=TId.neighbors(A)
 
-aux=np.zeros((n_rep,tmax))
+aux=[None for i in range(len(C))]
+
+pub.write([ "S"+str(x) for x in range(len(Sts))])
 
 for jj in range(tmax):
-    for ii in range(n_rep):
-        W_aux=np.zeros(size)
-        Ns=rng.integers(low=0,high=n_samples,size=neff_sample)
-        
-        for Number in Ns:
-            i=0
-            while Wacc[i]<Number:
-                i+=1
-            W_aux[i]=(W_aux[i]+1)%(n_max+1)
-        aux[ii,jj]=np.mean(TId.n_points(C,W_aux,jj))
-
-
-dD=np.std(aux,axis=0)/np.sqrt(n_rep)
-D=np.mean(aux,axis=0)
-
-for i in range(tmax):
-    pub.write([dD[i],D[i]])
+        aux[jj]=TId.n_points(C,W,jj)[Sts]
+        pub.write(aux[jj])
 
 pub.close()
+    
 
 
 

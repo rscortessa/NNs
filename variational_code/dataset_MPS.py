@@ -25,23 +25,26 @@ n_par=len(parameters)
 parameters=[int(parameters[x]) for x in range(1,n_par)]
 print(parameters)
 L=parameters[0]
-Gamma=parameters[1]*(-dx)
-n_samples=parameters[2]
+W=parameters[1]
+Gamma=parameters[2]*(-dx)
+n_samples=parameters[3]
 n_run=1000
 n_method=5
 
 
 #INSERT PUBLISHER DETAILS AND INITIALIZE IT
 
-name_var=["DATAM","L","NS","NR","G"]
-var=[n_method,L,n_samples,n_run,parameters[1]]    
-name="DATAM"+str(n_method)+"L"+str(L)+"NS"+str(n_samples)+"MPS"+"G"+str(parameters[1])+".txt"
+name_var=["DATAM","L","W","NS","NR","G"]
+var=[n_method,L,W,n_samples,n_run,parameters[2]]    
+name="DATAM"+str(n_method)+"L"+str(L)+"W"+str(W)+"NS"+str(n_samples)+"MPS"+"G"+str(parameters[2])+".txt"
 file=pd.read_csv(name,delim_whitespace=True,dtype="a")
-file.astype(float)
+file=file.astype(float)
 
 #ITERATION OVER THE GAMMA VALUES:
 
 A=np.array(file)
+print(A)
+print(len(A))
 lenght=len(A)
 A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
 B,W=TId.sets(A)
@@ -52,6 +55,7 @@ pub.create()
 suma=0
 for x in range(len(B)):
     suma+=W[x]
+    print(B[x])
     pub.write(np.append(B[x],[W[x],suma]))
 
     
