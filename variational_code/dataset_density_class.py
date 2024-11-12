@@ -69,7 +69,7 @@ W=np.zeros(size)
 Wacc=np.zeros(size)
 for ii in range(size):
     aux=np.array(file.iloc[ii][0:LL])
-    print(aux.size)
+#    print(aux.size)
     A[ii]=aux
     W[ii]=file.iloc[ii][LL]
     Wacc[ii]=file.iloc[ii][LL+1]
