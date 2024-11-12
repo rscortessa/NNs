@@ -43,8 +43,6 @@ file=file.astype(float)
 #ITERATION OVER THE GAMMA VALUES:
 
 A=np.array(file)
-#print(A)
-#print(len(A))
 lenght=len(A)
 A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
 B,W=TId.sets(A)
@@ -55,7 +53,6 @@ pub.create()
 suma=0
 for x in range(len(B)):
     suma+=W[x]
-    print(B[x])
     pub.write(np.append(B[x],[W[x],suma]))
 
     
