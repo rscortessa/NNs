@@ -1,0 +1,296 @@
+Value of L=1000
+Starting value of Gamma=50
+Ending value of Gamma=150
+Increment of Gamma=5
+Running with Gamma=50, L=1000, N_samples=1024
+After sweep 1 energy=-315.207234877254  maxlinkdim=4 maxerr=1.45E-15 time=19.883
+After sweep 2 energy=-317.9112507018389  maxlinkdim=15 maxerr=1.00E-10 time=1.379
+After sweep 3 energy=-318.0506095179225  maxlinkdim=24 maxerr=1.00E-10 time=1.899
+After sweep 4 energy=-318.10375329236564  maxlinkdim=27 maxerr=1.00E-10 time=2.294
+After sweep 5 energy=-318.1354762414564  maxlinkdim=24 maxerr=1.00E-10 time=1.874
+Final energy = -318.1354762414564
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG50.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 50, 1024]
+python: can't open file '/home/ronald/NNs/dataset_run.py': [Errno 2] No such file or directory
+Running with Gamma=55, L=1000, N_samples=1024
+After sweep 1 energy=-333.019997358288  maxlinkdim=4 maxerr=1.45E-15 time=19.573
+After sweep 2 energy=-335.46133633418367  maxlinkdim=15 maxerr=1.00E-10 time=1.396
+After sweep 3 energy=-335.58490814683915  maxlinkdim=21 maxerr=1.00E-10 time=1.905
+After sweep 4 energy=-335.62210495241374  maxlinkdim=22 maxerr=9.99E-11 time=2.199
+After sweep 5 energy=-335.6368039763924  maxlinkdim=19 maxerr=9.98E-11 time=1.745
+Final energy = -335.6368039763924
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG55.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 55, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 55, 1024]
+Running with Gamma=60, L=1000, N_samples=1024
+After sweep 1 energy=-352.7095185836887  maxlinkdim=4 maxerr=1.51E-15 time=19.692
+After sweep 2 energy=-354.79057613078595  maxlinkdim=15 maxerr=9.99E-11 time=1.339
+After sweep 3 energy=-354.8348713674027  maxlinkdim=19 maxerr=9.99E-11 time=1.632
+After sweep 4 energy=-354.8414702465327  maxlinkdim=18 maxerr=1.00E-10 time=1.907
+After sweep 5 energy=-354.84251004225314  maxlinkdim=18 maxerr=1.00E-10 time=1.481
+Final energy = -354.84251004225314
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG60.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 60, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 60, 1024]
+Running with Gamma=65, L=1000, N_samples=1024
+After sweep 1 energy=-372.740552493911  maxlinkdim=4 maxerr=1.47E-15 time=19.484
+After sweep 2 energy=-375.093115156301  maxlinkdim=16 maxerr=9.99E-11 time=1.345
+After sweep 3 energy=-375.1439420982829  maxlinkdim=22 maxerr=9.99E-11 time=1.555
+After sweep 4 energy=-375.1499202946645  maxlinkdim=21 maxerr=1.00E-10 time=1.443
+After sweep 5 energy=-375.15037563448055  maxlinkdim=14 maxerr=1.00E-10 time=1.699
+Final energy = -375.15037563448055
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG65.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 65, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 65, 1024]
+Running with Gamma=70, L=1000, N_samples=1024
+After sweep 1 energy=-394.761540795847  maxlinkdim=4 maxerr=1.45E-15 time=19.712
+After sweep 2 energy=-396.23901141400285  maxlinkdim=14 maxerr=1.00E-10 time=1.336
+After sweep 3 energy=-396.2465477943799  maxlinkdim=16 maxerr=1.00E-10 time=1.432
+After sweep 4 energy=-396.24686895631163  maxlinkdim=13 maxerr=9.99E-11 time=1.296
+After sweep 5 energy=-396.24687261325016  maxlinkdim=8 maxerr=9.90E-11 time=1.245
+Final energy = -396.24687261325016
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG70.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 70, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 70, 1024]
+Running with Gamma=75, L=1000, N_samples=1024
+After sweep 1 energy=-416.6442861442274  maxlinkdim=4 maxerr=1.45E-15 time=19.365
+After sweep 2 energy=-417.9335367150561  maxlinkdim=14 maxerr=9.96E-11 time=1.292
+After sweep 3 energy=-417.9355418569486  maxlinkdim=13 maxerr=9.99E-11 time=1.331
+After sweep 4 energy=-417.9355533705126  maxlinkdim=7 maxerr=9.95E-11 time=1.196
+After sweep 5 energy=-417.9355533713615  maxlinkdim=6 maxerr=5.85E-11 time=1.184
+Final energy = -417.9355533713615
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG75.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 75, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 75, 1024]
+Running with Gamma=80, L=1000, N_samples=1024
+After sweep 1 energy=-439.0350938651356  maxlinkdim=4 maxerr=1.21E-12 time=19.586
+After sweep 2 energy=-440.0826022532599  maxlinkdim=13 maxerr=9.98E-11 time=1.286
+After sweep 3 energy=-440.0845001221229  maxlinkdim=14 maxerr=9.99E-11 time=1.281
+After sweep 4 energy=-440.08450812142166  maxlinkdim=6 maxerr=9.74E-11 time=1.190
+After sweep 5 energy=-440.08450812174397  maxlinkdim=6 maxerr=1.64E-11 time=1.172
+Final energy = -440.08450812174397
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG80.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 80, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 80, 1024]
+Running with Gamma=85, L=1000, N_samples=1024
+After sweep 1 energy=-461.5517131858629  maxlinkdim=4 maxerr=1.51E-15 time=19.760
+After sweep 2 energy=-462.59923018059413  maxlinkdim=12 maxerr=1.00E-10 time=1.281
+After sweep 3 energy=-462.60025197512454  maxlinkdim=12 maxerr=9.99E-11 time=1.259
+After sweep 4 energy=-462.60025640571985  maxlinkdim=6 maxerr=9.06E-11 time=1.185
+After sweep 5 energy=-462.60025640586434  maxlinkdim=6 maxerr=7.77E-11 time=1.191
+Final energy = -462.60025640586434
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG85.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 85, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 85, 1024]
+Running with Gamma=90, L=1000, N_samples=1024
+After sweep 1 energy=-484.747267979185  maxlinkdim=4 maxerr=1.39E-15 time=19.698
+After sweep 2 energy=-485.41327594684594  maxlinkdim=12 maxerr=9.99E-11 time=1.257
+After sweep 3 energy=-485.4140312663372  maxlinkdim=10 maxerr=9.93E-11 time=1.256
+After sweep 4 energy=-485.41403164452277  maxlinkdim=6 maxerr=9.16E-11 time=1.229
+After sweep 5 energy=-485.4140316445216  maxlinkdim=6 maxerr=9.16E-11 time=1.202
+Final energy = -485.4140316445216
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG90.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 90, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 90, 1024]
+Running with Gamma=95, L=1000, N_samples=1024
+After sweep 1 energy=-507.9663528685586  maxlinkdim=4 maxerr=1.44E-15 time=19.623
+After sweep 2 energy=-508.4737193301885  maxlinkdim=11 maxerr=9.99E-11 time=1.259
+After sweep 3 energy=-508.4738026812321  maxlinkdim=7 maxerr=9.99E-11 time=1.177
+After sweep 4 energy=-508.4738026665093  maxlinkdim=5 maxerr=6.87E-11 time=1.152
+After sweep 5 energy=-508.47380266653033  maxlinkdim=5 maxerr=6.46E-11 time=1.154
+Final energy = -508.47380266653033
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG95.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 95, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 95, 1024]
+Running with Gamma=100, L=1000, N_samples=1024
+After sweep 1 energy=-530.7375742279055  maxlinkdim=4 maxerr=1.36E-15 time=19.532
+After sweep 2 energy=-531.7377194820438  maxlinkdim=13 maxerr=9.99E-11 time=1.241
+After sweep 3 energy=-531.7393104502935  maxlinkdim=11 maxerr=1.00E-10 time=1.181
+After sweep 4 energy=-531.7393125964884  maxlinkdim=5 maxerr=1.00E-10 time=1.153
+After sweep 5 energy=-531.7393125964952  maxlinkdim=5 maxerr=3.19E-11 time=1.151
+Final energy = -531.7393125964952
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG100.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 100, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 100, 1024]
+Running with Gamma=105, L=1000, N_samples=1024
+After sweep 1 energy=-554.7942969393367  maxlinkdim=4 maxerr=1.58E-15 time=19.809
+After sweep 2 energy=-555.1787293728112  maxlinkdim=12 maxerr=9.99E-11 time=1.212
+After sweep 3 energy=-555.1788358228624  maxlinkdim=7 maxerr=9.90E-11 time=1.172
+After sweep 4 energy=-555.1788358266738  maxlinkdim=5 maxerr=2.79E-11 time=1.145
+After sweep 5 energy=-555.1788358266806  maxlinkdim=5 maxerr=1.64E-11 time=1.154
+Final energy = -555.1788358266806
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG105.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 105, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 105, 1024]
+Running with Gamma=110, L=1000, N_samples=1024
+After sweep 1 energy=-578.2640472507012  maxlinkdim=4 maxerr=1.38E-15 time=19.744
+After sweep 2 energy=-578.7669052776995  maxlinkdim=11 maxerr=1.00E-10 time=1.224
+After sweep 3 energy=-578.7669809027977  maxlinkdim=6 maxerr=9.81E-11 time=1.152
+After sweep 4 energy=-578.7669809052145  maxlinkdim=5 maxerr=9.62E-12 time=1.144
+After sweep 5 energy=-578.7669809052251  maxlinkdim=5 maxerr=8.81E-12 time=1.143
+Final energy = -578.7669809052251
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG110.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 110, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 110, 1024]
+Running with Gamma=115, L=1000, N_samples=1024
+After sweep 1 energy=-602.1581630024453  maxlinkdim=4 maxerr=1.55E-15 time=19.616
+After sweep 2 energy=-602.4831376372035  maxlinkdim=10 maxerr=9.97E-11 time=1.193
+After sweep 3 energy=-602.4831533132547  maxlinkdim=5 maxerr=9.96E-11 time=1.145
+After sweep 4 energy=-602.4831533134006  maxlinkdim=5 maxerr=5.36E-12 time=1.134
+After sweep 5 energy=-602.4831533133968  maxlinkdim=5 maxerr=4.88E-12 time=1.140
+Final energy = -602.4831533133968
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG115.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 115, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 115, 1024]
+Running with Gamma=120, L=1000, N_samples=1024
+After sweep 1 energy=-625.9342030620586  maxlinkdim=4 maxerr=1.38E-15 time=19.581
+After sweep 2 energy=-626.3104227322248  maxlinkdim=10 maxerr=9.99E-11 time=1.214
+After sweep 3 energy=-626.3104541360383  maxlinkdim=5 maxerr=9.96E-11 time=1.162
+After sweep 4 energy=-626.310454136723  maxlinkdim=5 maxerr=3.14E-12 time=1.147
+After sweep 5 energy=-626.3104541367252  maxlinkdim=5 maxerr=2.79E-12 time=1.143
+Final energy = -626.3104541367252
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG120.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 120, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 120, 1024]
+Running with Gamma=125, L=1000, N_samples=1024
+After sweep 1 energy=-649.9248335451447  maxlinkdim=4 maxerr=4.42E-11 time=19.474
+After sweep 2 energy=-650.2347853474442  maxlinkdim=10 maxerr=1.00E-10 time=1.179
+After sweep 3 energy=-650.2348740160171  maxlinkdim=6 maxerr=9.99E-11 time=1.133
+After sweep 4 energy=-650.2348740182795  maxlinkdim=5 maxerr=7.93E-11 time=1.135
+After sweep 5 energy=-650.2348740182914  maxlinkdim=5 maxerr=7.93E-11 time=1.125
+Final energy = -650.2348740182914
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG125.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 125, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 125, 1024]
+Running with Gamma=130, L=1000, N_samples=1024
+After sweep 1 energy=-674.0444138330389  maxlinkdim=4 maxerr=3.64E-11 time=19.612
+After sweep 2 energy=-674.2446809937104  maxlinkdim=9 maxerr=9.98E-11 time=1.168
+After sweep 3 energy=-674.2446922262798  maxlinkdim=5 maxerr=1.00E-10 time=1.080
+After sweep 4 energy=-674.2446922233167  maxlinkdim=4 maxerr=9.03E-11 time=1.071
+After sweep 5 energy=-674.2446922234889  maxlinkdim=4 maxerr=8.22E-11 time=1.080
+Final energy = -674.2446922234889
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG130.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 130, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 130, 1024]
+Running with Gamma=135, L=1000, N_samples=1024
+After sweep 1 energy=-698.0266282071686  maxlinkdim=4 maxerr=7.07E-11 time=19.404
+After sweep 2 energy=-698.329980529267  maxlinkdim=11 maxerr=9.99E-11 time=1.153
+After sweep 3 energy=-698.3300227953356  maxlinkdim=5 maxerr=9.96E-11 time=1.064
+After sweep 4 energy=-698.3300227927122  maxlinkdim=4 maxerr=6.05E-11 time=1.050
+After sweep 5 energy=-698.3300227928062  maxlinkdim=4 maxerr=5.55E-11 time=1.055
+Final energy = -698.3300227928062
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG135.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 135, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 135, 1024]
+Running with Gamma=140, L=1000, N_samples=1024
+After sweep 1 energy=-722.2582213339131  maxlinkdim=4 maxerr=1.44E-15 time=19.542
+After sweep 2 energy=-722.4824542191707  maxlinkdim=9 maxerr=1.00E-10 time=1.154
+After sweep 3 energy=-722.4824637646099  maxlinkdim=5 maxerr=9.91E-11 time=1.053
+After sweep 4 energy=-722.4824637645795  maxlinkdim=4 maxerr=4.04E-11 time=1.044
+After sweep 5 energy=-722.4824637646152  maxlinkdim=4 maxerr=3.81E-11 time=1.048
+Final energy = -722.4824637646152
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG140.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 140, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 140, 1024]
+Running with Gamma=145, L=1000, N_samples=1024
+After sweep 1 energy=-746.5645707209691  maxlinkdim=4 maxerr=8.78E-11 time=19.397
+After sweep 2 energy=-746.6948201949346  maxlinkdim=9 maxerr=1.00E-10 time=1.133
+After sweep 3 energy=-746.6948268659775  maxlinkdim=4 maxerr=9.64E-11 time=1.037
+After sweep 4 energy=-746.6948268660465  maxlinkdim=4 maxerr=2.67E-11 time=1.039
+After sweep 5 energy=-746.6948268660865  maxlinkdim=4 maxerr=2.65E-11 time=1.031
+Final energy = -746.6948268660865
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG145.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 145, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 145, 1024]
+Running with Gamma=150, L=1000, N_samples=1024
+After sweep 1 energy=-770.8358087577691  maxlinkdim=4 maxerr=6.56E-11 time=19.738
+After sweep 2 energy=-770.9609174354399  maxlinkdim=9 maxerr=9.98E-11 time=1.153
+After sweep 3 energy=-770.9609237671834  maxlinkdim=4 maxerr=9.67E-11 time=1.090
+After sweep 4 energy=-770.9609237672263  maxlinkdim=4 maxerr=1.87E-11 time=1.083
+After sweep 5 energy=-770.9609237672565  maxlinkdim=4 maxerr=1.87E-11 time=1.079
+Final energy = -770.9609237672565
+Sampling complete. Configurations saved to DATAM5L1000NS1024MPSG150.txt
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 150, 1024]
+/home/ronald/NNs/variational_code/dataset_MPS.py:39: FutureWarning: The 'delim_whitespace' keyword in pd.read_csv is deprecated and will be removed in a future version. Use ``sep='\s+'`` instead
+  file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+[1000, 150, 1024]
