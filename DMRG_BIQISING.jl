@@ -3,26 +3,25 @@ using ITensors, ITensorMPS
 let
   # Define number of spins and create spin-one indices
   N = parse(Int,ARGS[1])
-  W = parse(Int,ARGS[2])
+  J = parse(Int,ARGS[2])
   h = parse(Float64,ARGS[3])
   NS = parse(Int,ARGS[4])
   sites = siteinds("S=1/2", N*W)
-  println("L=$N","W=$W","G=$h","NS=$NS")
+  println("L=$N","J=$J","G=$h","NS=$NS")
   # Define the Hamiltonian for the 1D Heisenberg model
   os = OpSum()
-  if W>1
-   for i = 0:W-1
-     for j = 0:N-1
-      os += -4.0,"Sz",j+1+i*N, "Sz",(j+1)%N+1+i*N
-      os += -4.0,"Sz",j+1+i*N, "Sz",j+1+((i+1)%W)*N
-      os += -h*0.02, "Sx", j+1+i*W
-     end
-   end
-  else
-   for j = 0:N-1
-     os += -4.0,"Sz",j+1, "Sz",(j+1)%N+1
-     os += -h*0.02, "Sx",j+1
-   end
+
+  for j = 0:N-1
+  
+      os += -4.0,"Sz",j+1, "Sz",(j+1)%N+1
+      os += -4.0,"Sz",j+1+N, "Sz",(j+1)%N+1+N
+     
+      os += -J*0.04,"Sz",j+1, "Sz",j+1+N
+      
+      os += -h*0.02, "Sx", j+1
+      os += -h*0.02, "Sx", j+1+N
+      
+
   end
   
   H = MPO(os, sites)
@@ -57,7 +56,7 @@ function sample_mps_to_file(psi::MPS, filename::String, N::Int)
     println("Sampling complete. Configurations saved to $filename")
 end
 
-filename = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3]* ".txt"  # Output file to store configurations
+filename = "DATAM5L" * ARGS[1] *"J"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3]* ".txt"  # Output file to store configurations
 
 # Call the function to sample and save to the file
 sample_mps_to_file(psi, filename, NS)
