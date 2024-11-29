@@ -11,7 +11,7 @@ let
   # Define the Hamiltonian for the 1D Heisenberg model
   os = OpSum()
   if W>1
-   for i = 0:W-1
+   for i = 0:W-2
      for j = 0:N-1
       os += -4.0,"Sz",j+1+i*N, "Sz",(j+1)%N+1+i*N
       os += -4.0,"Sz",j+1+i*N, "Sz",j+1+((i+1)%W)*N
