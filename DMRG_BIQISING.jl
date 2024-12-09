@@ -3,10 +3,10 @@ using ITensors, ITensorMPS
 let
   # Define number of spins and create spin-one indices
   N = parse(Int,ARGS[1])
-  J = parse(Int,ARGS[2])
+  J = parse(Float64,ARGS[2])
   h = parse(Float64,ARGS[3])
   NS = parse(Int,ARGS[4])
-  sites = siteinds("S=1/2", N*W)
+  sites = siteinds("S=1/2", N*2)
   println("L=$N","J=$J","G=$h","NS=$NS")
   # Define the Hamiltonian for the 1D Heisenberg model
   os = OpSum()
@@ -30,8 +30,8 @@ let
   psi0 = random_mps(sites)
 
   # Run DMRG to find the ground state
-  nsweeps = 5
-  maxdim = [10, 20, 100, 100, 200]
+  nsweeps = N
+  maxdim = [i * 10 for i in 1:(N-1)]
   cutoff = 1E-10
   energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
 
@@ -56,7 +56,7 @@ function sample_mps_to_file(psi::MPS, filename::String, N::Int)
     println("Sampling complete. Configurations saved to $filename")
 end
 
-filename = "DATAM5L" * ARGS[1] *"J"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3]* ".txt"  # Output file to store configurations
+filename = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3]* ".txt"  # Output file to store configurations
 
 # Call the function to sample and save to the file
 sample_mps_to_file(psi, filename, NS)
