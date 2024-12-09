@@ -31,7 +31,8 @@ let
 
   # Run DMRG to find the ground state
   nsweeps = N
-  maxdim = [i * 10 for i in 1:(N-1)]
+  maxdim = [10*i for i in 1:nsweeps]
+
   cutoff = 1E-10
   energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
 
