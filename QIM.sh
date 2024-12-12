@@ -26,7 +26,6 @@ while (( $(echo "$Gamma <= $Gamma_end" | bc -l) )); do
     echo "Running with Gamma=$Gamma, L=$L, N_samples=$N_samples"
     julia DMRG_QISING.jl "$L" "$W" "$Gamma" "$N_samples"
     python run_MPS.py "$L" "$W" "$Gamma" "$N_samples"
-    python datasetMPS_run.py "$L" "$W" "$Gamma" "$N_samples"
     python dataset_density_run.py "$L" "$W" "$Gamma" "$N_samples" "1000" "5"
     Gamma=$(echo "$Gamma + $Gamma_increment" | bc -l)  # Increment Gamma
 done
