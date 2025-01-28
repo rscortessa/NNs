@@ -168,7 +168,11 @@ class publisher:
         self.file=open(self.filename+".txt","w")
         for i in range(len(self.variables)):
             a+="d"+self.variables[i]+"\t "+self.variables[i]+"\t "
-        self.file.write(a+"\n") 
+        self.file.write(a+"\n")
+
+    def name(self):
+        return self.filename+".txt"
+        
     def write(self,val_variables):
         self.file.write("\t".join(str(val) for val in val_variables) + "\n")
     def close(self):
