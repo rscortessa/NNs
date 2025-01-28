@@ -1,1 +1,1 @@
-import variational_code.mean_bid_var_class
+import variational_code.mean_pca_var_class
