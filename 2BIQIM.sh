@@ -15,7 +15,7 @@ Gamma_start=$4
 Gamma_end=$5
 Gamma_increment=$6
 
-echo "Value of L=$L and W=$W" 
+echo "Value of L=$L and J=$W" 
 echo "Starting value of Gamma=$Gamma_start"
 echo "Ending value of Gamma=$Gamma_end"
 echo "Increment of Gamma=$Gamma_increment"
@@ -23,8 +23,8 @@ echo "Increment of Gamma=$Gamma_increment"
 # Loop over Gamma values
 Gamma=$Gamma_start
 while (( $(echo "$Gamma <= $Gamma_end" | bc -l) )); do
-    echo "Running with Gamma=$Gamma, L=$L, N_samples=$N_samples"
-    julia DMRG_XYZ.jl "$L" "$W" "$Gamma" "$N_samples"
+    echo "Running BIQIM with Gamma=$Gamma, L=$L, N_samples=$N_samples"
+    julia DMRG_BIQISING.jl "$L" "$W" "$Gamma" "$N_samples"
     python run_MPS.py "$L" "$W" "$Gamma" "$N_samples"
     python datasetMPS_run.py "$L" "$W" "$Gamma" "$N_samples"
     python dataset_density_run.py "$L" "$W" "$Gamma" "$N_samples" "1000" "5"
