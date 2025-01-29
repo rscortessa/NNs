@@ -3,30 +3,42 @@ using ITensors, ITensorMPS
 let
   # Define number of spins and create spin-one indices
   N = parse(Int,ARGS[1])
-  h = parse(Float64,ARGS[2])
-  NS = parse(Int,ARGS[3])
-  sites = siteinds("S=1/2", N)
-
+  W = parse(Int,ARGS[2])
+  h = parse(Float64,ARGS[3])
+  NS = parse(Int,ARGS[4])
+  sites = siteinds("S=1/2", N*W)
+  println("L=$N","W=$W","G=$h","NS=$NS")
   # Define the Hamiltonian for the 1D Heisenberg model
   os = OpSum()
-  for j = 1:N-1
-    os += -h/100,"Sz", j, "Sz", j+1
-    os += -h/100,"Sy", j, "Sy", j+1
-    os += -h/100,"Sx", j, "Sx", j+1
+  if W>1
+   for i = 0:W-1
+     for j = 0:N-1
+      os += -0.04*h,"Sz",j+1+i*W, "Sz",(j+1)%N+1+i*N
+      os += -0.04*h,"Sz",j+1+i*W, "Sz",j+1+((i+1)%W)*N
+      os += -4.0,"Sx",j+1+i*W, "Sx",(j+1)%N+1+i*N
+      os += -4.0,"Sx",j+1+i*W, "Sx",j+1+((i+1)%W)*N
+      os += -4.0,"Sy",j+1+i*W, "Sy",(j+1)%N+1+i*N
+      os += -4.0,"Sy",j+1+i*W, "Sy",j+1+((i+1)%W)*N
+
+     end
+   end
+  else
+   for j = 0:N-1
+     os += -0.04*h,"Sz",j+1, "Sz",(j+1)%N+1
+     os += -4.0,"Sx",j+1, "Sx",(j+1)%N+1
+     os += -4.0,"Sy",j+1, "Sy",(j+1)%N+1
+
+   end
   end
-  os += -1,0, "Sz", N, "Sz",1
-  os += -1,0, "Sy", N, "Sy",1
-  os += -1,0, "Sx", N, "Sx",1
- 
-    
+  
   H = MPO(os, sites)
 
   # Initialize a random MPS
   psi0 = random_mps(sites)
 
   # Run DMRG to find the ground state
-  nsweeps = 5
-  maxdim = [10, 20, 100, 100, 200]
+  nsweeps = 30
+  maxdim = [64,128,256,256,512,512,1024]
   cutoff = 1E-10
   energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
 
@@ -51,7 +63,7 @@ function sample_mps_to_file(psi::MPS, filename::String, N::Int)
     println("Sampling complete. Configurations saved to $filename")
 end
 
-filename = "DATAXYZM5L" * ARGS[1] * "NS" * ARGS[3] * "MPSG" * ARGS[2]* ".txt"  # Output file to store configurations
+filename = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3]* ".txt"  # Output file to store configurations
 
 # Call the function to sample and save to the file
 sample_mps_to_file(psi, filename, NS)
