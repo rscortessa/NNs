@@ -36,22 +36,15 @@ let
   maxdim = [64, 128, 128, 256, 256, 512, 512, 1024]
   cutoff = 1E-10
   nsweeps = 30
-  open(filename, "W") do file
+  open(filename, "w") do file
 
       for jj in 1:nsweeps
  
-          energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
-          H2 = inner(H,psi0,H,psi0)
+          energy, psi = dmrg(H, psi0; nsweeps=jj, maxdim, cutoff)
+          H2 = inner(H,psi,H,psi)
           var = H2-energy^2
           println(file,"$energy","\t","$var")
       end	  
   end
 end
-
-
-
-# Call the function to sample and save to the file
-sample_mps_to_file(psi, filename, NS)
-  nothing
   
-end
