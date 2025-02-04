@@ -31,16 +31,16 @@ let
 
   # Initialize a random MPS
   psi0 = random_mps(sites)
-  psi=psi0
+
   # Run DMRG to find the ground state
-  maxdim = [64,64,64,128,256,256,256,400,400,512,1024,1024,1024,1024,1024]
-  cutoff = [1E-10,1E-10,1E-10,1E-10,1E-10,1E-10,1E-10,1E-10,1E-10,1E-10,1E-10,1E-10,1E-10,1E-10,1E-10]
-  nsweeps = 15
+  maxdim = [128, 256, 512, 512, 512, 1024, 1024, 2048,2048]
+  cutoff = 1E-16
+  nsweeps = 10
   open(filename, "w") do file
 
       for jj in 1:nsweeps
-      	  psi0=psi
-          energy, psi = dmrg(H, psi0; nsweeps=1, maxdim=maxdim[jj], cutoff=cutoff[jj])
+ 
+          energy, psi = dmrg(H, psi0; nsweeps=jj, maxdim, cutoff)
           H2 = inner(H,psi,H,psi)
           var = H2-energy^2
 	  println("$energy","\t","$var")

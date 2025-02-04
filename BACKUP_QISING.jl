@@ -8,26 +8,22 @@ let
   NS = parse(Int,ARGS[4])
   sites = siteinds("S=1/2", N*W)
   println("L=$N","W=$W","G=$h","NS=$NS")
-  # Define the Hamiltonian for the 1D Heisenberg model
+  filename = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3]* ".txt"  # Output file to store configurations
+  
+# Define the Hamiltonian for the 1D Heisenberg model
   os = OpSum()
   if W>1
-   for i = 0:W-1
+   for i = 0:W-2
      for j = 0:N-1
-      os += -0.04*h,"Sz",j+1+i*W, "Sz",(j+1)%N+1+i*N
-      os += -0.04*h,"Sz",j+1+i*W, "Sz",j+1+((i+1)%W)*N
-      os += -4.0,"Sx",j+1+i*W, "Sx",(j+1)%N+1+i*N
-      os += -4.0,"Sx",j+1+i*W, "Sx",j+1+((i+1)%W)*N
-      os += -4.0,"Sy",j+1+i*W, "Sy",(j+1)%N+1+i*N
-      os += -4.0,"Sy",j+1+i*W, "Sy",j+1+((i+1)%W)*N
-
+      os += -4.0,"Sz",j+1+i*N, "Sz",(j+1)%N+1+i*N
+      os += -4.0,"Sz",j+1+i*N, "Sz",j+1+((i+1)%W)*N
+      os += -h*0.002, "Sx", j+1+i*W
      end
    end
   else
    for j = 0:N-1
-     os += -0.04*h,"Sz",j+1, "Sz",(j+1)%N+1
-     os += -4.0,"Sx",j+1, "Sx",(j+1)%N+1
-     os += -4.0,"Sy",j+1, "Sy",(j+1)%N+1
-
+     os += -4.0,"Sz",j+1, "Sz",(j+1)%N+1
+     os += -h*0.002, "Sx",j+1
    end
   end
   
@@ -37,12 +33,13 @@ let
   psi0 = random_mps(sites)
 
   # Run DMRG to find the ground state
-  nsweeps = 15
-  maxdim = [64,128,256,256,512,512,1024]
+  nsweeps = 30
+  maxdim = [64, 128, 128, 256, 256, 512, 512, 1024]
   cutoff = 1E-10
   energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
-
-  println("Final energy = $energy")
+  H2 = inner(H,psi0,H,psi0)
+  var = H2-energy^2
+  println("Final energy = $energy","Final var ="$var)
 
 # Function to sample MPS and store configurations in a file
 function sample_mps_to_file(psi::MPS, filename::String, N::Int)
@@ -63,7 +60,7 @@ function sample_mps_to_file(psi::MPS, filename::String, N::Int)
     println("Sampling complete. Configurations saved to $filename")
 end
 
-filename = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3]* ".txt"  # Output file to store configurations
+
 
 # Call the function to sample and save to the file
 sample_mps_to_file(psi, filename, NS)
