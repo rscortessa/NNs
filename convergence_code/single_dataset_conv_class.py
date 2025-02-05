@@ -75,7 +75,7 @@ E=np.array([[0 for i in range(n_mean)] for gg in range(n_run)])
 
 #ITERATION OVER THE GAMMA VALUES:
 G=Gamma
-H=class_WF.Ham_PBC(G*dx,V,L,W,hi)
+H=class_WF.Ham(G*dx,V,L,hi)
 sampler=nk.sampler.MetropolisLocal(hi)
 for hh in range(n_mean):
 
@@ -98,7 +98,26 @@ for hh in range(n_mean):
         namefile=pub.name()
         pub.close()
         os.rename(namefile,namefile+str(hh))
+
+        name_var[0]="VARM"
+        pubvar=class_WF.publisher(name_var,var,[])
+        pubvar.create()
+        if n_method == 3:
         
+            kernel=E_WF.user_state.variables["params"]["Dense"]["kernel"]
+            bias=E_WF.user_state.variables["params"]["Dense"]["bias"]
+            visible_bias=E_WF.user_state.variables["params"]["visible_bias"]
+            Test=A@kernel
+            new_bias=np.array([bias for nns in range(n_samples)])
+            Test=1/(1+np.exp(-1.0*(Test+new_bias)))
+            for ns in range(n_samples):
+                pubvar.write(Test[ns].tolist())
+
+        namefile=pubvar.name()    
+        pubvar.close()
+        os.rename(namefile,namefile+str(hh))
+        name_var[0]="DATAM"
+
         if n_method!=5:
             E_WF.advance(n_between)
         else:
