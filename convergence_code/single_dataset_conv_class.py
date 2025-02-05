@@ -57,7 +57,7 @@ methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layer
 
 #INITIALIZE OBJECTS
 hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
-H=class_WF.Ham_PBC(Gamma*dx,V,L,W,hi)
+H=class_WF.Ham(Gamma*dx,V,L,hi)
 
 #CONDITION IF EXACT
 if n_method==5:
