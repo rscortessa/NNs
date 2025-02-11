@@ -54,7 +54,7 @@ var=[n_method,L,W,n_samples,n_between,Gamma,n_neurons,n_layers]
 name_var=name_var[:n_par-2]
 var=var[:n_par-2]
 G=range(n_between,(n_run+1)*n_between,n_between)
-S=np.array([[0 for i in range(n_mean)] for i in G])
+S=np.array([[0.0 for i in range(n_mean)] for i in G])
 
 
 j=0

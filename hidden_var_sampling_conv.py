@@ -1,0 +1,1 @@
+import convergence_code.hidden_var_sampling_conv_class

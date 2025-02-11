@@ -71,7 +71,7 @@ name_var[0]="M"
 pubE=class_WF.publisher(name_var+["NR"],var+[n_run],["NS","E"])
 pubE.create()
 name_var[0]="DATAM"
-E=np.array([[0 for i in range(n_mean)] for gg in range(n_run)])
+E=np.array([[0.0 for i in range(n_mean)] for gg in range(n_run)])
 
 #ITERATION OVER THE GAMMA VALUES:
 G=Gamma

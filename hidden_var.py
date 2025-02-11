@@ -51,14 +51,15 @@ print("n_par:",n_par)
 
 tmax=L*W
 
-name_var=["DATAM","L","W","NS","NB","G","NN","NL"]
+name_var=["VARM","L","W","NS","NB","G","NN","NL"]
 var=[n_method,L,W,n_samples,n_between,Gamma,n_neurons,n_layers]
 
 name_var=name_var[:n_par-2]
 var=var[:n_par-2]
 G=[x for x in range(n_between,n_run*n_between,n_between)]
 
-D=np.array([[[0.0 for k in range(n_mean)] for i in range(tmax)] for j in range(len(G))])
+S=np.array([[0 for i in range(n_mean)] for j in range(len(G))])
+D=np.array([[[0 for k in range(n_mean)] for i in range(tmax)] for j in range(len(G))])
 
 j=0
 for gg in range(len(G)):
@@ -68,8 +69,7 @@ for gg in range(len(G)):
         file=pd.read_csv(filename,sep="\s+",dtype="a")
         file=file.astype(float)
         A=np.array(file)
-        lenght=len(A)
-        A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
+        A=1.0*(A<0.5)
         B,W=TId.sets(A)
         C=TId.neighbors(B)
         
@@ -87,8 +87,6 @@ for gg in range(len(G)):
     for jj in range(tmax):
         pub.write([dDn[gg,jj],Dn[gg,jj]])
     pub.close()
-
-
 
 
 
