@@ -67,7 +67,7 @@ for gg in range(len(G)):
         file=pd.read_csv(filename,sep="\s+",dtype="a")
         file=file.astype(float)
         A=np.array(file)
-        A=1.0*(A<0.5)
+        A=2*(A<0.5)-1
         B,W=TId.sets(A)
         C=TId.neighbors(B)
         
