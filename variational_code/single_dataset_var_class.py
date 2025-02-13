@@ -102,11 +102,33 @@ for gg in range(NG+1):
             lenght=len(A)
             A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
 
+        #THIS PART COMPUTES THE HIDDEN VARIABLES OR THE RESPECTIVE NN VARIABLES:
+
+        name_var[0]="VARM"
+        pubvar=class_WF.publisher(name_var,var,[])
+        pubvar.create()
+        if n_method == 3:
+        
+            kernel=E_WF.user_state.variables["params"]["Dense"]["kernel"]
+            bias=E_WF.user_state.variables["params"]["Dense"]["bias"]
+            visible_bias=E_WF.user_state.variables["params"]["visible_bias"]
+            Test=A@kernel
+            new_bias=np.array([bias for nns in range(n_samples)])
+            Test=1/(1+np.exp(-1.0*(Test+new_bias)))
+            for ns in range(n_samples):
+                pubvar.write(Test[ns].tolist())
+        namefile=pubvar.name()    
+        pubvar.close()
+        os.rename(namefile,namefile+str(hh))
+        name_var[0]="DATAM"
+
+        #----------------------------------------------------------------------
+
+        if n_method!=5:
         E[gg][hh]=E_WF.compute_E()
     
-        #INSERT PUBLISHER DETAILS AND INITIALIZE IT
+        #THIS PART COMPUTES THE DATASET MATRIX AND STORES IT
 
-        
         pub=class_WF.publisher(name_var,var,[])
         pub.create()
         for x in range(len(A)):
@@ -114,6 +136,7 @@ for gg in range(NG+1):
         namefile=pub.name()
         pub.close()
         os.rename(namefile,namefile+str(hh))
+        #---------------------------------------------------
         
         if n_method!=5:
             E_WF.advance(n_between)

@@ -8,6 +8,7 @@ import sys
 import os
 
 ## CONSTANTS
+
 eps=10**(-8)
 dx=-0.01
 V=-1.0
@@ -17,11 +18,13 @@ t2=5
 
 
 ## ALMOST CONSTANTS
+
 n_neurons=1
 n_layers=1
 
 
 ## PARAMETERS
+
 parameters=sys.argv
 n_par=len(parameters)
 parameters=[int(parameters[x]) for x in range(1,n_par)]
@@ -56,10 +59,12 @@ methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layer
 
 
 #INITIALIZE OBJECTS
+
 hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
 H=class_WF.Ham(Gamma*dx,V,L,hi)
 
 #CONDITION IF EXACT
+
 if n_method==5:
     eig_vecs=class_WF.Diag(H)
     methods.append(var_nk.EWF(eig_vec=tuple(np.abs(eig_vecs[:,0])),L=L*W))
@@ -74,6 +79,7 @@ name_var[0]="DATAM"
 E=np.array([[0.0 for i in range(n_mean)] for gg in range(n_run)])
 
 #ITERATION OVER THE GAMMA VALUES:
+
 G=Gamma
 H=class_WF.Ham(G*dx,V,L,hi)
 sampler=nk.sampler.MetropolisLocal(hi)
@@ -99,11 +105,12 @@ for hh in range(n_mean):
         pub.close()
         os.rename(namefile,namefile+str(hh))
 
+        #THIS PART COMPUTES AND STORES THE HIDDEN VARIABLES
+
         name_var[0]="VARM"
         pubvar=class_WF.publisher(name_var,var,[])
         pubvar.create()
-        if n_method == 3:
-        
+        if n_method == 3:        
             kernel=E_WF.user_state.variables["params"]["Dense"]["kernel"]
             bias=E_WF.user_state.variables["params"]["Dense"]["bias"]
             visible_bias=E_WF.user_state.variables["params"]["visible_bias"]
@@ -112,14 +119,16 @@ for hh in range(n_mean):
             Test=1/(1+np.exp(-1.0*(Test+new_bias)))
             for ns in range(n_samples):
                 pubvar.write(Test[ns].tolist())
-
+                
         namefile=pubvar.name()    
         pubvar.close()
         os.rename(namefile,namefile+str(hh))
         name_var[0]="DATAM"
 
+        #-------------------------------------------------
+
         if n_method!=5:
-            E_WF.advance(n_between)
+            
         else:
             eig_vecs=class_WF.Diag(H)
             model=var_nk.EWF(eig_vec=tuple(np.abs(eig_vecs[:,0])),L=L*W)
@@ -128,6 +137,7 @@ for hh in range(n_mean):
 
         E[steps][hh]=E_WF.compute_E()
 
+        
 En=np.mean(E,axis=-1)
 dEn=np.std(E,axis=-1)
 for gg in range(n_run):
