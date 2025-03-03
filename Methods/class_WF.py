@@ -5,7 +5,7 @@ from typing import TextIO
 import sys                                                                                                                            
 import netket as nk                                                                                                                   
 import matplotlib.pyplot as plt                                                                                                       
-from netket.operator.spin import sigmax,sigmaz,identity                                                                               
+from netket.operator.spin import sigmax,sigmaz,sigmay,identity                                                                               
 from scipy.sparse.linalg import eigsh                                                                                                 
 import jax.numpy as jnp                                                                                                               
 import flax                                                                                                                           
@@ -25,12 +25,16 @@ def min_d(vr,eps):
         if np.abs(vr[i])<eps:
             return i
 
-def Ham(Gamma,V,L,hi):                                                                                                                 
+#NOT PERIODIC HAMILTONIAN:
+def Ham(Gamma,L,hi):                                                                                                                 
     H=sum([Gamma*sigmax(hi,i) for i in range(L)])                                                                                      
-    H+=sum([V*sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L)])                                                                      
+    H+=sum([sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L-1)])                                                                      
     return H    
 
-
+def CLUSTER_HAM(Gamma,L,hi):
+    H=sum([ complex(1.0)*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L)])
+    H+=sum([ complex(Gamma)*(sigmay(hi,i)*sigmay(hi,(i+1)%L)) for i in range(L)])
+    return H
 
 def Ham_W(Gamma,V,L,W,hi):
     H=sum([Gamma*sigmax(hi,i%L+int(i/L)*L) for i in range(L*W)])
