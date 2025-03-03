@@ -54,17 +54,17 @@ var=var[:n_par-2]
     
 cutoff=2**L
 methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons),var_nk.SymmModel(alpha=n_neurons,layers=n_layers,L=L,W=W)]
-
-
+method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
+hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
+models=[class_WF.Ham(Gamma*dx,L,hi),class_WF.CLUSTER_HAM(Gamma*dx,L,hi)]
+models_name=["QIM_","CIM_","XYZ_"]
+modelo=1
+folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)
 
 
 #INITIALIZE OBJECTS
-
-hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
-H=class_WF.Ham(Gamma*dx,V,L,hi)
-
+H=models[modelo]
 #CONDITION IF EXACT
-
 if n_method==5:
     eig_vecs=class_WF.Diag(H)
     methods.append(var_nk.EWF(eig_vec=tuple(np.abs(eig_vecs[:,0])),L=L*W))
@@ -81,8 +81,16 @@ E=np.array([[0.0 for i in range(n_mean)] for gg in range(n_run)])
 #ITERATION OVER THE GAMMA VALUES:
 
 G=Gamma
-H=class_WF.Ham(G*dx,V,L,hi)
+#H=class_WF.Ham(G*dx,V,L,hi)
 sampler=nk.sampler.MetropolisLocal(hi)
+
+try:
+    os.mkdir(folder_name)
+except:
+    print("The folder",folder_name,"already exists. All the files will be stored there")
+
+    
+
 for hh in range(n_mean):
 
     E_WF.user_state.init_parameters()
@@ -93,9 +101,9 @@ for hh in range(n_mean):
         if n_method != 5:
             E_WF.advance(n_between)
             A=E_WF.sampling()    
-            if n_method==0 or n_method==2:
-                lenght=len(A)
-                A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
+            #if n_method==0 or n_method==2:
+            #    lenght=len(A)
+            #    A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
          
         pub=class_WF.publisher(name_var,var,[])
         pub.create()
@@ -103,7 +111,7 @@ for hh in range(n_mean):
             pub.write(A[x])
         namefile=pub.name()
         pub.close()
-        os.rename(namefile,namefile+str(hh))
+        os.rename(namefile,folder_name+"/"+namefile+str(hh))
 
         #THIS PART COMPUTES AND STORES THE HIDDEN VARIABLES
 
@@ -122,14 +130,12 @@ for hh in range(n_mean):
                 
         namefile=pubvar.name()    
         pubvar.close()
-        os.rename(namefile,namefile+str(hh))
+        os.rename(namefile,folder_name+"/"+namefile+str(hh))
         name_var[0]="DATAM"
 
         #-------------------------------------------------
 
-        if n_method!=5:
-            
-        else:
+        if n_method==5:
             eig_vecs=class_WF.Diag(H)
             model=var_nk.EWF(eig_vec=tuple(np.abs(eig_vecs[:,0])),L=L*W)
             AA=nk.vqs.MCState(E_WF.user_sampler,model,n_samples=n_samples)
@@ -140,9 +146,12 @@ for hh in range(n_mean):
         
 En=np.mean(E,axis=-1)
 dEn=np.std(E,axis=-1)
+
 for gg in range(n_run):
     pubE.write([0,n_between*(1+gg),dEn[gg],En[gg]])
+filename=pubE.name()
 pubE.close()
+os.rename(filename,folder_name+"/"+filename)
 
 
 

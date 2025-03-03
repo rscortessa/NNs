@@ -7,6 +7,7 @@ import pandas as pd
 from scipy.sparse.linalg import eigsh    
 import netket as nk
 import sys
+import os
 
 def name(A,B):
     filename=""
@@ -39,7 +40,7 @@ n_between=parameters[4]
 n_run=parameters[5] #-
 n_mean=parameters[6] #-
 n_method=parameters[7]
-
+z2_broken_sym=False
 try:
     n_neurons=parameters[8]
     n_layers=parameters[9]
@@ -47,7 +48,11 @@ except:
     print("no additional parameters")
 print("n_par:",n_par)
 
+method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
+models_name=["QIM_","CIM_","XYZ_"]
+modelo=2
 
+folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)
 
 name_var=["DATAM","L","W","NS","NB","G","NN","NL"]
 var=[n_method,L,W,n_samples,n_between,Gamma,n_neurons,n_layers]
@@ -64,11 +69,12 @@ for gg in G:
     print(gg)
     for i in range(n_mean):
         filename=name(name_var,var)+str(i)
-        file=pd.read_csv(filename,sep="\s+",dtype="a")
+        file=pd.read_csv(folder_name+"/"+filename,sep="\s+",dtype="a")
         file=file.astype(float)
         A=np.array(file)
         lenght=len(A)
-        A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
+        if z2_broken_sym:
+            A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
         eps=10**(-10)
         S[j,i]=class_WF.S_PCA(A,eps,False)
     j+=1    
@@ -88,7 +94,9 @@ j=0
 for x in G:
     pub.write([0,x,DS_PCA[j],S_PCA[j]])
     j+=1
+filename=pub.name()
 pub.close()
+os.rename(filename,folder_name+"/"+filename)
 
 
 

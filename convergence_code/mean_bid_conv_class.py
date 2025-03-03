@@ -7,7 +7,7 @@ import pandas as pd
 from scipy.sparse.linalg import eigsh    
 import netket as nk
 import sys
-
+import os
 def name(A,B):
     filename=""
     for i in range(len(A)):
@@ -40,7 +40,7 @@ n_between=parameters[4]
 n_run=parameters[5] #-
 n_mean=parameters[6] #-
 n_method=parameters[7]
-
+z2_broken_sym=False
 try:
     n_neurons=parameters[8]
     n_layers=parameters[9]
@@ -51,8 +51,15 @@ print("n_par:",n_par)
 
 tmax=L*W
 
+method_name=["MF","JS","FFN","RBM","SYMFFN"]
 name_var=["DATAM","L","W","NS","NB","G","NN","NL"]
 var=[n_method,L,W,n_samples,n_between,Gamma,n_neurons,n_layers]
+models_name=["QIM_","CIM_","XYZ_"]
+modelo=2
+
+folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)
+
+
 
 name_var=name_var[:n_par-2]
 var=var[:n_par-2]
@@ -65,11 +72,12 @@ for gg in range(len(G)):
     var[4]=round(G[gg])
     for i in range(n_mean):
         filename=name(name_var,var)+str(i)
-        file=pd.read_csv(filename,sep="\s+",dtype="a")
+        file=pd.read_csv(folder_name+"/"+filename,sep="\s+",dtype="a")
         file=file.astype(float)
         A=np.array(file)
         lenght=len(A)
-        A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
+        if z2_broken_sym:
+            A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
         B,W=TId.sets(A)
         C=TId.neighbors(B)
         
@@ -77,17 +85,20 @@ for gg in range(len(G)):
             Aux=TId.n_points(C,W,jj)
             D[gg,jj,i]=np.mean(Aux)   
 
+            
 Dn=np.mean(D,axis=-1)
 dDn=np.std(D,axis=-1)    
 name_var[0]="M"
+
 for gg in range(len(G)):
     var[4]=G[gg]
     pub=class_WF.publisher(name_var,var,["D"])
     pub.create()
     for jj in range(tmax):
         pub.write([dDn[gg,jj],Dn[gg,jj]])
+    filename=pub.name()
     pub.close()
-
+    os.rename(filename,folder_name+"/"+filename)
 
 
 
