@@ -182,9 +182,14 @@ class publisher:
         for i in range(ms):
             self.filename+=name_var[i]+str(var[i]) 
         self.filename+="".join(variables)
-    def create(self):
+    def create(self,jj=None):
+        
         a=""
-        self.file=open(self.filename+".txt","w")
+        if jj==None:
+            self.file=open(self.filename+".txt","w")
+        else:
+            self.file=open(self.filename+".txt"+str(jj),"w")
+            
         for i in range(len(self.variables)):
             a+="d"+self.variables[i]+"\t "+self.variables[i]+"\t "
         self.file.write(a+"\n")
