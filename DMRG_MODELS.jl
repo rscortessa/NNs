@@ -9,33 +9,59 @@ let
   N = parse(Int,ARGS[1])
   W = parse(Int,ARGS[2])
   h = parse(Float64,ARGS[3])
-  NS = parse(Int,ARGS[4])
-  model = ARGS[5]
+  hf = parse(Float64,ARGS[4])
+  dh = parse(Int,ARGS[5])
+  NS = parse(Int,ARGS[6])
+  NR = parse(Int,ARGS[7])
+  model = ARGS[8]
+  NC = 0.2
   sites = siteinds("S=1/2", N*W)
-  println("L=$N","W=$W","G=$h","NS=$NS ",model)
-  filename = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3] * ".txt"  # Output file to store configurations
-  filename_2 = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * model * "MPSG.txt"
-
-  os=process_model(model,N,1,h)
-  H = MPO(os, sites)
 
   # Initialize a random MPS
   psi0 = random_mps(sites)
+  Nh=Int((hf-h)/dh)
+  for iter in 0:Nh
+      h_model=h+iter*dh
+      
+      println("L=$N","W=$W","G=$h_model","NS=$NS ",model)
+      os=process_model(model,N,1,h_model)
+      H = MPO(os, sites)
 
-  # Run DMRG to find the ground state
-  nsweeps = 45
-  maxdim = [64,64,64,128,256,256,256,400,400,512,1024,1024,1024,1024,1024]
-  cutoff = 1E-12
-  energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
-  H2 = inner(H,psi,H,psi)
-  var = H2-energy^2
-  println("Final energy = $energy","Final var =$var")
-  open(filename_2,"a") do file
-      write(file,"$energy","\t","$var","\n")
-  end
+      for sample_iter in 1:NR
+      
+      	  filename = "DATAM5L" * ARGS[1] * "W" * ARGS[2] * "NS" * ARGS[6] * "MPSG" * string(Int(h_model)) * ".txt" * string(sample_iter)  # Output file to store configurations
+      	  filename_2 = "DATAM5L" * ARGS[1] * "W" * ARGS[2]* "NS" * ARGS[6] * model * "MPSG"*string(Int(h_model)) * ".txt" * string(sample_iter) # Output file optimization
 
-# Call the function to sample and save to the file
-sample_mps_to_file(psi, filename, NS)
-  nothing
+	  
+	  # Run DMRG to find the ground state
+      	  nsweeps = 45
+      	  maxdim = [64,64,64,128,256,256,256,400,400,512,1024,1024,1024,1024,1024]
+      	  cutoff = 1E-12
+      	  energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
+
+	  psi0=psi
+
+	  H2 = inner(H,psi,H,psi)
+      	  var = H2-energy^2
+      	  println("Final energy = $energy","Final var =$var")
+      	  open(filename_2,"a") do file
+              write(file,"$energy","\t","$var","\n")
+      	  end
+
+      	  # Call the function to sample and save to the file
+      	  sample_mps_to_file(psi, filename, NS)
+      	  	nothing
+		
+	  NE=Int(NC*length(psi))
+	  indices_to_modify=rand(1:length(psi0),NE)
+	  for K in indices_to_modify
+    	      tensor_data = ITensors.data(psi0[K])  # Access raw data
+    	      tensor_data .+= randn(eltype(tensor_data), size(tensor_data))
+    	      psi0[K] = ITensor(tensor_data, inds(psi0[K])...)  # Reconstruct the ITensor with modified data
+	  end
+
+	  
+      end	
+  end	
   
 end

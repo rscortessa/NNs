@@ -31,20 +31,27 @@ n_samples=parameters[3]
 n_run=parameters[4]
 n_method=parameters[5]
 
+if n_method==5:
+    jj=parameters[6]
+    n_par=n_par-1
+else:
 
-try:
-    n_neurons=parameters[6]
-    n_layers=parameters[7]
-except:
-    print("no additional parameters")
+    try:
+        n_neurons=parameters[6]
+        n_layers=parameters[7]
+    except:
+        print("no additional parameters")
 
+        
 #POST CONSTANTS    
 cutoff=2**L
 tmax=L*W
 
 name_var=["M","L","W","NS","NR","G","NN","NL"]
 var=[n_method,L,W,n_samples,n_run,parameters[2],n_neurons,n_layers]
+
 print(len(name_var),parameters)
+
 name_var=name_var[:n_par-1]
 var=var[:n_par-1]
 
@@ -53,6 +60,9 @@ name="DATA"
 for i in range(len(var)):
     name+=name_var[i]+str(var[i])
 name+=".txt"
+if n_method==5:
+    name+=str(jj)
+
 file=pd.read_csv(name,delim_whitespace=True,dtype="a")
 file=file.astype(float)
 size=len(file)
@@ -60,8 +70,13 @@ size=len(file)
 #PUBLISHER DETAILS AND INTIALIZATION
 variables=["D"]
 pub=class_WF.publisher(name_var,var,variables)
-pub.create()
 
+if n_method==5:
+    pub.create(jj)
+else:
+    pub.create()
+
+    
 #ARRAYS INTIALIZATION
 LL=L*W
 A=np.zeros((size,LL))

@@ -49,11 +49,22 @@ except:
 print("n_par:",n_par)
 
 
+
+
 tmax=L*W
 name_var=["DATAM","L","W","NS","NR","G","NN","NL"]
 var=[n_method,L,W,n_samples,n_run,Gamma,n_neurons,n_layers]
 name_var=name_var[:n_par-3]
 var=var[:n_par-3]
+
+method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
+models_name=["QIM_","CIM_","XYZ_"]
+modelo=1
+folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"GF"+str(GammaF)
+
+
+
+
 G=[x for x in range(Gamma,GammaF+int((GammaF-Gamma)/NG),int((GammaF-Gamma)/NG))]
 
 
@@ -81,12 +92,17 @@ Dn=np.mean(D,axis=-1)
 dDn=np.std(D,axis=-1)    
 name_var[0]="M"
 for gg in range(len(G)):
+
     var[5]=G[gg]
     pub=class_WF.publisher(name_var,var,["D"])
     pub.create()
     suma=0
+    
     for jj in range(tmax):
         pub.write([dDn[gg,jj],Dn[gg,jj]])
+        
+    filename=pub.name()
+    os.rename(filename,folder_name+"/"+filename)
     pub.close()
 
 

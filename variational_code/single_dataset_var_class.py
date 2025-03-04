@@ -40,7 +40,6 @@ n_run=parameters[5]
 n_mean=parameters[6] #-
 NG=parameters[7] #-
 n_method=parameters[8]
-
 try:
     n_neurons=parameters[9]
     n_layers=parameters[10]
@@ -48,23 +47,30 @@ except:
     print("no additional parameters")
 print("n_par:",n_par)
 
+
+
 name_var=["DATAM","L","W","NS","NR","G","NN","NL"]
 var=[n_method,L,W,n_samples,n_run,Gamma,n_neurons,n_layers]
-
 name_var=name_var[:n_par-3]
 var=var[:n_par-3]
-
-
 
 cutoff=2**L
 methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons),var_nk.SymmModel(alpha=n_neurons,layers=n_layers,L=L,W=W)]
 
 
+method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
+models=[class_WF.Ham,class_WF.CLUSTER_HAM]
+
+models_name=["QIM_","CIM_","XYZ_"]
+modelo=1
+folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"GF"+str(GammaF)
+
 
 
 #INITIALIZE OBJECTS
 hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
-H=class_WF.Ham_PBC(Gamma*dx,V,L,W,hi)
+H=models[modelo](Gamma*dx,W,hi)
+
 
 #CONDITION IF EXACT
 if n_method==5:
@@ -87,7 +93,7 @@ E=np.array([[0 for i in range(n_mean)] for gg in range(NG+1)])
 for gg in range(NG+1):
     
     G=Gamma+(GammaF-Gamma)/NG*gg
-    H=class_WF.Ham_PBC(G*dx,V,L,W,hi)
+    H=models[modelo](G*dx,W,hi)
     sampler=nk.sampler.MetropolisLocal(hi)
     E_WF.change_H(H)
     var[5]=str(round(G))
@@ -119,7 +125,7 @@ for gg in range(NG+1):
                 pubvar.write(Test[ns].tolist())
         namefile=pubvar.name()    
         pubvar.close()
-        os.rename(namefile,namefile+str(hh))
+        os.rename(folder_name+"/"+namefile,namefile+str(hh))
         name_var[0]="DATAM"
 
         #----------------------------------------------------------------------
@@ -135,7 +141,7 @@ for gg in range(NG+1):
             pub.write(A[x])
         namefile=pub.name()
         pub.close()
-        os.rename(namefile,namefile+str(hh))
+        os.rename(namefile,folder_name+"/"+namefile+str(hh))
         #---------------------------------------------------
         
         if n_method!=5:
@@ -150,4 +156,7 @@ En=np.mean(E,axis=-1)
 dEn=np.std(E,axis=-1)
 for gg in range(NG+1):
     pubE.write([0,Gamma+(GammaF-Gamma)/NG*gg,dEn[gg],En[gg]])
+filename=pubE.name()
 pubE.close()
+
+os.rename(filename,folder_name+"/"+filename)

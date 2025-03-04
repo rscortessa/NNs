@@ -54,6 +54,15 @@ name_var=["DATAM","L","W","NS","NR","G","NN","NL"]
 var=[n_method,L,W,n_samples,n_run,Gamma,n_neurons,n_layers]
 name_var=name_var[:n_par-3]
 var=var[:n_par-3]
+
+
+
+method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
+models_name=["QIM_","CIM_","XYZ_"]
+modelo=1
+folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"GF"+str(GammaF)
+
+
 G=range(Gamma,GammaF+int((GammaF-Gamma)/NG),int((GammaF-Gamma)/NG))
 S=np.array([[0 for i in range(n_mean)] for i in G])
 
@@ -65,7 +74,7 @@ for gg in G:
     
     for i in range(n_mean):
         filename=name(name_var,var)+str(i)
-        file=pd.read_csv(filename,sep="\s+",dtype="a")
+        file=pd.read_csv(folder_name+"/"+filename,sep="\s+",dtype="a")
         file=file.astype(float)
         A=np.array(file)
         lenght=len(A)
@@ -87,7 +96,11 @@ j=0
 for x in G:
     pub.write([0,x,DS_PCA[j],S_PCA[j]])
     j+=1
+filename=pub.name()
 pub.close()
+
+os.rename(filename,folder_name+"/"+filename)
+
 
 
 

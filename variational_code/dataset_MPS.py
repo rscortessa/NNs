@@ -28,6 +28,7 @@ L=parameters[0]
 W=parameters[1]
 Gamma=parameters[2]*(-dx)
 n_samples=parameters[3]
+jj=parameters[4]
 n_run=1000
 n_method=5
 
@@ -36,7 +37,7 @@ n_method=5
 
 name_var=["DATAM","L","W","NS","NR","G"]
 var=[n_method,L,W,n_samples,n_run,parameters[2]]    
-name="DATAM"+str(n_method)+"L"+str(L)+"W"+str(W)+"NS"+str(n_samples)+"MPS"+"G"+str(parameters[2])+".txt"
+name="DATAM"+str(n_method)+"L"+str(L)+"W"+str(W)+"NS"+str(n_samples)+"MPS"+"G"+str(parameters[2])+".txt"+str(jj)
 file=pd.read_csv(name,delim_whitespace=True,dtype="a")
 file=file.astype(float)
 
@@ -49,12 +50,11 @@ B,W=TId.sets(A)
 
 
 pub=class_WF.publisher(name_var,var,[])
-pub.create()
+pub.create(jj)
 suma=0
 for x in range(len(B)):
     suma+=W[x]
     pub.write(np.append(B[x],[W[x],suma]))
-
     
 pub.close()
 
