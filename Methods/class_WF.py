@@ -28,8 +28,8 @@ def min_d(vr,eps):
 #NOT PERIODIC HAMILTONIAN:
 def Ham(Gamma,L,hi):
     
-    H=sum([Gamma*sigmax(hi,i) for i in range(L)])                                                                                      
-    H+=sum([sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L-1)])                                                                      
+    H=sum([-1.0*Gamma*sigmax(hi,i) for i in range(L)])                                                                                      
+    H+=sum([-1.0*sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L-1)])                                                                      
     return H    
 
 def CLUSTER_HAM_Z(Gamma,L,hi):
