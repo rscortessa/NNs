@@ -21,15 +21,15 @@ let
   psi0 = random_mps(sites)
 
   # Run DMRG to find the ground state
-  nsweeps = 15
+  nsweeps = 45
   maxdim = [64,64,64,128,256,256,256,400,400,512,1024,1024,1024,1024,1024]
-  cutoff = 1E-10
+  cutoff = 1E-12
   energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
   H2 = inner(H,psi,H,psi)
   var = H2-energy^2
   println("Final energy = $energy","Final var =$var")
   open(filename_2,"a") do file
-      write(file,"$energy","\t","$var")
+      write(file,"$energy","\t","$var","\n")
   end
 
 # Call the function to sample and save to the file
