@@ -25,15 +25,42 @@ end
 
 #MODELS:
 
-function cluster_ising(N::Int,W::Int,h::Float64)
+
+function cluster_ising_z(N::Int,W::Int,h::Float64)
   os = OpSum()
   for j = 0:N-3
      os += -8.0,"Sx",j+1,"Sz",(j+1)%N+1,"Sx",(j+2)%N+1
-     os += -h*0.004, "Sy",j+1,"Sy",(j+1)%N+1
+     os += h*0.004, "Sy",j+1,"Sy",(j+1)%N+1
   end
-  os+=-h*0.004,"Sy",N-1,"Sy",N
+  os+=h*0.004,"Sy",N-1,"Sy",N
   return os
 end
+
+
+function cluster_ising_x(N::Int,W::Int,h::Float64)
+  os = OpSum()
+  for j = 0:N-3
+     os += -8.0,"Sz",j+1,"Sx",(j+1)%N+1,"Sz",(j+2)%N+1
+     os += h*0.004, "Sy",j+1,"Sy",(j+1)%N+1
+  end
+  os+=h*0.004,"Sy",N-1,"Sy",N
+  return os
+end
+
+
+
+function cluster_ising_y(N::Int,W::Int,h::Float64)
+  os = OpSum()
+  for j = 0:N-3
+     os += 8.0,"Sx",j+1,"Sy",(j+1)%N+1,"Sx",(j+2)%N+1
+     os += h*0.004, "Sz",j+1,"Sz",(j+1)%N+1
+  end
+  os+=h*0.004,"Sz",N-1,"Sz",N
+  return os
+end
+
+
+
 
 function quantum_ising(N::Int,W::Int,h::Float64)
   os = OpSum()
@@ -81,12 +108,16 @@ end
 function process_model(model::String,N::Int,W::Int,h::Float64)
     if model == "XYZ"
        return quantum_XYZ(N,W,h)
-    elseif model == "CIM"
-       return cluster_ising(N,W,h)
+    elseif model == "CIM_X"
+       return cluster_ising_x(N,W,h)
+    elseif model == "CIM_Y_"
+       return cluster_ising_y(N,W,h)
+    elseif model == "CIM_Z"
+       return cluster_ising_z(N,W,h)
     elseif model == "QIM"
        return quantum_ising(N,W,h)
     else
-	error("Invalid model type: $model. Accepted models are XYZ CIM QIM")
+	error("Invalid model type: $model. Accepted models are XYZ CIM_(X/Y/Z) QIM")
     end	       
 
 end

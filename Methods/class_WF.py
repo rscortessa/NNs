@@ -26,15 +26,30 @@ def min_d(vr,eps):
             return i
 
 #NOT PERIODIC HAMILTONIAN:
-def Ham(Gamma,L,hi):                                                                                                                 
+def Ham(Gamma,L,hi):
+    
     H=sum([Gamma*sigmax(hi,i) for i in range(L)])                                                                                      
     H+=sum([sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L-1)])                                                                      
     return H    
 
-def CLUSTER_HAM(Gamma,L,hi):
-    H=sum([ complex(1.0)*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L)])
+def CLUSTER_HAM_Z(Gamma,L,hi):
+    
+    H=sum([ complex(-1.0)*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L)])
     H+=sum([ complex(Gamma)*(sigmay(hi,i)*sigmay(hi,(i+1)%L)) for i in range(L)])
     return H
+
+def CLUSTER_HAM_X(Gamma,L,hi):
+    
+    H=sum([ complex(-1.0)*sigmaz(hi,i)*sigmax(hi,(i+1)%L)*sigmaz(hi,(i+2)%L) for i in range(L)])
+    H+=sum([ complex(Gamma)*(sigmay(hi,i)*sigmay(hi,(i+1)%L)) for i in range(L)])
+    return H
+
+def CLUSTER_HAM_Y(Gamma,L,hi):
+    
+    H=sum([ complex(1.0)*sigmax(hi,i)*sigmay(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L)])
+    H+=sum([ complex(Gamma)*(sigmaz(hi,i)*sigmaz(hi,(i+1)%L)) for i in range(L)])
+    return H
+
 
 def Ham_W(Gamma,V,L,W,hi):
     H=sum([Gamma*sigmax(hi,i%L+int(i/L)*L) for i in range(L*W)])
