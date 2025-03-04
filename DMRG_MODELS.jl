@@ -16,7 +16,7 @@ let
   filename = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3] * ".txt"  # Output file to store configurations
   filename_2 = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * model * "MPSG.txt"
 
-  os=process_model("QIM",N,1,h)
+  os=process_model(model,N,1,h)
   H = MPO(os, sites)
 
   # Initialize a random MPS
