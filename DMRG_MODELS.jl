@@ -12,7 +12,7 @@ let
   NS = parse(Int,ARGS[4])
   model = ARGS[5]
   sites = siteinds("S=1/2", N*W)
-  println("L=$N","W=$W","G=$h","NS=$NS",model)
+  println("L=$N","W=$W","G=$h","NS=$NS ",model)
   filename = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * "MPSG" * ARGS[3] * ".txt"  # Output file to store configurations
   filename_2 = "DATAM5L" * ARGS[1] *"W"* ARGS[2]*"NS" * ARGS[4] * model * "MPSG.txt"
 
