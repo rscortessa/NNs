@@ -27,10 +27,11 @@ end
 
 function cluster_ising(N::Int,W::Int,h::Float64)
   os = OpSum()
-  for j = 0:N-1
+  for j = 0:N-3
      os += -8.0,"Sx",j+1,"Sz",(j+1)%N+1,"Sx",(j+2)%N+1
      os += -h*0.004, "Sy",j+1,"Sy",(j+1)%N+1
   end
+  os+=-h*0.004,"Sy",N-1,"Sy",N
   return os
 end
 
