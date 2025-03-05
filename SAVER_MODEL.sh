@@ -12,10 +12,11 @@ Delete=$9
 
 dir=${MODEL}L${L}W${W}NS${N_samples}GI${Gamma}GF${GammaF}NR${N_REP}
 mkdir "${dir}"
+cp ${dir}/DATA*MPS*.txt* .
 
 echo "Running with Gamma=$Gamma, L=$L, N_samples=$N_samples"
 
-julia DMRG_MODELS.jl "$L" "$W" "$Gamma" "$GammaF" "$DG" "$N_samples" "$N_REP" "$MODEL"
+
 for (( jj=1;jj<=N_REP;jj++))
 do
     Gamma=$4  
