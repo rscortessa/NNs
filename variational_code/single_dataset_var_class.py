@@ -9,7 +9,7 @@ import os
 
 ## CONSTANTS
 eps=10**(-8)
-dx=-0.01
+dx=0.01
 V=-1.0
 n_between=200
 
@@ -59,7 +59,7 @@ methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layer
 
 
 method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
-models=[class_WF.Ham,class_WF.CLUSTER_HAM]
+models=[class_WF.Ham,class_WF.CLUSTER_HAM_X]
 
 models_name=["QIM_","CIM_","XYZ_"]
 modelo=1
