@@ -6,11 +6,11 @@ from scipy.sparse.linalg import eigsh
 import netket as nk
 import sys
 import os
-
+import time
 ## CONSTANTS
 
 eps=10**(-8)
-dx=-0.01
+dx=0.01
 V=-1.0
 t1=1
 t2=5
@@ -39,7 +39,7 @@ n_between=parameters[4]
 n_run=parameters[5] #-
 n_mean=parameters[6] #-
 n_method=parameters[7]
-
+save_hiddens=False
 try:
     n_neurons=parameters[8]
     n_layers=parameters[9]
@@ -56,7 +56,7 @@ cutoff=2**L
 methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons),var_nk.SymmModel(alpha=n_neurons,layers=n_layers,L=L,W=W)]
 method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
 hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
-models=[class_WF.Ham(Gamma*dx,L,hi),class_WF.CLUSTER_HAM(Gamma*dx,L,hi)]
+models=[class_WF.Ham(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_X(Gamma*dx,L,hi)]
 models_name=["QIM_","CIM_","XYZ_"]
 modelo=1
 folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)
@@ -92,7 +92,10 @@ except:
     
 
 for hh in range(n_mean):
-
+    print(hh)
+    if hh>0:
+        print("iter_num=",hh," time=",bb-aa)
+    aa=time.time()
     E_WF.user_state.init_parameters()
     for steps in range(n_run):
 
@@ -118,7 +121,7 @@ for hh in range(n_mean):
         name_var[0]="VARM"
         pubvar=class_WF.publisher(name_var,var,[])
         pubvar.create()
-        if n_method == 3:        
+        if n_method == 3 and save_hiddens:        
             kernel=E_WF.user_state.variables["params"]["Dense"]["kernel"]
             bias=E_WF.user_state.variables["params"]["Dense"]["bias"]
             visible_bias=E_WF.user_state.variables["params"]["visible_bias"]
@@ -143,6 +146,7 @@ for hh in range(n_mean):
 
         E[steps][hh]=E_WF.compute_E()
 
+        bb=time.time()
         
 En=np.mean(E,axis=-1)
 dEn=np.std(E,axis=-1)

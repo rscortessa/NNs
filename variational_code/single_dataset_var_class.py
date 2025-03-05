@@ -46,7 +46,7 @@ try:
 except:
     print("no additional parameters")
 print("n_par:",n_par)
-
+save_hiddens=False
 
 
 name_var=["DATAM","L","W","NS","NR","G","NN","NL"]
@@ -113,7 +113,7 @@ for gg in range(NG+1):
         name_var[0]="VARM"
         pubvar=class_WF.publisher(name_var,var,[])
         pubvar.create()
-        if n_method == 3:
+        if n_method == 3 and save_hiddens:
         
             kernel=E_WF.user_state.variables["params"]["Dense"]["kernel"]
             bias=E_WF.user_state.variables["params"]["Dense"]["bias"]
