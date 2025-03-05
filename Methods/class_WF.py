@@ -38,13 +38,16 @@ def CLUSTER_HAM_Z(Gamma,L,hi):
     if not PBC:
         L_A=L-2
         L_I=L-1
+        aux_1=[-1.0*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)]
+        aux_2=[-(1.0*Gamma/4.0)*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
+        H=sum(aux_1)+sum(aux_2)
     else:
         L_A=L
         L_I=L
+        aux_1=[-1.0*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)]
+        aux_2=[-(1.0*Gamma/4.0)*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
+        H=sum(aux_1)+sum(aux_2)
         
-    H= -1.0*(sum([sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)]))
-    H+=-(1.0*Gamma/4.0)*(sum([(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]))
-    
     return H
 
 def CLUSTER_HAM_X(Gamma,L,hi):
@@ -78,12 +81,16 @@ def CLUSTER_HAM_Y(Gamma,L,hi):
     if not PBC:
         L_A=L-2
         L_I=L-1
+        aux_1=[ complex(1.0)*sigmax(hi,i)*sigmay(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)]
+        aux_2=[ complex(Gamma)*(sigmaz(hi,i)*sigmaz(hi,(i+1)%L)) for i in range(L_I)]
+        H=sum(aux_1)+sum(aux_2)
     else:
         L_A=L
         L_I=L
+        aux_1=[ complex(1.0)*sigmax(hi,i)*sigmay(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)]
+        aux_2=[ complex(Gamma)*(sigmaz(hi,i)*sigmaz(hi,(i+1)%L)) for i in range(L_I)]
+        H=sum(aux_1)+sum(aux_2)
         
-    H=sum([ complex(1.0)*sigmax(hi,i)*sigmay(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)])
-    H+=sum([ complex(Gamma)*(sigmaz(hi,i)*sigmaz(hi,(i+1)%L)) for i in range(L_I)])
     return H
 
 
