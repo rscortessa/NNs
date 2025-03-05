@@ -10,12 +10,12 @@ N_REP=$7
 MODEL=$8
 Delete=$9
 
+
 dir=${MODEL}L${L}W${W}NS${N_samples}GI${Gamma}GF${GammaF}NR${N_REP}
+
 mkdir "${dir}"
-cp ${dir}/DATA*MPS*.txt* .
 
 echo "Running with Gamma=$Gamma, L=$L, N_samples=$N_samples"
-
 
 for (( jj=1;jj<=N_REP;jj++))
 do
