@@ -7,7 +7,7 @@ import pandas as pd
 from scipy.sparse.linalg import eigsh    
 import netket as nk
 import sys
-
+import os
 def name(A,B):
     filename=""
     for i in range(len(A)):
@@ -57,11 +57,13 @@ var=var[:n_par-3]
 
 
 
-method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
-models_name=["QIM_","CIM_","XYZ_"]
+method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_",""]
+models_name=["QIM_","CIM_X","XYZ_"]
 modelo=1
 folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"GF"+str(GammaF)
-
+if n_method==5:
+    folder_name=models_name[modelo]+method_name[n_method]+"L"+str(L)+"W"+str(W)+"NS"+str(n_samples)+"GI"+str(Gamma)+"GF"+str(GammaF)+"NR"+str(n_mean)
+    
 
 G=range(Gamma,GammaF+int((GammaF-Gamma)/NG),int((GammaF-Gamma)/NG))
 S=np.array([[0 for i in range(n_mean)] for i in G])
@@ -73,7 +75,7 @@ for gg in G:
     var[5]=round(gg)
     
     for i in range(n_mean):
-        filename=name(name_var,var)+str(i)
+        filename=name(name_var,var)+str(i+1)
         file=pd.read_csv(folder_name+"/"+filename,sep="\s+",dtype="a")
         file=file.astype(float)
         A=np.array(file)
