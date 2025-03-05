@@ -5,7 +5,7 @@ from typing import TextIO
 import sys                                                                                                                            
 import netket as nk                                                                                                                   
 import matplotlib.pyplot as plt                                                                                                       
-from netket.operator.spin import sigmax,sigmaz,sigmay,identity                                                                               
+from netket.operator.spin import sigmax,sigmaz,sigmay,identity,sigmam,sigmap                                                                               
 from scipy.sparse.linalg import eigsh                                                                                                 
 import jax.numpy as jnp                                                                                                               
 import flax                                                                                                                           
@@ -28,8 +28,8 @@ def min_d(vr,eps):
 #NOT PERIODIC HAMILTONIAN:
 def Ham(Gamma,L,hi):
     
-    H=sum([-1.0*Gamma*sigmax(hi,i) for i in range(L)])                                                                                      
-    H+=sum([-1.0*sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L-1)])                                                                      
+    H=-1.0*sum([Gamma*sigmax(hi,i) for i in range(L)])                                                                                      
+    H+=-1.0*sum([sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L-1)])                                                                      
     return H    
 
 def CLUSTER_HAM_Z(Gamma,L,hi):
@@ -42,8 +42,9 @@ def CLUSTER_HAM_Z(Gamma,L,hi):
         L_A=L
         L_I=L
         
-    H=sum([ complex(-1.0)*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)])
-    H+=sum([ complex(Gamma)*(sigmay(hi,i)*sigmay(hi,(i+1)%L)) for i in range(L_I)])
+    H= -1.0*(sum([sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)]))
+    H+=-(1.0*Gamma/4.0)*(sum([(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]))
+    
     return H
 
 def CLUSTER_HAM_X(Gamma,L,hi):
@@ -52,12 +53,23 @@ def CLUSTER_HAM_X(Gamma,L,hi):
     if not PBC:
         L_A=L-2
         L_I=L-1
+        aux_1=[-1.0*sigmaz(hi,i)*sigmax(hi,(i+1)%L)*sigmaz(hi,(i+2)%L) for i in range(L_A)]
+        aux_1.append(identity(hi))
+        aux_1.append(identity(hi))
+        aux_2=[-1.0*Gamma/4.0*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
+        aux_2.append(identity(hi))
+        H=sum(aux_1)+sum(aux_2)
+        
     else:
         L_A=L
         L_I=L
-        
-    H=sum([ complex(-1.0)*sigmaz(hi,i)*sigmax(hi,(i+1)%L)*sigmaz(hi,(i+2)%L) for i in range(L_A)])
-    H+=sum([ complex(Gamma)*(sigmay(hi,i)*sigmay(hi,(i+1)%L)) for i in range(L_I)])
+        aux_1=[-1.0*sigmaz(hi,i)*sigmax(hi,(i+1)%L)*sigmaz(hi,(i+2)%L) for i in range(L_A)]
+        aux_1.append(identity(hi))
+        aux_1.append(identity(hi))
+        aux_2=[-1.0*Gamma/4.0*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
+        aux_2.append(identity(hi))
+        H=sum(aux_1)+sum(aux_2)
+            
     return H
 
 def CLUSTER_HAM_Y(Gamma,L,hi):

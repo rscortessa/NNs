@@ -59,18 +59,21 @@ methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layer
 
 
 method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
-models=[class_WF.Ham,class_WF.CLUSTER_HAM_X]
 
+models=[class_WF.Ham,class_WF.CLUSTER_HAM_X]
+print(models)
 models_name=["QIM_","CIM_","XYZ_"]
 modelo=1
 folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"GF"+str(GammaF)
-
-
+try:
+    os.mkdir(folder_name)
+except:
+    print("DIRECTORY ALREADY EXISTS, FILES WILL BE KEPT THERE")
 
 #INITIALIZE OBJECTS
 hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
-H=models[modelo](Gamma*dx,W,hi)
-
+H=models[modelo](Gamma*dx,L,hi)
+print(H)
 
 #CONDITION IF EXACT
 if n_method==5:
@@ -125,13 +128,13 @@ for gg in range(NG+1):
                 pubvar.write(Test[ns].tolist())
         namefile=pubvar.name()    
         pubvar.close()
-        os.rename(folder_name+"/"+namefile,namefile+str(hh))
+        os.rename(namefile,folder_name+"/"+namefile+str(hh))
         name_var[0]="DATAM"
 
         #----------------------------------------------------------------------
 
         if n_method!=5:
-        E[gg][hh]=E_WF.compute_E()
+            E[gg][hh]=E_WF.compute_E()
     
         #THIS PART COMPUTES THE DATASET MATRIX AND STORES IT
 
