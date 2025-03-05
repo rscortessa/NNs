@@ -33,21 +33,45 @@ def Ham(Gamma,L,hi):
     return H    
 
 def CLUSTER_HAM_Z(Gamma,L,hi):
-    
-    H=sum([ complex(-1.0)*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L)])
-    H+=sum([ complex(Gamma)*(sigmay(hi,i)*sigmay(hi,(i+1)%L)) for i in range(L)])
+
+    PBC=False
+    if not PBC:
+        L_A=L-2
+        L_I=L-1
+    else:
+        L_A=L
+        L_I=L
+        
+    H=sum([ complex(-1.0)*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)])
+    H+=sum([ complex(Gamma)*(sigmay(hi,i)*sigmay(hi,(i+1)%L)) for i in range(L_I)])
     return H
 
 def CLUSTER_HAM_X(Gamma,L,hi):
-    
-    H=sum([ complex(-1.0)*sigmaz(hi,i)*sigmax(hi,(i+1)%L)*sigmaz(hi,(i+2)%L) for i in range(L)])
-    H+=sum([ complex(Gamma)*(sigmay(hi,i)*sigmay(hi,(i+1)%L)) for i in range(L)])
+
+    PBC=False
+    if not PBC:
+        L_A=L-2
+        L_I=L-1
+    else:
+        L_A=L
+        L_I=L
+        
+    H=sum([ complex(-1.0)*sigmaz(hi,i)*sigmax(hi,(i+1)%L)*sigmaz(hi,(i+2)%L) for i in range(L_A)])
+    H+=sum([ complex(Gamma)*(sigmay(hi,i)*sigmay(hi,(i+1)%L)) for i in range(L_I)])
     return H
 
 def CLUSTER_HAM_Y(Gamma,L,hi):
-    
-    H=sum([ complex(1.0)*sigmax(hi,i)*sigmay(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L)])
-    H+=sum([ complex(Gamma)*(sigmaz(hi,i)*sigmaz(hi,(i+1)%L)) for i in range(L)])
+
+    PBC=False
+    if not PBC:
+        L_A=L-2
+        L_I=L-1
+    else:
+        L_A=L
+        L_I=L
+        
+    H=sum([ complex(1.0)*sigmax(hi,i)*sigmay(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)])
+    H+=sum([ complex(Gamma)*(sigmaz(hi,i)*sigmaz(hi,(i+1)%L)) for i in range(L_I)])
     return H
 
 
