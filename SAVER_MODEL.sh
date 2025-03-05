@@ -21,10 +21,8 @@ for (( jj=1;jj<=N_REP;jj++))
 do
     Gamma=$4  
     while (( $(echo "$Gamma <= $GammaF" | bc -l) )); do
-	(
-            python run_MPS.py "$L" "$W" "$Gamma" "$N_samples" "$jj" 
-            python dataset_density_run.py "$L" "$W" "$Gamma" "$N_samples" "1000" "5" "$jj"
-	)&
+        python run_MPS.py "$L" "$W" "$Gamma" "$N_samples" "$jj" 
+        python dataset_density_run.py "$L" "$W" "$Gamma" "$N_samples" "1000" "5" "$jj"
 	Gamma=$(echo "$Gamma + $DG" | bc -l)  # Increment Gamma
     done
     
