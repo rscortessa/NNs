@@ -110,7 +110,7 @@ function process_model(model::String,N::Int,W::Int,h::Float64)
        return quantum_XYZ(N,W,h)
     elseif model == "CIM_X"
        return cluster_ising_x(N,W,h)
-    elseif model == "CIM_Y_"
+    elseif model == "CIM_Y"
        return cluster_ising_y(N,W,h)
     elseif model == "CIM_Z"
        return cluster_ising_z(N,W,h)
