@@ -1,4 +1,7 @@
+
 using LinearAlgebra
+using Statistics
+using StatsBase
 BLAS.set_num_threads(8)
 using ITensors, ITensorMPS
 include("Models.jl")
@@ -20,8 +23,14 @@ let
   # Initialize a random MPS
   psi0 = random_mps(sites)
   Nh=Int((hf-h)/dh)
+  
+  filename_2 = "DATAM5L" * ARGS[1] * "W" * ARGS[2]* "NS" * ARGS[6] * model * "MPS" * ".txt" # Output file optimization
+
+   
   for iter in 0:Nh
+
       h_model=h+iter*dh
+      En=zeros(NR)
       
       println("L=$N","W=$W","G=$h_model","NS=$NS ",model)
       os=process_model(model,N,1,h_model)
@@ -30,29 +39,29 @@ let
       for sample_iter in 1:NR
       
       	  filename = "DATAM5L" * ARGS[1] * "W" * ARGS[2] * "NS" * ARGS[6] * "MPSG" * string(Int(h_model)) * ".txt" * string(sample_iter)  # Output file to store configurations
-      	  filename_2 = "DATAM5L" * ARGS[1] * "W" * ARGS[2]* "NS" * ARGS[6] * model * "MPSG"*string(Int(h_model)) * ".txt" * string(sample_iter) # Output file optimization
 
 	  
 	  # Run DMRG to find the ground state
-      	  nsweeps = 45
+      	  nsweeps = 15
       	  maxdim = [64,64,64,128,256,256,256,400,400,512,1024,1024,1024,1024,1024]
-      	  cutoff = 1E-12
+      	  cutoff = 1E-10
       	  energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
 
 	  psi0=psi
 
 	  H2 = inner(H,psi,H,psi)
       	  var = H2-energy^2
+	  
+	  En[sample_iter]=energy
+	  
       	  println("Final energy = $energy","Final var =$var")
-      	  open(filename_2,"a") do file
-              write(file,"$energy","\t","$var","\n")
-      	  end
+      	  
 
       	  # Call the function to sample and save to the file
       	  sample_mps_to_file(psi, filename, NS)
       	  	nothing
 		
-	  NE=Int(NC*length(psi))
+	  NE=Int( floor(NC*length(psi)))
 	  indices_to_modify=rand(1:length(psi0),NE)
 	  for K in indices_to_modify
     	      tensor_data = ITensors.data(psi0[K])  # Access raw data
@@ -61,7 +70,13 @@ let
 	  end
 
 	  
-      end	
+      end
+      E_mean=mean(En)
+      E_var=sqrt(var(En)/sqrt(Float64(NR)))
+      
+      open(filename_2,"a") do file
+              write(file,"$h_model","$E_mean","\t","$E_var","\n")
+      	  end
   end	
   
 end
