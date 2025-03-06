@@ -42,9 +42,9 @@ let
 
 	  
 	  # Run DMRG to find the ground state
-      	  nsweeps = 45
+      	  nsweeps = 15
       	  maxdim = [64,64,64,128,256,256,256,400,400,512,1024,1024,1024,1024,1024]
-      	  cutoff = 1E-12
+      	  cutoff = 1E-10
       	  energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
 
 	  psi0=psi
