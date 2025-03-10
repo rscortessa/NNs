@@ -2,7 +2,7 @@
 using LinearAlgebra
 using Statistics
 using StatsBase
-BLAS.set_num_threads(8)
+BLAS.set_num_threads(4)
 using ITensors, ITensorMPS
 include("Models.jl")
 

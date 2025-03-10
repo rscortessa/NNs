@@ -56,9 +56,9 @@ cutoff=2**L
 methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons),var_nk.SymmModel(alpha=n_neurons,layers=n_layers,L=L,W=W)]
 method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
 hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
-models=[class_WF.Ham(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_X(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Z(Gamma*dx,L,hi)]
-models_name=["QIM_","CIM_X","CIM_Z","XYZ_"]
-modelo=2
+models=[class_WF.Ham(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_X(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Z(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Y(Gamma*dx,L,hi)]
+models_name=["QIM_","CIM_X","CIM_Z","CIM_Y","XYZ_"]
+modelo=3
 folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)
 
 
