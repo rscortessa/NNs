@@ -29,8 +29,10 @@ let
   for iter in 0:Nh
 
       h_model=h+iter*dh
+
       En=zeros(NR)
       OZ=zeros(NR)
+      OZZ=zeros(NR)
       
       println("L=$N","W=$W","G=$h_model","NS=$NS ",model)
       os=process_model(model,N,1,h_model)
@@ -53,12 +55,12 @@ let
 	  H2 = inner(H,psi,H,psi)
 
 	  AV_OZ=O_Z(psi,N)	  
-
+	  AV_OZZ=CHAIN_O_Z(psi,N)
 	  var = H2-energy^2
 	  
 	  En[sample_iter]=energy
 	  OZ[sample_iter]=AV_OZ
-	  
+	  OZZ[sample_iter]=AV_OZZ
       	  println("Final energy = $energy","Final var =$var")
       	  
 
@@ -79,8 +81,10 @@ let
       E_mean=mean(En)
       E_var=sqrt(var(En)/sqrt(Float64(NR)))
       OZ_mean=mean(OZ)
+      OZZ_mean=mean(OZZ)
+      
       open(filename_2,"a") do file
-              write(file,"$h_model","$E_mean","\t","$E_var","\t","OZ_mean","\n")
+              write(file,"$h_model","$E_mean","\t","$E_var","\t","OZ_mean","\t","OZZ_mean","\n")
       	  end
   end	
   
