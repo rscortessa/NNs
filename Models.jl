@@ -1,7 +1,7 @@
 
 module Models
 
-export sample_mps_to_file, cluster_ising, quantum_ising, quantum_XYZ,process_model
+export sample_mps_to_file, cluster_ising, quantum_ising, quantum_XYZ,process_model,O_Z
 
 using ITensors, ITensorMPS
 
@@ -122,4 +122,48 @@ function process_model(model::String,N::Int,W::Int,h::Float64)
 
 end
 
+function O_Z(N)
+    # Define spin-1/2 sites
+    sites = siteinds("S=1/2", N)
+    # Start with the identity tensor
+    Op = ITensor(1.0)
+    # Apply σ_x on site 1
+    Op *= op("Sx", sites[1])
+    # Apply σ_y on site 2
+    Op *= op("Sy", sites[2])
+    # Apply σ_z on sites 3 to N-2
+    for j in 3:(N-2)
+        Op *= op("Sz", sites[j])
+    end
+    # Apply σ_y on site N-1
+    Op *= op("Sy", sites[N-1])
+
+    # Apply σ_x on site N
+    Op *= op("Sx", sites[N])
+    
+    return Op
 end
+
+using ITensors
+
+function O_Z(psi::MPS, N::Int)
+    aux=N-2
+    aux_2=N-1
+    # Expectation values for sigma_x, sigma_y, sigma_z on specific sites
+    Sz_values = expect(psi, "Sz"; sites=3:aux)  # σ_z on sites 3 to N-2
+    Sx_values = expect(psi, "Sx"; sites=1)         # σ_x on site 1
+    Sy_values = expect(psi, "Sy"; sites=2)         # σ_y on site 2
+    Sx_values_end = expect(psi, "Sx"; sites=N)         # σ_x on site N
+    Sy_values_end = expect(psi, "Sy"; sites=aux_2)         # σ_y on site 2
+    # Multiply corresponding elements
+    result = Sx_values[1] * Sy_values[1] * Sx_values_end[1] * Sy_values_end[1]  # σ₁ˣ σ₂ʸ
+    for j in 1:length(Sz_values)
+        result *= Sz_values[j]  # σᵢᶻ for i = 3 to N-2
+    end
+    return result
+end
+
+
+end
+
+
