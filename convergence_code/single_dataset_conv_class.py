@@ -53,12 +53,14 @@ var=var[:n_par-2]
 
     
 cutoff=2**L
-methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons),var_nk.SymmModel(alpha=n_neurons,layers=n_layers,L=L,W=W)]
-method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
-hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
-models=[class_WF.Ham(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_X(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Z(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Y(Gamma*dx,L,hi)]
-models_name=["QIM_","CIM_X","CIM_Z","CIM_Y","XYZ_"]
-modelo=3
+methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons,param_dtype=complex),var_nk.SymmModel(alpha=n_neurons,layers=n_layers,L=L,W=W)]
+method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_","EX"]
+
+hi=nk.hilbert.Spin(s=1/2,N=L*W)
+
+models=[class_WF.IsingModel_Z(Gamma*dx,L,hi),class_WF.IsingModel_X(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_X(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Z(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Y(Gamma*dx,L,hi)]
+models_name=["QIM_Z","QIM_X","CIM_X","CIM_Z","CIM_Y","XYZ_"]
+modelo=1
 folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)
 
 
@@ -66,9 +68,10 @@ folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+s
 H=models[modelo]
 #CONDITION IF EXACT
 if n_method==5:
-    eig_vecs=class_WF.Diag(H)
+    eig_vals,eig_vecs=class_WF.Diag(H,True)
     methods.append(var_nk.EWF(eig_vec=tuple(np.abs(eig_vecs[:,0])),L=L*W))
-
+    print(eig_vals)
+    quit()
 model=methods[n_method]
 E_WF=class_WF.WF(L*W,model,H,n_samples)
 
@@ -76,13 +79,13 @@ name_var[0]="M"
 pubE=class_WF.publisher(name_var+["NR"],var+[n_run],["NS","E"])
 pubE.create()
 name_var[0]="DATAM"
-E=np.array([[0.0 for i in range(n_mean)] for gg in range(n_run)])
+E=np.array([[0.0 for i in range(n_mean)] for gg in range(n_run)],dtype=float)
 
 #ITERATION OVER THE GAMMA VALUES:
 
 G=Gamma
 #H=class_WF.Ham(G*dx,V,L,hi)
-sampler=nk.sampler.MetropolisLocal(hi)
+sampler=nk.sampler.MetropolisLocal(hi,n_chains=128,sweep_size=50)
 
 try:
     os.mkdir(folder_name)
@@ -107,9 +110,10 @@ for hh in range(n_mean):
             #if n_method==0 or n_method==2:
             #    lenght=len(A)
             #    A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
-         
+        print("Energy:",E_WF.compute_E(),"step",steps)
         pub=class_WF.publisher(name_var,var,[])
         pub.create()
+        A=E_WF.sampling()
         for x in range(len(A)):
             pub.write(A[x])
         namefile=pub.name()

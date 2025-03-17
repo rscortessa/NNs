@@ -18,6 +18,8 @@ import random as rn
 from math import log,sqrt,pow,exp,lgamma,pi                                                                                           
 from sklearn.neighbors import NearestNeighbors
 from Methods.TId import sets,neighbors,n_points,Volume_ratio,func,roots
+from netket.hilbert import constraint
+import equinox as eqx 
 
 
 def min_d(vr,eps):
@@ -26,11 +28,38 @@ def min_d(vr,eps):
             return i
 
 #NOT PERIODIC HAMILTONIAN:
-def Ham(Gamma,L,hi):
+
+def parity_X(L,hi):
+    aux_0=identity(hi)
+    for i in range(L):
+        aux_0*=sigmaz(hi,i)
+    return aux_0
+
+
+def parity_Z(L,hi):
+    aux_0=identity(hi)
+    for i in range(L):
+        aux_0*=sigmax(hi,i)
+    return aux_0
+
+
+def IsingModel_X(Gamma,L,hi):
     
-    H=-1.0*sum([Gamma*sigmax(hi,i) for i in range(L)])                                                                                      
-    H+=-1.0*sum([sigmaz(hi,i)*sigmaz(hi,(i+1)%L) for i in range(L-1)])                                                                      
-    return H    
+    PBC=False
+    L_I=L-1
+    aux_0=[(-1.0)*sigmax(hi,i)*sigmax(hi,(i+1)%L)+(1.0)*Gamma*sigmaz(hi,i)  for i in range(L_I)]
+    H=sum(aux_0)+1.0*Gamma*sigmaz(hi,L-1)       
+    return H
+
+
+def IsingModel_Z(Gamma,L,hi):
+    
+    PBC=False
+    L_I=L-1
+    aux_0=[(-1.0)*sigmaz(hi,i)*sigmaz(hi,(i+1)%L)+(1.0)*Gamma*sigmax(hi,i)  for i in range(L_I)]
+    H=sum(aux_0)+1.0*Gamma*sigmax(hi,L-1)       
+    return H
+
 
 def CLUSTER_HAM_Z(Gamma,L,hi):
 
@@ -39,13 +68,13 @@ def CLUSTER_HAM_Z(Gamma,L,hi):
         L_A=L-2
         L_I=L-1
         aux_1=[-1.0*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)]
-        aux_2=[-(1.0*Gamma/4.0)*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
+        aux_2=[-(1.0*Gamma)*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
         H=sum(aux_1)+sum(aux_2)
     else:
         L_A=L
         L_I=L
         aux_1=[-1.0*sigmax(hi,i)*sigmaz(hi,(i+1)%L)*sigmax(hi,(i+2)%L) for i in range(L_A)]
-        aux_2=[-(1.0*Gamma/4.0)*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
+        aux_2=[-(1.0*Gamma)*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
         H=sum(aux_1)+sum(aux_2)
         
     return H
@@ -57,20 +86,14 @@ def CLUSTER_HAM_X(Gamma,L,hi):
         L_A=L-2
         L_I=L-1
         aux_1=[-1.0*sigmaz(hi,i)*sigmax(hi,(i+1)%L)*sigmaz(hi,(i+2)%L) for i in range(L_A)]
-        aux_1.append(identity(hi))
-        aux_1.append(identity(hi))
-        aux_2=[-1.0*Gamma/4.0*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
-        aux_2.append(identity(hi))
+        aux_2=[-1.0*Gamma*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
         H=sum(aux_1)+sum(aux_2)
         
     else:
         L_A=L
         L_I=L
         aux_1=[-1.0*sigmaz(hi,i)*sigmax(hi,(i+1)%L)*sigmaz(hi,(i+2)%L) for i in range(L_A)]
-        aux_1.append(identity(hi))
-        aux_1.append(identity(hi))
-        aux_2=[-1.0*Gamma/4.0*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
-        aux_2.append(identity(hi))
+        aux_2=[-1.0*Gamma*(sigmap(hi,i)-sigmam(hi,i))*(sigmap(hi,(i+1)%L)-sigmam(hi,(i+1)%L)) for i in range(L_I)]
         H=sum(aux_1)+sum(aux_2)
             
     return H
@@ -118,7 +141,7 @@ def Ham_PBC_XYZ(Gamma):
 
 def Diag(H,eigv=False):
     sp_h=H.to_sparse()
-    eig_vals, eig_vecs = eigsh(sp_h,k=1,which="SA")
+    eig_vals, eig_vecs = eigsh(sp_h,which="SA")
     if eigv==False:
         return eig_vecs
     else:
@@ -169,8 +192,10 @@ class WF:
         self.H_space=nk.hilbert.Spin(s=1/2,N=L)
         self.user_sampler=nk.sampler.MetropolisLocal(self.H_space)
         self.user_state=nk.vqs.MCState(self.user_sampler,model,n_samples=N_samples)        
-        self.user_optimizer=nk.optimizer.Sgd(learning_rate=0.05)
-        self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=nk.optimizer.SR(diag_shift=0.1))
+        self.user_optimizer=nk.optimizer.Momentum(learning_rate=0.05,beta=0.5)
+        #self.user_optimizer=nk.optimizer.Sgd(learning_rate=0.05)
+        #self.user_optimizer=nk.optimizer.Adam(learning_rate=0.1)
+        self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=nk.optimizer.SR(diag_shift=0.01))
     def sampling(self):
         return np.array(self.user_state.samples).reshape((self.N_sample,self.L))
     def advance(self,n_run):
@@ -182,7 +207,7 @@ class WF:
         self.user_driver._ham=H
     def change_state(self,new_state):
         self.user_state=new_state
-        self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=nk.optimizer.SR(diag_shift=0.1))
+        self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=nk.optimizer.SR(diag_shift=0.01))
         
     def compute_PCA(self,eps,exvar=False,A=None):
         if A is None:
@@ -244,3 +269,22 @@ class publisher:
         self.file.write("\t".join(str(val) for val in val_variables) + "\n")
     def close(self):
         self.file.close()
+
+
+
+# Define a custom parity constraint
+class ParityConstraint(constraint.DiscreteHilbertConstraint):
+    """
+    Constraint to enforce that the number of -1/2 spins is even (even parity).
+    """
+
+    def __call__(self, x):
+        # Compute the number of -1/2 spins
+        num_down_spins = jnp.sum(x == -1, axis=-1)
+        return num_down_spins % 2 == 0  # Keep only even-parity states
+
+    def __hash__(self):
+        return hash("ParityConstraint")
+
+    def __eq__(self, other):
+        return isinstance(other, ParityConstraint)
