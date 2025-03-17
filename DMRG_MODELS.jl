@@ -19,7 +19,6 @@ let
   model = ARGS[8]
   NC = 0.2
   sites = siteinds("S=1/2", N*W)
-
   # Initialize a random MPS
   psi0 = random_mps(sites)
   Nh=Int((hf-h)/dh)
@@ -30,12 +29,16 @@ let
   for iter in 0:Nh
 
       h_model=h+iter*dh
+
       En=zeros(NR)
+      OZ=zeros(NR)
+      OZZ=zeros(NR)
       
       println("L=$N","W=$W","G=$h_model","NS=$NS ",model)
       os=process_model(model,N,1,h_model)
       H = MPO(os, sites)
-
+      
+      
       for sample_iter in 1:NR
       
       	  filename = "DATAM5L" * ARGS[1] * "W" * ARGS[2] * "NS" * ARGS[6] * "MPSG" * string(Int(h_model)) * ".txt" * string(sample_iter)  # Output file to store configurations
@@ -50,10 +53,14 @@ let
 	  psi0=psi
 
 	  H2 = inner(H,psi,H,psi)
-      	  var = H2-energy^2
+
+	  AV_OZ=O_Z(psi,N)	  
+	  AV_OZZ=CHAIN_O_Z(psi,N)
+	  var = H2-energy^2
 	  
 	  En[sample_iter]=energy
-	  
+	  OZ[sample_iter]=AV_OZ
+	  OZZ[sample_iter]=AV_OZZ
       	  println("Final energy = $energy","Final var =$var")
       	  
 
@@ -73,9 +80,11 @@ let
       end
       E_mean=mean(En)
       E_var=sqrt(var(En)/sqrt(Float64(NR)))
+      OZ_mean=mean(OZ)
+      OZZ_mean=mean(OZZ)
       
       open(filename_2,"a") do file
-              write(file,"$h_model","$E_mean","\t","$E_var","\n")
+              write(file,"$h_model","$E_mean","\t","$E_var","\t","OZ_mean","\t","OZZ_mean","\n")
       	  end
   end	
   

@@ -54,7 +54,7 @@ tmax=L*W
 method_name=["MF","JS","FFN","RBM","SYMFFN"]
 name_var=["DATAM","L","W","NS","NB","G","NN","NL"]
 var=[n_method,L,W,n_samples,n_between,Gamma,n_neurons,n_layers]
-models_name=["QIM_","CIM_","XYZ_"]
+models_name=["QIM_","CIM_Z_","CIM_Y_","CIM_X_","XYZ_"]
 modelo=2
 
 folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)

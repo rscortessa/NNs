@@ -1,7 +1,7 @@
 
 module Models
 
-export sample_mps_to_file, cluster_ising, quantum_ising, quantum_XYZ,process_model
+export sample_mps_to_file, cluster_ising, quantum_ising, quantum_XYZ,process_model,O_Z
 
 using ITensors, ITensorMPS
 
@@ -122,4 +122,58 @@ function process_model(model::String,N::Int,W::Int,h::Float64)
 
 end
 
+function O_Z(psi::MPS, N::Int)
+    psi_R=deepcopy(psi)
+    aux=N-2
+    aux_2=N-1
+    s = siteind("S=1/2")
+    # Expectation values for sigma_x, sigma_y, sigma_z on specific sites
+    for i in 3:N-2
+    	psi_R = orthogonalize(psi,i)
+        NEW_INDEX = op("Sz",s) * psi_R[i]
+    	NEW_INDEX = noprime(NEW_INDEX)
+	psi_R[i] = NEW_INDEX
+    end    
+
+    for i in [1,N]
+    	psi_R = orthogonalize(psi,i)
+        NEW_INDEX = op("Sx",s) * psi_R[i]
+    	NEW_INDEX = noprime(NEW_INDEX)
+	psi_R[i] = NEW_INDEX
+    end
+
+    for i in [2,N-1]
+    	psi_R = orthogonalize(psi,i)
+        NEW_INDEX = op("Sy",s) * psi_R[i]
+    	NEW_INDEX = noprime(NEW_INDEX)
+	psi_R[i] = NEW_INDEX
+    end
+    
+    result=inner(psi,psi_R)
+   
+    return result
+    
 end
+
+function CHAIN_O_Z(psi::MPS, N::Int)
+    psi_R=deepcopy(psi)
+   
+    s = siteind("S=1/2")
+    # Expectation values for sigma_x, sigma_y, sigma_z on specific sites
+    for i in 3:N-2
+    	psi_R = orthogonalize(psi,i)
+        NEW_INDEX = op("Sz",s) * psi_R[i]
+    	NEW_INDEX = noprime(NEW_INDEX)
+	psi_R[i] = NEW_INDEX
+    end
+    
+    result=inner(psi,psi_R)
+    return result
+   
+        
+end
+
+
+end
+
+	
