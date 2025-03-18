@@ -54,7 +54,7 @@ var=var[:n_par-2]
     
 cutoff=2**L
 methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons,param_dtype=complex),nk.models.RBM(alpha=n_neurons),var_nk.SymmModel(alpha=n_neurons,layers=n_layers,L=L,W=W)]
-method_name=["MF_","JS_","FFN_","RBM_COMPLEX","RBM","SYMFFN_","EX"]
+method_name=["MF_","JS_","FFN_","RBM_COMPLEX","RBM_REAL","SYMFFN_","EX"]
 
 hi=nk.hilbert.Spin(s=1/2,N=L*W)
 
