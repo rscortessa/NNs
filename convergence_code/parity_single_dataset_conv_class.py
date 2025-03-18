@@ -74,7 +74,7 @@ if n_method==5:
     print(eig_vals)
     quit()
 model=methods[n_method]
-E_WF=class_WF.WF(L*W,model,H,n_samples)
+E_WF=class_WF.WF(L*W,model,H,n_samples,constraint=class_WF.ParityConstraint())
 
 name_var[0]="M"
 pubE=class_WF.publisher(name_var+["NR"],var+[n_run],["NS","E"])
@@ -86,7 +86,8 @@ E=np.array([[0.0 for i in range(n_mean)] for gg in range(n_run)],dtype=float)
 
 G=Gamma
 #H=class_WF.Ham(G*dx,V,L,hi)
-sampler=nk.sampler.MetropolisLocal(hi,n_chains=128,sweep_size=50)
+
+
 
 try:
     os.mkdir(folder_name)

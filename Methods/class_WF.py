@@ -181,16 +181,19 @@ class WF:
     H_space: nk.hilbert.Spin
     user_H:nk.operator.LocalOperator                                                                                                                                   
     user_state:nk.vqs.MCState
-    user_sampler:nk.sampler.MetropolisLocal
+    user_sampler:nk.sampler
     user_optimizer:nk.optimizer.Sgd
     user_driver:nk.driver.VMC
     
-    def __init__(self,L,model,H,N_samples):
+    def __init__(self,L,model,H,N_samples,constraint=None):
+
+        hilbert_space=nk.hilbert.Spin(s=1/2,N=L,constraint=constraint)
+        sampler = nk.sampler.MetropolisHamiltonian(hilbert_space, hamiltonian=H)
         self.L=L
         self.H=H
         self.N_sample=N_samples
-        self.H_space=nk.hilbert.Spin(s=1/2,N=L)
-        self.user_sampler=nk.sampler.MetropolisLocal(self.H_space)
+        self.H_space=hilbert_space
+        self.user_sampler=sampler
         self.user_state=nk.vqs.MCState(self.user_sampler,model,n_samples=N_samples)        
         self.user_optimizer=nk.optimizer.Momentum(learning_rate=0.05,beta=0.5)
         #self.user_optimizer=nk.optimizer.Sgd(learning_rate=0.05)
