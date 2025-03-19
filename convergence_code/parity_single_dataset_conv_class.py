@@ -68,9 +68,15 @@ models=[class_WF.IsingModel_Z(Gamma*dx,L,hi),class_WF.IsingModel_X(Gamma*dx,L,hi
 models_name=["QIM_Z","QIM_X","CIM_X","CIM_Z","CIM_Y","XYZ_"]
 folder_name="P"+models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)
 
-filename_CONTROL="L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+models_name[modelo]+method_name[n_method]
-file_CONTROL=open(folder_name+"/"+filename_CONTROL,"a")
-file_CONTROL.write("RUNNING WITH","L=",L,"W=",W,"GAMMA=",Gamma,"N samples=",n_samples,"time for each snapshot(n_between)",n_between,"N_snapshots",n_run,"N_method=",method_name[n_method],"model=",models_name[modelo])
+try:
+    os.mkdir(folder_name)
+except:
+    print("The folder",folder_name,"already exists. All the files will be stored there")
+
+    
+filename_CONTROL="L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+models_name[modelo]+method_name[n_method]+".txt"
+file_CONTROL=open(folder_name+"/"+filename_CONTROL,"w")
+file_CONTROL.write("RUNNING WITH"+"L="+str(L)+"W="+str(W)+"GAMMA="+str(Gamma)+"N samples="+str(n_samples)+"time for each snapshot(n_between)"+str(n_between)+"N_snapshots"+str(n_run)+"N_method="+str(method_name[n_method])+"model="+str(models_name[modelo]))
 file_CONTROL.close()
 
 
@@ -98,17 +104,15 @@ G=Gamma
 
 
 
-try:
-    os.mkdir(folder_name)
-except:
-    print("The folder",folder_name,"already exists. All the files will be stored there")
 
     
 
 for hh in range(n_mean):
     print(hh)
     if hh>0:
-        print("iter_num=",hh," time=",bb-aa)
+        file_CONTROL=open(folder_name+"/"+filename_CONTROL,"a")
+        file_CONTROL.write("iter_num=",hh," time=",bb-aa)
+        file_CONTROL.close()
     aa=time.time()
     E_WF.user_state.init_parameters()
     for steps in range(n_run):
@@ -171,6 +175,10 @@ for gg in range(n_run):
 filename=pubE.name()
 pubE.close()
 os.rename(filename,folder_name+"/"+filename)
+
+file_CONTROL=open(folder_name+"/"+filename_CONTROL,"a")
+file_CONTROL.write("FINISHED")
+file_CONTROL.close()
 
 
 
