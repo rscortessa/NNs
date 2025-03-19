@@ -106,7 +106,8 @@ for hh in range(n_mean):
     print(hh)
     if hh>0:
         file_CONTROL=open(folder_name+"/"+filename_CONTROL,"a")
-        file_CONTROL.write("iter_num=",hh," time=",bb-aa)
+        file_CONTROL.write("iter_num="+str(hh)+" time="+str(bb-aa)+"\n")
+        file_CONTROL.write("E"+"\t"+"STEPS"+"\n")
         file_CONTROL.close()     
     aa=time.time()
     E_WF.user_state.init_parameters()
@@ -120,7 +121,11 @@ for hh in range(n_mean):
             #if n_method==0 or n_method==2:
             #    lenght=len(A)
             #    A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
-        print("Energy:",E_WF.compute_E(),"step",steps)
+            
+        file_CONTROL=open(folder_name+"/"+filename_CONTROL,"a")
+        file_CONTROL.write(str(E_WF.compute_E())+"\t"+str(steps)+"\n")
+        file_CONTROL.close()
+        
         pub=class_WF.publisher(name_var,var,[])
         pub.create()
         A=E_WF.sampling()
