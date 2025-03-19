@@ -56,8 +56,8 @@ def IsingModel_Z(Gamma,L,hi):
     
     PBC=False
     L_I=L-1
-    aux_0=[(-1.0)*sigmaz(hi,i)*sigmaz(hi,(i+1)%L)+(1.0)*Gamma*sigmax(hi,i)  for i in range(L_I)]
-    H=sum(aux_0)+1.0*Gamma*sigmax(hi,L-1)       
+    aux_0=[(-1.0)*sigmaz(hi,i)*sigmaz(hi,(i+1)%L)-(1.0)*Gamma*sigmax(hi,i)  for i in range(L_I)]
+    H=sum(aux_0)-1.0*Gamma*sigmax(hi,L-1)       
     return H
 
 
