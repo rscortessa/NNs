@@ -62,7 +62,7 @@ end
 
 
 
-function quantum_ising(N::Int,W::Int,h::Float64)
+function quantum_ising_Z(N::Int,W::Int,h::Float64)
   os = OpSum()
   if W>1
    for i = 0:W-2
@@ -76,6 +76,25 @@ function quantum_ising(N::Int,W::Int,h::Float64)
    for j = 0:N-1
      os += -4.0,"Sz",j+1, "Sz",(j+1)%N+1
      os += -h*0.002, "Sx",j+1
+   end
+  end
+  return os
+end
+
+function quantum_ising_X(N::Int,W::Int,h::Float64)
+  os = OpSum()
+  if W>1
+   for i = 0:W-2
+     for j = 0:N-1
+      os += -4.0,"Sx",j+1+i*N, "Sx",(j+1)%N+1+i*N
+      os += -4.0,"Sx",j+1+i*N, "Sx",j+1+((i+1)%W)*N
+      os += -h*0.002, "Sz", j+1+i*W
+     end
+   end
+  else
+   for j = 0:N-1
+     os += -4.0,"Sx",j+1, "Sx",(j+1)%N+1
+     os += -h*0.002, "Sz",j+1
    end
   end
   return os
@@ -114,8 +133,10 @@ function process_model(model::String,N::Int,W::Int,h::Float64)
        return cluster_ising_y(N,W,h)
     elseif model == "CIM_Z"
        return cluster_ising_z(N,W,h)
-    elseif model == "QIM"
-       return quantum_ising(N,W,h)
+    elseif model == "QIM_Z"
+       return quantum_ising_Z(N,W,h)
+    elseif model == "QIM_X"
+       return quantum_ising_X(N,W,h)
     else
 	error("Invalid model type: $model. Accepted models are XYZ CIM_(X/Y/Z) QIM")
     end	       
