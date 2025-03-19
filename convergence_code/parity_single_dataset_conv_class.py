@@ -49,10 +49,6 @@ except:
 
     
 
-name_var=["PDATAM","L","W","NS","NB","G","NN","NL"]
-var=[n_method,L,W,n_samples,n_between,Gamma,n_neurons,n_layers]
-name_var=name_var[:n_par-2]
-var=var[:n_par-2]
 
     
 cutoff=2**L
@@ -65,13 +61,18 @@ hi=nk.hilbert.Spin(s=1/2,N=L*W,constraint=class_WF.ParityConstraint())
 
 
 models=[class_WF.IsingModel_Z(Gamma*dx,L,hi),class_WF.IsingModel_X(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_X(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Z(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Y(Gamma*dx,L,hi)]
-models_name=["QIM_Z","QIM_X","CIM_X","CIM_Z","CIM_Y","XYZ_"]
+models_name=[r"QIM_Z",r"QIM_X",r"CIM_X",r"CIM_Z",r"CIM_Y",r"XYZ_"]
 folder_name="P"+models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)
 
 try:
     os.mkdir(folder_name)
 except:
     print("The folder",folder_name,"already exists. All the files will be stored there")
+
+name_var=["PDATAM","L","W","NS","NB","G","NN","NL"]
+var=[n_method,L,W,n_samples,n_between,Gamma,n_neurons,n_layers]
+name_var=name_var[:n_par-2]
+var=var[:n_par-2]
 
     
 filename_CONTROL="L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+models_name[modelo]+method_name[n_method]+".txt"
@@ -91,10 +92,10 @@ if n_method==5:
 model=methods[n_method]
 E_WF=class_WF.WF(L*W,model,H,n_samples,constraint=class_WF.ParityConstraint())
 
-name_var[0]="M"
+name_var[0]=folder_name+"/"+"M"
 pubE=class_WF.publisher(name_var+["NR"],var+[n_run],["NS","E"])
 pubE.create()
-name_var[0]="DATAM"
+name_var[0]=folder_name+"/"+"DATAM"
 E=np.array([[0.0 for i in range(n_mean)] for gg in range(n_run)],dtype=float)
 
 #ITERATION OVER THE GAMMA VALUES:
@@ -134,13 +135,13 @@ for hh in range(n_mean):
         A=E_WF.sampling()
         for x in range(len(A)):
             pub.write(A[x])
-        namefile=pub.name()
+        #namefile=pub.name()
         pub.close()
-        os.rename(namefile,folder_name+"/"+namefile+str(hh))
+        #os.rename(namefile,folder_name+"/"+namefile+str(hh))
 
         #THIS PART COMPUTES AND STORES THE HIDDEN VARIABLES
 
-        name_var[0]="VARM"
+        name_var[0]=folder_name+"/"+"VARM"
         pubvar=class_WF.publisher(name_var,var,[])
         pubvar.create()
         if n_method == 3 and save_hiddens:        
@@ -153,10 +154,10 @@ for hh in range(n_mean):
             for ns in range(n_samples):
                 pubvar.write(Test[ns].tolist())
                 
-        namefile=pubvar.name()    
+        #namefile=pubvar.name()    
         pubvar.close()
-        os.rename(namefile,folder_name+"/"+namefile+str(hh))
-        name_var[0]="DATAM"
+        #os.rename(namefile,folder_name+"/"+namefile+str(hh))
+        name_var[0]=folder_name+"/"+"DATAM"
 
         #-------------------------------------------------
 
@@ -175,9 +176,9 @@ dEn=np.std(E,axis=-1)
 
 for gg in range(n_run):
     pubE.write([0,n_between*(1+gg),dEn[gg],En[gg]])
-filename=pubE.name()
+#filename=pubE.name()
 pubE.close()
-os.rename(filename,folder_name+"/"+filename)
+#os.rename(filename,folder_name+"/"+filename)
 
 file_CONTROL=open(folder_name+"/"+filename_CONTROL,"a")
 file_CONTROL.write("FINISHED")
