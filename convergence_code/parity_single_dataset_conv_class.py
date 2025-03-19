@@ -40,11 +40,14 @@ n_run=parameters[5] #-
 n_mean=parameters[6] #-
 n_method=parameters[7]
 save_hiddens=False
+modelo=parameters[8]
 try:
-    n_neurons=parameters[8]
-    n_layers=parameters[9]
+    n_neurons=parameters[9]
+    n_layers=parameters[10]
 except:
     print("no additional parameters")
+
+    
 
 name_var=["PDATAM","L","W","NS","NB","G","NN","NL"]
 var=[n_method,L,W,n_samples,n_between,Gamma,n_neurons,n_layers]
@@ -63,8 +66,12 @@ hi=nk.hilbert.Spin(s=1/2,N=L*W,constraint=class_WF.ParityConstraint())
 
 models=[class_WF.IsingModel_Z(Gamma*dx,L,hi),class_WF.IsingModel_X(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_X(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Z(Gamma*dx,L,hi),class_WF.CLUSTER_HAM_Y(Gamma*dx,L,hi)]
 models_name=["QIM_Z","QIM_X","CIM_X","CIM_Z","CIM_Y","XYZ_"]
-modelo=0
 folder_name="P"+models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"NB"+str(n_between)
+
+filename_CONTROL="L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+models_name[modelo]+method_name[n_method]
+file_CONTROL=open(folder_name+"/"+filename_CONTROL,"a")
+file_CONTROL.write("RUNNING WITH","L=",L,"W=",W,"GAMMA=",Gamma,"N samples=",n_samples,"time for each snapshot(n_between)",n_between,"N_snapshots",n_run,"N_method=",method_name[n_method],"model=",models_name[modelo])
+file_CONTROL.close()
 
 
 #INITIALIZE OBJECTS
