@@ -112,7 +112,7 @@ for hh in range(n_mean):
     print(hh)
     if hh>0:
         file_CONTROL=open(folder_name+"/"+filename_CONTROL,"a")
-        file_CONTROL.write("iter_num="+str(hh)+" time="+str(bb-aa)+"\n")
+        #file_CONTROL.write("iter_num="+str(hh)+" time="+str(bb-aa)+"\n")
         file_CONTROL.write("E"+"\t"+"STEPS"+"\n")
         file_CONTROL.close()
     aa=time.time()
@@ -181,7 +181,7 @@ pubE.close()
 #os.rename(filename,folder_name+"/"+filename)
 
 file_CONTROL=open(folder_name+"/"+filename_CONTROL,"a")
-file_CONTROL.write("FINISHED")
+#file_CONTROL.write("FINISHED")
 file_CONTROL.close()
 
 
