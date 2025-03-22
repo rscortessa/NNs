@@ -29,6 +29,34 @@ def min_d(vr,eps):
 
 #NOT PERIODIC HAMILTONIAN:
 
+
+def rotated_sigmax(angle):
+    r_sigmax = np.array([[0, 1], [1, 0]])
+    r_sigmaz = np.array([[1, 0], [0, -1]])
+    return np.cos(angle)*r_sigmax+np.sin(angle)*r_sigmaz
+
+
+def rotated_sigmaz(angle):
+    r_sigmax = np.array([[0, 1], [1, 0]])
+    r_sigmaz = np.array([[1, 0], [0, -1]])
+    return np.cos(angle)*r_sigmaz-np.sin(angle)*r_sigmax
+    
+
+def rotated_IsingModel(angle,Gamma,L,hi):
+     # Initialize Hamiltonian as a LocalOperator
+    pseudo_sigma_x=rotated_sigmax(angle)
+    pseudo_sigma_z=rotated_sigmaz(angle)
+    H = nk.operator.LocalOperator(hi)
+
+    # Add 2 body- interactions
+    for i in range(L - 2):
+        H -= nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i, i+1])
+    # Add single body term
+    for i in range(L - 1):
+        H -= Gamma * nk.operator.LocalOperator(hi,pseudo_sigma_x,[i])
+    return H
+
+
 def parity_X(L,hi):
     aux_0=identity(hi)
     for i in range(L):
@@ -179,6 +207,7 @@ class WF:
     L:int
     N_sample:int
     H_space: nk.hilbert.Spin
+    user_model:{}
     user_H:nk.operator.LocalOperator                                                                                                                                   
     user_state:nk.vqs.MCState
     user_sampler:nk.sampler
@@ -194,6 +223,7 @@ class WF:
         self.N_sample=N_samples
         self.H_space=hilbert_space
         self.user_sampler=sampler
+        self.user_model=model
         self.user_state=nk.vqs.MCState(self.user_sampler,model,n_samples=N_samples)        
         self.user_optimizer=nk.optimizer.Momentum(learning_rate=0.05,beta=0.5)
         #self.user_optimizer=nk.optimizer.Sgd(learning_rate=0.05)
@@ -205,6 +235,11 @@ class WF:
         self.user_driver.advance(n_run)
     def iteration(self,n_run):
         return self.user_driver.iter(n_run)
+    def change_sampler(self,new_sampler):
+        self.user_sampler=new_sampler
+        self.user_state=nk.vqs.MCState(self.user_sampler,self.user_model,n_samples=self.N_sample)
+        self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=nk.optimizer.SR(diag_shift=0.01))
+        
     def change_H(self,H):
         self.H=H
         self.user_driver._ham=H
