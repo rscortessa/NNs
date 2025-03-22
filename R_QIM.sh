@@ -2,9 +2,9 @@
 
 L=$1
 W=$2
-N_samples=$3
-Gamma=$4
-Ntheta=$5
+Gamma=$3
+Ntheta=$4
+N_samples=$5
 N_REP=$6
 
 echo "Running with Gamma=$Gamma, L=$L, N_samples=$N_samples"
