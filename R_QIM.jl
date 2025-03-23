@@ -19,7 +19,10 @@ let
   # Initialize a random MPS
   psi0 = random_mps(sites)
    
-  filename_2 = "DATAM5L" * ARGS[1] * "W" * ARGS[2]* "NS" * ARGS[6] * "R_QIMMPS" * ".txt" # Output file optimization
+  filename_2 = "DATAM5L" * ARGS[1] * "W" * ARGS[2]* "G" * ARGS[3] * "NS" * ARGS[5] * "R_QIMMPS" * ".txt" # Output file optimization
+  open(filename_2,"a") do file
+      write(file,"G","\t","E","\t","E_var","\t","OZ","\t","OZZ","\n")        
+  end
 
    
   for iter in 0:Nh
@@ -38,7 +41,7 @@ let
       
       for sample_iter in 1:NR
       
-      	  filename = "DATAM5L" * ARGS[1] * "W" * ARGS[2] * "NS" * ARGS[6] * "MPSG" * string(Int(theta)) * ".txt" * string(sample_iter)  # Output file to store configurations
+      	  filename = "DATAM5L" * ARGS[1] * "W" * ARGS[2] * "NS" * ARGS[5] * "MPSG" * string(Int(theta)) * ".txt" * string(sample_iter)  # Output file to store configurations
 
 	  
 	  # Run DMRG to find the ground state
@@ -76,13 +79,11 @@ let
 	  
       end
       E_mean=mean(En)
-      #E_var=sqrt(var(En)/sqrt(Float64(NR)))
-      E_var=var
+      E_var=sqrt(var(En)/sqrt(Float64(NR)))
       OZ_mean=mean(OZ)
       OZZ_mean=mean(OZZ)
       
       open(filename_2,"a") do file
-      	      write(file,"G","\t","E","\t","E_var","\t","OZ","\t","OZZ","\n")
               write(file,"$theta","\t","$E_mean","\t","$E_var","\t","$OZ_mean","\t","$OZZ_mean","\n")
       	  end
   end	

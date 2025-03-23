@@ -49,10 +49,10 @@ def rotated_IsingModel(angle,Gamma,L,hi):
     H = nk.operator.LocalOperator(hi)
 
     # Add 2 body- interactions
-    for i in range(L - 2):
+    for i in range(L - 1):
         H -= nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i, i+1])
     # Add single body term
-    for i in range(L - 1):
+    for i in range(L):
         H -= Gamma * nk.operator.LocalOperator(hi,pseudo_sigma_x,[i])
     return H
 
