@@ -63,8 +63,8 @@ def rotated_XYZModel(angle,Gamma,L,hi):
     pseudo_sigma_x=rotated_sigmax(angle)
     pseudo_sigma_z=rotated_sigmaz(angle)
     
-    pseudo_sigma_p=pseudo_sigmax+isigmay()
-    pseudo_sigma_m=pseudo_sigmax-isigmay()
+    pseudo_sigma_p=pseudo_sigma_x+isigmay()
+    pseudo_sigma_m=pseudo_sigma_x-isigmay()
 
     H = nk.operator.LocalOperator(hi)
     # Add 2 body- interactions
