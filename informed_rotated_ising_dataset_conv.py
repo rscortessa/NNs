@@ -1,0 +1,1 @@
+import convergence_code.informed_rotated_ising_dataset_conv_class
