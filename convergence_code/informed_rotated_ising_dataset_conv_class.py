@@ -118,7 +118,7 @@ for hh in range(n_mean):
     aa=time.time()
     for steps in range(n_between+1):
         E_WF.change_H(class_WF.rotated_IsingModel(steps*dangle,Gamma*dx,L,hi))
-        E_WF.user_state.init_parameters()
+        #E_WF.user_state.init_parameters()
         
         var[4]=steps
 
