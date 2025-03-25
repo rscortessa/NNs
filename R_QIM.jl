@@ -14,10 +14,10 @@ let
   Nh = parse(Int,ARGS[4])
   NS = parse(Int,ARGS[5])
   NR = parse(Int,ARGS[6])
-  NC = 0.2
+  NC = 1.0
   sites = siteinds("S=1/2", N*W)
   # Initialize a random MPS
-  psi0 = random_mps(sites)
+  
    
   filename_2 = "DATAM5L" * ARGS[1] * "W" * ARGS[2]* "G" * ARGS[3] * "NS" * ARGS[5] * "R_QIMMPS" * ".txt" # Output file optimization
   open(filename_2,"a") do file
@@ -27,6 +27,7 @@ let
    
   for iter in 0:Nh
 
+      
       theta=iter
 
       En=zeros(NR)
@@ -40,17 +41,17 @@ let
       
       
       for sample_iter in 1:NR
-      
+
+      	  psi0 = random_mps(sites)
       	  filename = "DATAM5L" * ARGS[1] * "W" * ARGS[2] * "NS" * ARGS[5] * "MPSG" * string(Int(theta)) * ".txt" * string(sample_iter)  # Output file to store configurations
 
 	  
 	  # Run DMRG to find the ground state
-      	  nsweeps = 30
+      	  nsweeps = 45
       	  maxdim = [64,64,64,128,256,256,256,400,400,512,1024,1024,1024,1024,1024]
-      	  cutoff = 1E-11
+      	  cutoff = 1E-14
       	  energy, psi = dmrg(H, psi0; nsweeps, maxdim, cutoff)
 
-	  psi0=psi
 
 	  H2 = inner(H,psi,H,psi)
 
@@ -68,14 +69,6 @@ let
       	  sample_mps_to_file(psi, filename, NS)
       	  	nothing
 		
-	  NE=Int( floor(NC*length(psi)))
-	  indices_to_modify=rand(1:length(psi0),NE)
-	  for K in indices_to_modify
-    	      tensor_data = ITensors.data(psi0[K])  # Access raw data
-    	      tensor_data .+= randn(eltype(tensor_data), size(tensor_data))
-    	      psi0[K] = ITensor(tensor_data, inds(psi0[K])...)  # Reconstruct the ITensor with modified data
-	  end
-
 	  
       end
       E_mean=mean(En)
