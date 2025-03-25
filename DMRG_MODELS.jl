@@ -54,13 +54,13 @@ let
 
 	  H2 = inner(H,psi,H,psi)
 
-	  AV_OZ=O_Z(psi,N)	  
-	  AV_OZZ=CHAIN_O_Z(psi,N)
+	  #AV_OZ=O_Z(psi,N)	  
+	  #AV_OZZ=CHAIN_O_Z(psi,N)
 	  var = H2-energy^2
 	  
 	  En[sample_iter]=energy
-	  OZ[sample_iter]=AV_OZ
-	  OZZ[sample_iter]=AV_OZZ
+	  #OZ[sample_iter]=AV_OZ
+	  #OZZ[sample_iter]=AV_OZZ
       	  println("Final energy = $energy","Final var =$var")
       	  
 
@@ -79,12 +79,14 @@ let
 	  
       end
       E_mean=mean(En)
-      E_var=sqrt(var(En)/sqrt(Float64(NR)))
+      #E_var=sqrt(var(En)/sqrt(Float64(NR)))
+      E_var=var
       OZ_mean=mean(OZ)
       OZZ_mean=mean(OZZ)
       
       open(filename_2,"a") do file
-              write(file,"$h_model","$E_mean","\t","$E_var","\t","OZ_mean","\t","OZZ_mean","\n")
+      	      write(file,"G","\t","E","\t","E_var","\t","OZ","\t","OZZ","\n")
+              write(file,"$h_model","\t","$E_mean","\t","$E_var","\t","$OZ_mean","\t","$OZZ_mean","\n")
       	  end
   end	
   

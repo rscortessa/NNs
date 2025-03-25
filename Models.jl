@@ -1,7 +1,7 @@
 
 module Models
 
-export sample_mps_to_file, cluster_ising, quantum_ising, quantum_XYZ,process_model,O_Z
+export sample_mps_to_file, cluster_ising, quantum_ising, quantum_XYZ,process_model,O_Z,rotated_quantum_ising,quantum_heisenberg_Z
 
 using ITensors, ITensorMPS
 
@@ -81,6 +81,40 @@ function quantum_ising_Z(N::Int,W::Int,h::Float64)
   return os
 end
 
+function rotated_quantum_ising(N::Int,W::Int,h::Float64,theta::Float64)
+  os = OpSum()
+  if W>1
+   for i = 0:W-2
+     for j = 0:N-1
+      os += -4.0*cos(theta),"Sz",j+1+i*N, "Sz",(j+1)%N+1+i*N
+      os += -4.0*cos(theta),"Sz",j+1+i*N, "Sz",j+1+((i+1)%W)*N
+      os +=  4.0*sin(theta),"Sx",j+1+i*N, "Sx",(j+1)%N+1+i*N
+      os +=  4.0*sin(theta),"Sx",j+1+i*N, "Sx",j+1+((i+1)%W)*N
+
+      os += -h*0.002*cos(theta), "Sx", j+1+i*W
+      os += -h*0.002*sin(theta), "Sz", j+1+i*W
+      
+     end
+   end
+  else
+   for j = 0:N-1
+   
+     os += -4.0*cos(theta)*cos(theta),"Sz",j+1, "Sz",(j+1)%N+1
+
+     os += +4.0*sin(theta)*cos(theta),"Sz",j+1, "Sx",(j+1)%N+1
+     os += +4.0*sin(theta)*cos(theta),"Sx",j+1, "Sz",(j+1)%N+1
+
+     os += -4.0*sin(theta)*sin(theta),"Sx",j+1, "Sx",(j+1)%N+1
+
+     os += -h*0.002*cos(theta), "Sx",j+1
+     os += -h*0.002*sin(theta), "Sz",j+1
+     
+   end
+  end
+  return os
+end
+
+
 function quantum_ising_X(N::Int,W::Int,h::Float64)
   os = OpSum()
   if W>1
@@ -101,25 +135,28 @@ function quantum_ising_X(N::Int,W::Int,h::Float64)
 end
 
 
+
+
+
 function quantum_heisenberg_Z(N::Int,W::Int,h::Float64)
   os = OpSum()
   if W>1
    for i = 0:W-1
      for j = 0:N-1
-      os += -0.04*h,"Sz",j+1+i*W, "Sz",(j+1)%N+1+i*N
-      os += -0.04*h,"Sz",j+1+i*W, "Sz",j+1+((i+1)%W)*N
-      os += -4.0,"Sx",j+1+i*W, "Sx",(j+1)%N+1+i*N
-      os += -4.0,"Sx",j+1+i*W, "Sx",j+1+((i+1)%W)*N
-      os += -4.0,"Sy",j+1+i*W, "Sy",(j+1)%N+1+i*N
-      os += -4.0,"Sy",j+1+i*W, "Sy",j+1+((i+1)%W)*N
+      os += 0.004*h,"Sz",j+1+i*W, "Sz",(j+1)%N+1+i*N
+      os += 0.004*h,"Sz",j+1+i*W, "Sz",j+1+((i+1)%W)*N
+      os += 4.0,"Sx",j+1+i*W, "Sx",(j+1)%N+1+i*N
+      os += 4.0,"Sx",j+1+i*W, "Sx",j+1+((i+1)%W)*N
+      os += 4.0,"Sy",j+1+i*W, "Sy",(j+1)%N+1+i*N
+      os += 4.0,"Sy",j+1+i*W, "Sy",j+1+((i+1)%W)*N
      end
    end
    
   else
    for j = 0:N-1
-     os += -0.04*h,"Sz",j+1, "Sz",(j+1)%N+1
-     os += -4.0,"Sx",j+1, "Sx",(j+1)%N+1
-     os += -4.0,"Sy",j+1, "Sy",(j+1)%N+1
+     os += 0.004*h,"Sz",j+1, "Sz",(j+1)%N+1
+     os += 4.0,"Sx",j+1, "Sx",(j+1)%N+1
+     os += 4.0,"Sy",j+1, "Sy",(j+1)%N+1
    end
   end
   return os
