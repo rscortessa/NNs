@@ -20,7 +20,7 @@ from sklearn.neighbors import NearestNeighbors
 from Methods.TId import sets,neighbors,n_points,Volume_ratio,func,roots
 from netket.hilbert import constraint
 import equinox as eqx 
-
+from functools import reduce
 
 def min_d(vr,eps):
     for i in range(len(vr)):
@@ -73,6 +73,38 @@ def rotated_XYZModel(angle,Gamma,L,hi):
         H -= 2.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_m,pseudo_sigma_p), [i, i+1])
         H += Gamma*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i, i+1])
     return H
+
+def parity_Matrix(angle,L):
+    pseudo_sigma_x = rotated_sigmax(angle)
+    ops = [pseudo_sigma_x for i in range(L)]
+    P_array=reduce(np.kron,ops)
+    return P_array
+
+def parity_IsingModel(angle,L,hi):
+     # Initialize Hamiltonian as a LocalOperator
+    indices=[i for i in range(L)]
+    P_array=parity_Matrix(angle,L)
+    P = nk.operator.LocalOperator(hi,P_array,indices)
+    return P
+
+def Sz0Szj(angle,L,hi,j):
+    pseudo_sigma_z=rotated_sigmaz(angle)
+     # Initialize Hamiltonian as a LocalOperator
+    identities=[pseudo_sigma_z]+[np.eye(2) for i in range(1,j)]+[pseudo_sigma_z]+[np.eye(2) for i in range(j+1,L)]
+    identities_list=[i for i in range(0,L)]
+    P= nk.operator.LocalOperator(hi,reduce(np.kron,identities),identities_list)
+    return P
+
+def Sx0Sxj(angle,L,hi,j):
+    pseudo_sigma_x=rotated_sigmax(angle)
+     # Initialize Hamiltonian as a LocalOperator
+    identities=[pseudo_sigma_x]+[np.eye(2) for i in range(1,j)]+[pseudo_sigma_x]+[np.eye(2) for i in range(j+1,L)]
+    identities_list=[i for i in range(0,L)]
+    P= nk.operator.LocalOperator(hi,reduce(np.kron,identities),identities_list)
+    return P
+
+def to_array(A):
+    return A.to_dense()
 
 
 def parity_X(L,hi):
@@ -187,7 +219,7 @@ def Ham_PBC_XYZ(Gamma):
 
 def Diag(H,eigv=False):
     sp_h=H.to_sparse()
-    eig_vals, eig_vecs = eigsh(sp_h,which="SA")
+    eig_vals, eig_vecs = eigsh(sp_h,which="BE")
     if eigv==False:
         return eig_vecs
     else:
@@ -232,10 +264,8 @@ class WF:
     user_optimizer:nk.optimizer.Sgd
     user_driver:nk.driver.VMC
     
-    def __init__(self,L,model,H,N_samples,constraint=None):
+    def __init__(self,L,hilbert_space,sampler,preconditioner,model,H,N_samples):
 
-        hilbert_space=nk.hilbert.Spin(s=1/2,N=L,constraint=constraint)
-        sampler = nk.sampler.MetropolisHamiltonian(hilbert_space, hamiltonian=H)
         self.L=L
         self.H=H
         self.N_sample=N_samples
@@ -246,11 +276,22 @@ class WF:
         self.user_optimizer=nk.optimizer.Momentum(learning_rate=0.05,beta=0.5)
         #self.user_optimizer=nk.optimizer.Sgd(learning_rate=0.05)
         #self.user_optimizer=nk.optimizer.Adam(learning_rate=0.1)
-        self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=nk.optimizer.SR(diag_shift=0.01))
+        self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=preconditioner)
     def sampling(self):
         return np.array(self.user_state.samples).reshape((self.N_sample,self.L))
     def advance(self,n_run):
         self.user_driver.advance(n_run)
+        
+    def run(self,obs,n_iter,log=None):
+        if log:
+            self.user_driver.run(n_iter=n_iter,obs=obs,out=log)
+        else:
+            self.user_driver.run(n_iter=n_iter,obs=obs)
+
+    def save_params(self,i,log_var):
+        log_var(i,self.user_driver.state.variables)
+
+            
     def iteration(self,n_run):
         return self.user_driver.iter(n_run)
     def change_sampler(self,new_sampler):
@@ -265,10 +306,25 @@ class WF:
         self.user_state=new_state
         self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=nk.optimizer.SR(diag_shift=0.01))
         
-    def compute_PCA(self,eps,exvar=False,A=None):
-        if A is None:
-            A=self.sampling()
-        return S_PCA(A,eps,exvar)
+    def compute_PCA(self,eps,i=None,log=None,exvar=False,A=None,broken_z2=True):
+            if A is None:
+                A=self.sampling()
+                if broken_z2:
+                    size=int(len(A)/2)
+                    A[:size]=(-1)*A[:size]
+                
+               
+            S=S_PCA(A,eps,exvar)
+            if i is None or log is None:
+                return S
+            else:
+                SPCA={
+                "Mean":jnp.array(S_PCA(A,eps,exvar))
+                }
+                log(i,SPCA)
+                return 0;
+            
+                
     def compute_ID(self,eps,A=None):
         if A is None:
             A=self.sampling()
