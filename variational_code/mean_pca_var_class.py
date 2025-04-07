@@ -79,8 +79,9 @@ for gg in G:
         file=pd.read_csv(folder_name+"/"+filename,sep="\s+",dtype="a")
         file=file.astype(float)
         A=np.array(file)
+        print(A)
         lenght=len(A)
-        A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
+        #A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
         eps=10**(-10)
         S[j,i]=class_WF.S_PCA(A,eps,False)
     j+=1    

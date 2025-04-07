@@ -10,7 +10,6 @@ import os
 ## CONSTANTS
 eps=10**(-8)
 dx=0.01
-V=-1.0
 n_between=200
 
 t1=1
@@ -49,10 +48,6 @@ print("n_par:",n_par)
 save_hiddens=False
 
 
-name_var=["DATAM","L","W","NS","NR","G","NN","NL"]
-var=[n_method,L,W,n_samples,n_run,Gamma,n_neurons,n_layers]
-name_var=name_var[:n_par-3]
-var=var[:n_par-3]
 
 cutoff=2**L
 methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layers),nk.models.RBM(alpha=n_neurons),var_nk.SymmModel(alpha=n_neurons,layers=n_layers,L=L,W=W)]
@@ -60,20 +55,29 @@ methods=[var_nk.MF(),var_nk.JasShort(),var_nk.FFN(alpha=n_neurons,layers=n_layer
 
 method_name=["MF_","JS_","FFN_","RBM_","SYMFFN_"]
 
-models=[class_WF.Ham,class_WF.CLUSTER_HAM_X]
+models=[class_WF.rotated_IsingModel,class_WF.CLUSTER_HAM_X]
 print(models)
-models_name=["QIM_","CIM_","XYZ_"]
-modelo=1
+models_name=["QIM_Z","CIM_","XYZ_"]
+modelo=0
 folder_name=models_name[modelo]+method_name[n_method]+"NN"+str(n_neurons)+"NL"+str(n_layers)+"L"+str(L)+"W"+str(W)+"G"+str(Gamma)+"NS"+str(n_samples)+"GF"+str(GammaF)
+
 try:
     os.mkdir(folder_name)
 except:
     print("DIRECTORY ALREADY EXISTS, FILES WILL BE KEPT THERE")
 
+
+name_var=[folder_name+"/"+"DATAM","L","W","NS","NR","G","NN","NL"]
+var=[n_method,L,W,n_samples,n_run,Gamma,n_neurons,n_layers]
+name_var=name_var[:n_par-3]
+var=var[:n_par-3]
+
+
+    
 #INITIALIZE OBJECTS
 hi=nk.hilbert.Spin(s=1 / 2,N=L*W)
-H=models[modelo](Gamma*dx,L,hi)
-print(H)
+H=models[modelo](0.0,Gamma*dx,L,hi)
+
 
 #CONDITION IF EXACT
 if n_method==5:
@@ -87,16 +91,18 @@ E_WF=class_WF.WF(L*W,model,H,n_samples)
 
 
 #ITERATION OVER THE GAMMA VALUES:
-name_var[0]="M"
+name_var[0]=folder_name+"/"+"M"
+
 pubE=class_WF.publisher(name_var+["GF"],var+[GammaF],["G","E"])
 pubE.create()
-name_var[0]="DATAM"
+
+name_var[0]=folder_name+"/"+"DATAM"
 E=np.array([[0 for i in range(n_mean)] for gg in range(NG+1)])
 
 for gg in range(NG+1):
     
     G=Gamma+(GammaF-Gamma)/NG*gg
-    H=models[modelo](G*dx,W,hi)
+    H=models[modelo](0.0,G*dx,W,hi)
     sampler=nk.sampler.MetropolisLocal(hi)
     E_WF.change_H(H)
     var[5]=str(round(G))
@@ -113,7 +119,7 @@ for gg in range(NG+1):
 
         #THIS PART COMPUTES THE HIDDEN VARIABLES OR THE RESPECTIVE NN VARIABLES:
 
-        name_var[0]="VARM"
+        name_var[0]=folder_name+"/"+"VARM"
         pubvar=class_WF.publisher(name_var,var,[])
         pubvar.create()
         if n_method == 3 and save_hiddens:
@@ -128,8 +134,8 @@ for gg in range(NG+1):
                 pubvar.write(Test[ns].tolist())
         namefile=pubvar.name()    
         pubvar.close()
-        os.rename(namefile,folder_name+"/"+namefile+str(hh))
-        name_var[0]="DATAM"
+        os.rename(namefile,namefile+str(hh))
+        name_var[0]=folder_name+"/"+"DATAM"
 
         #----------------------------------------------------------------------
 
@@ -144,7 +150,7 @@ for gg in range(NG+1):
             pub.write(A[x])
         namefile=pub.name()
         pub.close()
-        os.rename(namefile,folder_name+"/"+namefile+str(hh))
+        os.rename(namefile,namefile+str(hh))
         #---------------------------------------------------
         
         if n_method!=5:
@@ -159,7 +165,4 @@ En=np.mean(E,axis=-1)
 dEn=np.std(E,axis=-1)
 for gg in range(NG+1):
     pubE.write([0,Gamma+(GammaF-Gamma)/NG*gg,dEn[gg],En[gg]])
-filename=pubE.name()
 pubE.close()
-
-os.rename(filename,folder_name+"/"+filename)

@@ -74,6 +74,13 @@ def rotated_XYZModel(angle,Gamma,L,hi):
         H += Gamma*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i, i+1])
     return H
 
+def rotated_m(angle,L,hi):
+    pseudo_sigma_z=rotated_sigmaz(angle)
+    M = nk.operator.LocalOperator(hi)
+    for i in range(L):
+        M+=nk.operator.LocalOperator(hi,pseudo_sigma_z, [i])
+    return M
+
 def parity_Matrix(angle,L):
     pseudo_sigma_x = rotated_sigmax(angle)
     ops = [pseudo_sigma_x for i in range(L)]
