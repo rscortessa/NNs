@@ -57,7 +57,7 @@ elif modelo=="RBM_REAL":
 angle=0
 Nangle=4
 dangle=np.pi/(2*Nangle)
-NSPCA=10
+NSPCA=parameters[5]
 MASTER_DIR="RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)
 Nstates=2**L
 eps=10**(-10)
