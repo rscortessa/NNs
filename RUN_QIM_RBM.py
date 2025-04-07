@@ -71,20 +71,20 @@ OBS_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS
 SPCA_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"SPCA"
 VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"VAR"
 
-S_PCA_TEO=[0.0 for i in angle]
-PSI_TEO=[None for i in angle]
-hi=nk.hilbert.Spin(s=1/2,N=L)
-states=hi.all_states()
-for theta in range(len(angle)):
-    H=rotated_IsingModel(angle[theta],G*DG,L,hi)
-    eig_vals_other,eig_vecs_other=np.linalg.eigh(H.to_dense())
-    PSI_TEO[theta]=eig_vecs_other[:,0]
-    A=np.random.choice(num_states,size=1000,p=eig_vecs_other[:,0]**2)
-    B=np.array([states[a] for a in A])
-    S_PCA_TEO[theta]=class_WF.S_PCA(B,10**(-10),exvar=False)
+#S_PCA_TEO=[0.0 for i in angle]
+#PSI_TEO=[None for i in angle]
+#hi=nk.hilbert.Spin(s=1/2,N=L)
+#states=hi.all_states()
+#for theta in range(len(angle)):
+#    H=rotated_IsingModel(angle[theta],G*DG,L,hi)
+#    eig_vals_other,eig_vecs_other=np.linalg.eigh(H.to_dense())
+#    PSI_TEO[theta]=eig_vecs_other[:,0]
+#    A=np.random.choice(num_states,size=1000,p=eig_vecs_other[:,0]**2)
+#    B=np.array([states[a] for a in A])
+#    S_PCA_TEO[theta]=class_WF.S_PCA(B,10**(-10),exvar=False)
     
-sisj_z=[ eig_vecs_other[:,0].T@Sz0Szj(0.0,L,hi,j).to_dense()@eig_vecs_other[:,0] for j in [1,int(L/2),L-1]]
-sisj_x=[ eig_vecs_other[:,0].T@Sx0Sxj(0.0,L,hi,j).to_dense()@eig_vecs_other[:,0] for j in [1,int(L/2),L-1]]
+#sisj_z=[ eig_vecs_other[:,0].T@Sz0Szj(0.0,L,hi,j).to_dense()@eig_vecs_other[:,0] for j in [1,int(L/2),L-1]]
+#sisj_x=[ eig_vecs_other[:,0].T@Sx0Sxj(0.0,L,hi,j).to_dense()@eig_vecs_other[:,0] for j in [1,int(L/2),L-1]]
 
 sites_corr=[1,int(L/2),L-1]
 sites_corr=[str(x) for x in sites_corr]
