@@ -17,9 +17,12 @@ let
   NC = 1.0
   sites = siteinds("S=1/2", N*W)
   # Initialize a random MPS
-  
-   
-  filename_2 = "DATAM5L" * ARGS[1] * "W" * ARGS[2]* "G" * ARGS[3] * "NS" * ARGS[5] * "R_QIMMPS" * ".txt" # Output file optimization
+
+  folder="DMRG_R_QIM_L" * ARGS[1] * "W" * ARGS[2]* "NS" * ARGS[5] * "G" * ARGS[3] * "ANG0-90NANG" * ARGS[4] * "NR" * ARGS[6]
+  mkpath(folder)
+
+
+  filename_2 = folder*"/"*"DATAM5L" * ARGS[1] * "W" * ARGS[2]* "G" * ARGS[3] * "NS" * ARGS[5] * "R_QIMMPS" * ".txt" # Output file optimization
   open(filename_2,"a") do file
       write(file,"G","\t","E","\t","E_var","\t","OZ","\t","OZZ","\n")        
   end
@@ -43,7 +46,7 @@ let
       for sample_iter in 1:NR
 
       	  psi0 = random_mps(sites)
-      	  filename = "DATAM5L" * ARGS[1] * "W" * ARGS[2] * "NS" * ARGS[5] * "MPSG" * string(Int(theta)) * ".txt" * string(sample_iter)  # Output file to store configurations
+      	  filename = folder*"/"*"DATAM5L" * ARGS[1] * "W" * ARGS[2] * "NS" * ARGS[5] * "MPSG" * string(Int(theta)) * ".txt" * string(sample_iter)  # Output file to store configurations
 
 	  
 	  # Run DMRG to find the ground state
