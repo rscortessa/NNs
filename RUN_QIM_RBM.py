@@ -47,7 +47,8 @@ Nangle=parameters[6]
 
 learning_rate=0.05
 basis="QIM"
-modelo="RBM_REAL"
+modelo="RBM_COMPLEX"
+broken_z2=False
 
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
@@ -59,7 +60,7 @@ elif modelo=="RBM_REAL":
 
 angle=0
 dangle=np.pi/(2*Nangle)
-MASTER_DIR="RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)
+MASTER_DIR="RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)
 Nstates=2**L
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
@@ -108,10 +109,10 @@ for ii in range(len(angle)):
     NR_eff=int(NR/NSPCA)
     for kk in range(NSPCA):
         
-        if ii!=0:
-            broken_z2=False
-        else:
-            broken_z2=True
+        #if ii!=0:
+        #    broken_z2=False
+        #else:
+        #    broken_z2=True
             
         #FIRST WE COMPUTE THE PARAMETERS
         PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)
