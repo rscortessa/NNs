@@ -81,26 +81,26 @@ def rotated_CIMModel(angle,Gamma,L,hi):
     pseudo_sigma_p=(pseudo_sigma_x+isigmay())/2.0
     pseudo_sigma_m=(pseudo_sigma_x-isigmay())/2.0
     
-    H=nk.operator.localOperator(hi)
+    H=nk.operator.LocalOperator(hi)
     
     for i in range(L-2):
-        H-=1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_x,pseudo_sigma_z,pseudo_sigma_x), [i,i+1,i+2])
+        H-=1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_x,np.kron(pseudo_sigma_z,pseudo_sigma_x)), [i,i+1,i+2])
         H=-(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p-pseudo_sigma_m,pseudo_sigma_p-pseudo_sigma_m), [i,i+1])     
 
     H=-(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p-pseudo_sigma_m,pseudo_sigma_p-pseudo_sigma_m), [L-2,L-1])     
 
     return H
 
-def string_order_parameter(L,hi):
+def string_order_parameter(angle,L,hi):
     #MATRICES
     pseudo_sigma_x=rotated_sigmax(angle)
     pseudo_sigma_z=rotated_sigmaz(angle)
     #LIST AND INDICES
-    ops=[pseudo_sigma_x,isigmay()]+[pseudo_sigma_z for k in range(L-2)]+[isigmay(),pseudo_sigma_x]
+    ops=[pseudo_sigma_x,isigmay()]+[pseudo_sigma_z for k in range(L-4)]+[isigmay(),pseudo_sigma_x]
     indices=[i for i in range(L)]
     #OPERATOR DEFINITION
     BigO=reduce(np.kron,ops)
-    H=nk.operator.localOperator(hi,BigO,indices)
+    H=nk.operator.LocalOperator(hi,BigO,indices)
     return H
 
 

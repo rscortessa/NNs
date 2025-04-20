@@ -27,7 +27,7 @@ import scipy.optimize as so
 from matplotlib.colors import LinearSegmentedColormap
 from functools import reduce
 
-from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,string_order_parameter
+from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,string_order_parameter,rotated_CIMModel
 from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m
 
 
@@ -78,7 +78,7 @@ VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS
 sites_corr=[1,int(L/2),L-1]
 sites_corr=[str(x) for x in sites_corr]
 
-for tt in range(1,NMEAN):
+for tt in range(NMEAN):
     for ii in range(len(angle)):
         H=rotated_CIMModel(angle[ii],G*DG,L,hi)
 
@@ -97,7 +97,7 @@ for tt in range(1,NMEAN):
         log3 = nk.logging.RuntimeLog()
     #OBSERVABLES INIT.
         obs={}
-        obs["O"]=string_order_parameter(L,hi)
+        obs["O"]=string_order_parameter(angle[ii],L,hi)
     
         for jj in sites_corr:
             obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
