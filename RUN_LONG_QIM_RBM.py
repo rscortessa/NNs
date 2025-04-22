@@ -27,7 +27,7 @@ import scipy.optimize as so
 from matplotlib.colors import LinearSegmentedColormap
 from functools import reduce
 
-from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel
+from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,LONGIsingModel
 from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m
 
 
