@@ -133,9 +133,9 @@ def rotated_CIMModel(angle,Gamma,L,hi):
     
     for i in range(L-2):
         H-=1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_x,np.kron(pseudo_sigma_z,pseudo_sigma_x)), [i,i+1,i+2])
-        H=-(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p-pseudo_sigma_m,pseudo_sigma_p-pseudo_sigma_m), [i,i+1])     
+        H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p-pseudo_sigma_m,pseudo_sigma_p-pseudo_sigma_m), [i,i+1])     
 
-    H=-(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p-pseudo_sigma_m,pseudo_sigma_p-pseudo_sigma_m), [L-2,L-1])     
+    H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p-pseudo_sigma_m,pseudo_sigma_p-pseudo_sigma_m), [L-2,L-1])     
 
     return H
 
