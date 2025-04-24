@@ -62,13 +62,13 @@ def rotated_BROKEN_Z2IsingModel(angle,Gamma,L,hi):
     pseudo_sigma_x=rotated_sigmax(angle)
     pseudo_sigma_z=rotated_sigmaz(angle)
     H = nk.operator.LocalOperator(hi)
-    eps=10**(-4)
+    eps=5*10**(-1)
     # Add 2 body- interactions
     for i in range(L - 1):
         H -= nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i, i+1])
     # Add single body term
     for i in range(L):
-        H -= Gamma * nk.operator.LocalOperator(hi,pseudo_sigma_x,[i])-eps*nk.operator.LocalOperator(hi,pseudo_sigma_z,[i])
+        H += -Gamma * nk.operator.LocalOperator(hi,pseudo_sigma_x,[i])-eps*nk.operator.LocalOperator(hi,pseudo_sigma_z,[i])
     return H
 
 
@@ -138,6 +138,49 @@ def rotated_CIMModel(angle,Gamma,L,hi):
     H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p-pseudo_sigma_m,pseudo_sigma_p-pseudo_sigma_m), [L-2,L-1])     
 
     return H
+
+def rotated_CIMModel_Y(angle,Gamma,L,hi):
+    
+    r_sigmaz = np.array([[1, 0], [0, -1]])
+    r_sigmay = 1j*np.array([[0, -1], [1, 0]])
+    r_sigmax = np.array([[0, 1], [1, 0]])
+
+    
+    pseudo_sigma_y=r_sigmay*np.cos(angle)+r_sigmaz*np.sin(angle)
+    pseudo_sigma_z=r_sigmaz*np.cos(angle)-r_sigmay*np.sin(angle)
+    
+    
+    H=nk.operator.LocalOperator(hi)
+    
+    for i in range(L-2):
+        H-=1.0*nk.operator.LocalOperator(hi, np.kron(r_sigma_x,np.kron(pseudo_sigma_y,r_sigma_x)), [i,i+1,i+2])
+        H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_y,pseudo_sigma_y), [i,i+1])     
+
+    H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_y,pseudo_sigma_y), [L-2,L-1])     
+
+    return H
+
+
+def rotated_CIMModel_2(angle,Gamma,L,hi):
+    
+    pseudo_sigma_x=rotated_sigmax(angle)
+    pseudo_sigma_z=rotated_sigmaz(angle)
+    pseudo_sigma_p=(pseudo_sigma_x+isigmay())/2.0
+    pseudo_sigma_m=(pseudo_sigma_x-isigmay())/2.0
+    
+    H=nk.operator.LocalOperator(hi)
+    
+    for i in range(L-2):
+        H-=1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,np.kron(pseudo_sigma_x,pseudo_sigma_z)), [i,i+1,i+2])
+        H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i,i+1])     
+
+    H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [L-2,L-1])     
+
+    return H
+
+
+
+
 
 def string_order_parameter(angle,L,hi):
     #MATRICES
