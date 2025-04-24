@@ -78,7 +78,7 @@ sites_corr=[1,int(L/2),L-1]
 sites_corr=[str(x) for x in sites_corr]
 hi=nk.hilbert.Spin(s=1/2,N=L)
 
-for tt in range(1,NMEAN):
+for tt in range(NMEAN):
     for ii in range(len(angle)):
         
         H=rotated_BROKEN_Z2IsingModel(angle[ii],G*DG,L,hi)
