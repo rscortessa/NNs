@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[18]:
+# In[1]:
 
 
 import netket as nk
@@ -35,20 +35,20 @@ from matplotlib.colors import LinearSegmentedColormap
 from functools import reduce
 
 
-# In[19]:
+# In[2]:
 
 
 #DEFINE FUNCTIONS:
 
 
-# In[21]:
+# In[30]:
 
 
-from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,rotated_LONGIsingModel,rotated_BROKEN_Z2IsingModel
+from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,rotated_LONGIsingModel,rotated_BROKEN_Z2IsingModel,rotated_CIMModel_2
 from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m, rotated_CIMModel
 
 
-# In[22]:
+# In[31]:
 
 
 def GET_PROB_RBM(hi,param_RBM,j):
@@ -76,31 +76,31 @@ def GET_PROB_RBM(hi,param_RBM,j):
     return PROB
 
 
-# In[23]:
+# In[32]:
 
 
 #DEFINE THE VARIABLES:
 
 
-# In[73]:
+# In[54]:
 
 
 L=10
 NS=2048
-G=10
+G=100
 DG=0.01
 NN=1
 NL=1
 NR=1000
 learning_rate=0.05
-basis="BROKENZ2_QIM"
+basis="CIM_2"
 modelo="RBM_COMPLEX"
 ##########################
 angle=0
 Nangle=12
 dangle=np.pi/(2*Nangle)
 NSPCA=100
-NM=5
+NM=8
 ##########################
 
 
@@ -121,7 +121,7 @@ SPCA_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(N
 VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"VAR"
 
 
-# In[74]:
+# In[55]:
 
 
 norm = mcolors.Normalize(vmin=np.abs(0), vmax=1)
@@ -129,25 +129,25 @@ colors = [(0.0, 'yellow'),(0.25, "green"),(0.5, 'blue'),(0.75,"brown"),(1.0, 're
 cmap = LinearSegmentedColormap.from_list('custom_blue_green', colors)
 
 
-# In[75]:
+# In[56]:
 
 
 #EXACT DIAGONALIZATION AND COMPUTING THE ORDER PARAMETER
 
 
-# In[76]:
+# In[57]:
 
 
 #SOLUTION OF THE ISING MODEL AS A FUNCTION OF THETA:
 
 
-# In[77]:
+# In[58]:
 
 
 #SOLUTION OF THE ISING MODEL AND ITS PARAMETERS...
 
 
-# In[78]:
+# In[59]:
 
 
 S_PCA_TEO=[0.0 for i in angle]
@@ -159,7 +159,7 @@ states=hi.all_states()
 eps=10**(-10)
 for theta in range(len(angle)):
     #PSI AND DIAGONALIZATION
-    H=rotated_BROKEN_Z2IsingModel(angle[theta],G*DG,L,hi)
+    H=rotated_CIMModel_2(angle[theta],G*DG,L,hi)
     eig_vals_other,eig_vecs_other=np.linalg.eigh(H.to_dense())
     PSI_TEO[theta]=eig_vecs_other[:,0]
     EXC_PSI_TEO[theta]=eig_vecs_other[:,3]
@@ -181,13 +181,13 @@ sisj_x=[ PSI_TEO[0].T@Sx0Sxj(0.0,L,hi,j).to_dense()@PSI_TEO[0] for j in [1,int(L
 
 
 
-# In[79]:
+# In[60]:
 
 
 N_pos
 
 
-# In[80]:
+# In[61]:
 
 
 # INITIALIZE NETKET TOOLS
@@ -255,11 +255,15 @@ E_all[E_all>1.0]=1.0
 X=np.array(data_RBM[0][0]["Energy"]["iters"])+1.0
 
 
-# In[81]:
+# In[126]:
 
 
-AA=[10,11,Nangle]
+#AA=[10,11,Nangle]
+AA=[i for i in range(Nangle)]
 NMM=[[1,2,3,4],[2],[1,4]] #500
+NMM=[[i for i in range(8)] for k in range(13)]
+NMM[0]=[0,3,4,5,7]
+NMM[3]=[1,2,3,4,5,6,7]
 #NMM=[[0,2,4,6,7,8],[0,5,6,8,9],[0,2,3,4,5,6,7,8,9]] #170
 #NMM=[[0,1,2,3,4,5,6,7,8,9],[0,1,2,3,4,5,6,7,8,9],[0,1,2,3,4,5,6,7,8,9]]
 
@@ -270,7 +274,7 @@ NMM=[[1,2,3,4],[2],[1,4]] #500
 
 
 
-# In[82]:
+# In[127]:
 
 
 print(E_all.shape)
@@ -290,14 +294,17 @@ for s in range(len(AA)):
     plt.savefig(MASTER_DIR+"/"+"BASIS"+basis+"L"+str(L)+"G"+str(G)+"NS"+str(NS)+"DIF_LEARNING_RATES.png")
 
 
-# In[83]:
+# In[129]:
 
 
 #Naffec=3
-Naffec=3
+Naffec=len(AA)
+BB=np.arange(Nangle)
+BB
 E=[]
 dE=[]
 NN=np.zeros(Nangle+1)
+
 for i in range(Nangle+1-Naffec):
     E.append(np.mean(E_all[:,i,:],axis=0))
     dE.append(np.var(E_all[:,i,:],axis=0))
@@ -310,7 +317,32 @@ E=np.array(E)
 dE=np.array(dE)
 
 
-# In[84]:
+# In[130]:
+
+
+#Naffec=3
+Naffec=len(AA)
+BB=np.arange(Nangle)
+BB
+E=[]
+dE=[]
+NN=np.zeros(Nangle+1)
+
+for i in range(Nangle+1):
+    E.append(np.mean(E_all[NMM[i],i,:],axis=0))
+    dE.append(np.var(E_all[NMM[i],i,:],axis=0))
+    NN[i]=len(NMM[i])
+E=np.array(E)
+dE=np.array(dE)
+
+
+# In[131]:
+
+
+NN
+
+
+# In[132]:
 
 
 # ENERGY
@@ -323,7 +355,7 @@ X=np.array(data_RBM[0][0]["Energy"]["iters"])+1.0
 
 
 
-# In[85]:
+# In[141]:
 
 
 fig,axis=plt.subplots(1,1,figsize=(7,5))
@@ -331,7 +363,7 @@ plt.title(basis+"$"+r"\;vs\;Iterations$"+"\n"+r"$L="+str(L)+"$ $" r"\lambda="+st
 AA=[0,5,6,7,8,9,10,Nangle]
 
 for i in AA:
-    axis.scatter(X,E[i],marker="*",color=cmap(i/Nangle*1.0))
+    axis.scatter(1/X,E[i],marker="*",color=cmap(i/Nangle*1.0))
 #plt.legend()
 plt.xscale("log")
 plt.yscale("log")
@@ -347,7 +379,7 @@ plt.tight_layout()
 plt.savefig(MASTER_DIR+"/"+"BASIS"+basis+"L"+str(L)+"G"+str(G)+"NS"+str(NS)+"DIF_LEARNING_RATES.png")
 
 
-# In[86]:
+# In[134]:
 
 
 #RELATIVE ERROR LAST ITERATION
@@ -359,7 +391,7 @@ plt.savefig(MASTER_DIR+"/"+"BASIS"+basis+"L"+str(L)+"G"+str(G)+"NS"+str(NS)+"DIF
 
 
 
-# In[87]:
+# In[135]:
 
 
 Y=np.array(E)
@@ -374,7 +406,7 @@ for ii in range(Nangle+1):
 Y_err=np.array(Y_err)
 
 
-# In[88]:
+# In[136]:
 
 
 PSI_TEO=np.array(PSI_TEO)
@@ -410,13 +442,13 @@ for phi in range(Nangle+1):
   
 
 
-# In[89]:
+# In[137]:
 
 
 PSI_TEO*PSI_TEO
 
 
-# In[90]:
+# In[138]:
 
 
 #ANGLES
@@ -430,15 +462,15 @@ for kk in range(Nangle+1):
         break
 
 
-# In[91]:
+# In[145]:
 
 
 norm_1 = mcolors.Normalize(vmin=np.abs(0), vmax=1)
 colors_1 = [(0.0, 'white'),(1.0, "black")]
-cmap_1 = LinearSegmentedColormap.from_list('gray_scale', colors)
+cmap_1 = LinearSegmentedColormap.from_list('gray_scale', colors_1)
 
 
-# In[92]:
+# In[150]:
 
 
 N_label_freq=2
@@ -457,10 +489,11 @@ axis[1].tick_params(axis='y', labelsize=fsize)
 axis[1].set_title(r"$L="+str(L)+"$ $" r"\lambda="+str(round(G*DG,2))+"$"+" $N_{samples}="+str(NS)+"$"+" $N_{opt}="+str(NR)+"$\n"+"INVERSE PARTICIPATION RATIO",fontsize=fsize)
 
 axis[0].errorbar(ANGLES,YYY,yerr=np.sqrt(Y_err)/NN[i],marker="*",linestyle="dashed")
-if Y0!=None:
-    axis[0].fill_between(ANGLES[Y0:Nangle],np.min(YYY)/1.3,np.max(YYY)*1.3,alpha=.3)
-#for i in range(Nangle+1):
-#    axis[0].fill_between(ANGLES[i:i+2],np.min(YYY)/1.3,np.max(YYY)*1.3,color=cmap_1(N_pos[i]*1.0/max(N_pos)),alpha=.5)
+#if Y0!=None:
+#    axis[0].fill_between(ANGLES[Y0:Nangle],np.min(YYY)/1.3,np.max(YYY)*1.3,alpha=.3)
+for i in range(Nangle+1):
+    axis[0].fill_between(ANGLES[i:i+2],np.min(YYY)/1.3,np.max(YYY)*1.3,color=cmap_1(N_pos[i]*1.0/max(N_pos)),alpha=.5,edgecolor=None)
+    axis[1].fill_between(ANGLES[i:i+2],np.min(YYY)/20,np.max(YYY)*20,color=cmap_1(N_pos[i]*1.0/max(N_pos)),alpha=.5,edgecolor=None)
 
 axis[0].set_ylim([np.min(YYY)/1.1,np.max(YYY)*1.3])
 axis[0].set_yscale("log")
@@ -473,8 +506,8 @@ axis[1].plot(ANGLES,IPR_TEO,color="black",linestyle="dashed",label="Exact")
 
 axis[1].set_xlabel(r"$\theta$",fontsize=fsize)
 axis[1].set_ylabel(r"$IPR$",fontsize=fsize)
-if Y0!=None:
-    axis[1].fill_between(ANGLES[Y0:Nangle],np.min(IPR_TEO)/20.0,np.max(IPR_TEO)*100.0,alpha=.3)
+#if Y0!=None:
+#    axis[1].fill_between(ANGLES[Y0:Nangle],np.min(IPR_TEO)/20.0,np.max(IPR_TEO)*100.0,alpha=.3)
 plt.legend(fontsize=fsize)
 #axis[1].set_ylim([np.min(IPR_TEO)/10.0,np.max(IPR_TEO)*2.0])
 axis[1].set_yscale("log")
@@ -488,13 +521,13 @@ plt.tight_layout()
 plt.savefig("THETA_BASIS"+basis+"L"+str(L)+"G"+str(G)+"NS"+str(NS)+"IPR_ED.jpg")
 
 
-# In[71]:
+# In[118]:
 
 
 N_pos
 
 
-# In[94]:
+# In[75]:
 
 
 phi=0
@@ -530,7 +563,7 @@ r_P=np.real(r_PSI*np.conjugate(r_PSI))
 w_P=np.real(w_PSI*np.conjugate(w_PSI))
 
 
-# In[112]:
+# In[76]:
 
 
 plt.figure()
@@ -548,7 +581,7 @@ plt.yscale("log")
 plt.savefig(MASTER_DIR+"/DELTAP"+"AG"+str(G)+".png")
 
 
-# In[113]:
+# In[77]:
 
 
 plt.figure()
@@ -565,7 +598,7 @@ plt.yscale("log")
 plt.savefig(MASTER_DIR+"/DELTAP"+"AG"+str(G)+".png")
 
 
-# In[101]:
+# In[78]:
 
 
 plt.figure()
