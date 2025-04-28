@@ -153,7 +153,7 @@ def rotated_CIMModel_Y(angle,Gamma,L,hi):
     H=nk.operator.LocalOperator(hi)
     
     for i in range(L-2):
-        H-=1.0*nk.operator.LocalOperator(hi, np.kron(r_sigma_x,np.kron(pseudo_sigma_y,r_sigma_x)), [i,i+1,i+2])
+        H-=1.0*nk.operator.LocalOperator(hi, np.kron(r_sigmax,np.kron(pseudo_sigma_y,r_sigmax)), [i,i+1,i+2])
         H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_y,pseudo_sigma_y), [i,i+1])     
 
     H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_y,pseudo_sigma_y), [L-2,L-1])     
