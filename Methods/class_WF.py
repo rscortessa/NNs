@@ -21,6 +21,7 @@ from Methods.TId import sets,neighbors,n_points,Volume_ratio,func,roots
 from netket.hilbert import constraint
 import equinox as eqx 
 from functools import reduce
+from scipy.sparse import kron, identity, csc_matrix
 
 def min_d(vr,eps):
     for i in range(len(vr)):
@@ -141,16 +142,16 @@ def rotated_CIMModel(angle,Gamma,L,hi):
 
 def rotated_CIMModel_Y(angle,Gamma,L,hi):
     
-    r_sigmaz = np.array([[1, 0], [0, -1]])
-    r_sigmay = 1j*np.array([[0, -1], [1, 0]])
-    r_sigmax = np.array([[0, 1], [1, 0]])
+    r_sigmaz = (1+1j*0.0)*np.array([[1, 0], [0, -1]],dtype=complex)
+    r_sigmay = 1j*np.array([[0, -1], [1, 0]],dtype=complex)
+    r_sigmax = (1+1j*0.0)*np.array([[0, 1], [1, 0]],dtype=complex)
 
     
     pseudo_sigma_y=r_sigmay*np.cos(angle)+r_sigmaz*np.sin(angle)
     pseudo_sigma_z=r_sigmaz*np.cos(angle)-r_sigmay*np.sin(angle)
     
     
-    H=nk.operator.LocalOperator(hi)
+    H=nk.operator.LocalOperator(hi,dtype=complex)
     
     for i in range(L-2):
         H-=1.0*nk.operator.LocalOperator(hi, np.kron(r_sigmax,np.kron(pseudo_sigma_y,r_sigmax)), [i,i+1,i+2])
@@ -204,16 +205,24 @@ def rotated_m(angle,L,hi):
         M+=nk.operator.LocalOperator(hi,pseudo_sigma_z, [i])
     return M
 
-def parity_Matrix(angle,L):
+def parity_Matrix(angle, L):
     pseudo_sigma_x = rotated_sigmax(angle)
-    ops = [pseudo_sigma_x for i in range(L)]
-    P_array=reduce(np.kron,ops)
+    ops = [pseudo_sigma_x for _ in range(L)]
+    P_array = reduce(lambda a, b: kron(a, b, format='csc'), ops)
     return P_array
+
+
+#def parity_Matrix(angle,L):
+#    pseudo_sigma_x = rotated_sigmax(angle)
+#    ops = [pseudo_sigma_x for i in range(L)]
+#    P_array=reduce(np.kron,ops)
+#    return P_array
 
 def parity_IsingModel(angle,L,hi):
      # Initialize Hamiltonian as a LocalOperator
     indices=[i for i in range(L)]
     P_array=parity_Matrix(angle,L)
+    
     P = nk.operator.LocalOperator(hi,P_array,indices)
     return P
 
