@@ -47,7 +47,7 @@ Nangle=parameters[6]
 NMEAN=parameters[7]
 
 learning_rate=0.05
-diag_shift=1
+diag_shift=1.0
 basis="QIM"
 modelo="RBM_COMPLEX"
 broken_z2=False
