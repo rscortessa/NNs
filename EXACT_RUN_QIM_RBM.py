@@ -44,6 +44,7 @@ NL=1
 NR=parameters[4]
 NSPCA=parameters[5]
 Nangle=parameters[6]
+NMEAN=parameters[7]
 
 learning_rate=0.05
 basis="QIM"
@@ -52,15 +53,15 @@ broken_z2=False
 
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
-    sr = nk.optimizer.SR(diag_shift=0.1, holomorphic=True)
+    sr = nk.optimizer.SR(diag_shift=0.2, holomorphic=True)
 elif modelo=="RBM_REAL":
     model=nk.models.RBM(alpha=NN)
-    sr = nk.optimizer.SR(diag_shift=0.1, holomorphic=False)
+    sr = nk.optimizer.SR(diag_shift=0.2, holomorphic=False)
 
 
 angle=0
 dangle=np.pi/(2*Nangle)
-MASTER_DIR="RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)
+MASTER_DIR="EXACT_RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)
 Nstates=2**L
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
@@ -76,58 +77,54 @@ VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS
 sites_corr=[1,int(L/2),L-1]
 sites_corr=[str(x) for x in sites_corr]
 
-for ii in range(len(angle)):
-    if angle[ii]==np.pi/(2.0):
-        hi=nk.hilbert.Spin(s=1/2,N=L,constraint=class_WF.ParityConstraint())
-    else:
-        hi=nk.hilbert.Spin(s=1/2,N=L,constraint=class_WF.ParityConstraint())
+for tt in range(NMEAN):
+    for ii in range(len(angle)):
+        if angle[ii]==np.pi/(2.0):
+            hi=nk.hilbert.Spin(s=1/2,N=L,constraint=class_WF.ParityConstraint())
+        else:
+            hi=nk.hilbert.Spin(s=1/2,N=L)
 
-    H=rotated_IsingModel(angle[ii],G*DG,L,hi)
+        H=rotated_IsingModel(angle[ii],G*DG,L,hi)
 
-    alpha=1
-    learning_rate=0.05
-    g = nk.graph.Hypercube(length=L, n_dim=1, pbc=False)
-    #sampler = nk.sampler.MetropolisExchange(hilbert=hi,graph=g)
-    #sampler=nk.sampler.MetropolisHamiltonian(hi, hamiltonian=H)
-    sampler=nk.sampler.ExactSampler(hi)
-    #sampler=nk.sampler.MetropolisLocal(hi,n_chains=128,sweep_size=50)
-    vstate=nk.vqs.MCState(sampler,model,n_samples=NS)
-    optimizer=nk.optimizer.Sgd(learning_rate=learning_rate)
-    PSI=class_WF.WF(L,hi,sampler,sr,model,H,NS)
-    #THE OUT LOGS ARE CREATED
-    log = nk.logging.RuntimeLog()
-    log2 = nk.logging.RuntimeLog()
-    log3 = nk.logging.RuntimeLog()
+        alpha=1
+        learning_rate=0.05
+        g = nk.graph.Hypercube(length=L, n_dim=1, pbc=False)
+        #sampler = nk.sampler.MetropolisExchange(hilbert=hi,graph=g)
+        # sampler=nk.sampler.MetropolisHamiltonian(hi, hamiltonian=H)
+        sampler=nk.sampler.ExactSampler(hi)
+        #sampler=nk.sampler.MetropolisLocal(hi,n_chains=128,sweep_size=50)
+        vstate=nk.vqs.MCState(sampler,model,n_samples=NS)
+        optimizer=nk.optimizer.Sgd(learning_rate=learning_rate)
+        PSI=class_WF.WF(L,hi,sampler,sr,model,H,NS)
+        #THE OUT LOGS ARE CREATED
+        log = nk.logging.RuntimeLog()
+        log2 = nk.logging.RuntimeLog()
+        log3 = nk.logging.RuntimeLog()
     #OBSERVABLES INIT.
-    obs={}
-    obs["P"]=parity_IsingModel(angle[ii],L,hi)
-    obs["M"]=rotated_m(angle[ii],L,hi)
+        obs={}
+        obs["P"]=parity_IsingModel(angle[ii],L,hi)
+        obs["M"]=rotated_m(angle[ii],L,hi)
     
-    for jj in sites_corr:
-        obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
-        obs["CX0"+jj]=Sx0Sxj(angle[ii],L,hi,int(jj))
+        for jj in sites_corr:
+            obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
+            obs["CX0"+jj]=Sx0Sxj(angle[ii],L,hi,int(jj))
 
-    NR_eff=int(NR/NSPCA)
-    for kk in range(NSPCA):
-        
-        #if ii!=0:
-        #    broken_z2=False
-        #else:
-        #    broken_z2=True
-            
+        NR_eff=int(NR/NSPCA)
+        for kk in range(NSPCA):
+    
         #FIRST WE COMPUTE THE PARAMETERS
-        PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)
-        PSI.save_params(kk,log2)
-        #RUNNING FOR NR_EFF ITERATIONS
-        PSI.run(obs=obs,n_iter=NR_eff,log=log)
+            PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)
+            PSI.save_params(kk,log2)
+            #RUNNING FOR NR_EFF ITERATIONS
+            PSI.run(obs=obs,n_iter=NR_eff,log=log)
         
     #LAST CALCULATION        
-    PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)    
-    PSI.save_params(kk,log2)
+        PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)    
+        PSI.save_params(kk,log2)
     
-    log2.serialize(MASTER_DIR+"/"+str(ii)+VAR_FILENAME)
-    log.serialize(MASTER_DIR+"/"+str(ii)+OBS_FILENAME)
-    log3.serialize(MASTER_DIR+"/"+str(ii)+SPCA_FILENAME)
+        log2.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+VAR_FILENAME)
+        log.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+OBS_FILENAME)
+        log3.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+SPCA_FILENAME)
 
 
 
