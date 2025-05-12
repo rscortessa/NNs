@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[368]:
 
 
 import netket as nk
@@ -33,22 +33,23 @@ import scipy.special as sc
 import scipy.optimize as so
 from matplotlib.colors import LinearSegmentedColormap
 from functools import reduce
+from scipy.sparse import triu
 
 
-# In[2]:
+# In[279]:
 
 
 #DEFINE FUNCTIONS:
 
 
-# In[30]:
+# In[280]:
 
 
 from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,rotated_LONGIsingModel,rotated_BROKEN_Z2IsingModel,rotated_CIMModel_2
-from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m, rotated_CIMModel
+from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m, rotated_CIMModel, rotated_CIMModel_Y
 
 
-# In[31]:
+# In[281]:
 
 
 def GET_PROB_RBM(hi,param_RBM,j):
@@ -65,47 +66,56 @@ def GET_PROB_RBM(hi,param_RBM,j):
     DD=np.tile(BB,(len(states),1))
     
     #COMPUTE THE PROBABILITIES
-    KK=np.exp(states@CC)
-    AMP=np.cosh(states@AA+DD)
-    ALMOST_PROB=KK*np.prod(AMP,axis=-1)
+    
+    logKK=states@CC
+    log_AMP=np.log(np.cosh(states@AA+DD))
+    log_ALMOST_PROB=np.sum(log_AMP,axis=-1)+logKK
+    log_NORM=log_ALMOST_PROB+np.conjugate(log_ALMOST_PROB)
+    NORM=np.sqrt(np.sum(np.exp(log_NORM)))
+    
+    PROB=np.exp(log_ALMOST_PROB)/NORM
+    #------------------------------
+    #KK=np.exp(states@CC)
+    #AMP=np.cosh(states@AA+DD)
+    #ALMOST_PROB=KK*np.prod(AMP,axis=-1)
     
     #NORMALIZE THE PROBABILITY
-    NORM=np.sqrt(ALMOST_PROB@np.conjugate(ALMOST_PROB))
-    PROB=ALMOST_PROB/NORM
+    #NORM=np.sqrt(ALMOST_PROB@np.conjugate(ALMOST_PROB))
+    #PROB=ALMOST_PROB/NORM
     
     return PROB
 
 
-# In[32]:
+# In[282]:
 
 
 #DEFINE THE VARIABLES:
 
 
-# In[54]:
+# In[360]:
 
 
-L=10
-NS=2048
-G=100
+L=20
+NS=4096
+G=50
 DG=0.01
 NN=1
 NL=1
-NR=1000
+NR=500
 learning_rate=0.05
-basis="CIM_2"
+basis="QIM"
 modelo="RBM_COMPLEX"
 ##########################
 angle=0
 Nangle=12
 dangle=np.pi/(2*Nangle)
 NSPCA=100
-NM=8
+NM=1
 ##########################
 
 
 
-MASTER_DIR="RUN_"+basis+"_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)
+MASTER_DIR="EXACT_RUN_"+basis+"_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)
 Nstates=2**L
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
@@ -121,7 +131,7 @@ SPCA_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(N
 VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"VAR"
 
 
-# In[55]:
+# In[361]:
 
 
 norm = mcolors.Normalize(vmin=np.abs(0), vmax=1)
@@ -129,25 +139,25 @@ colors = [(0.0, 'yellow'),(0.25, "green"),(0.5, 'blue'),(0.75,"brown"),(1.0, 're
 cmap = LinearSegmentedColormap.from_list('custom_blue_green', colors)
 
 
-# In[56]:
+# In[362]:
 
 
 #EXACT DIAGONALIZATION AND COMPUTING THE ORDER PARAMETER
 
 
-# In[57]:
+# In[363]:
 
 
 #SOLUTION OF THE ISING MODEL AS A FUNCTION OF THETA:
 
 
-# In[58]:
+# In[364]:
 
 
 #SOLUTION OF THE ISING MODEL AND ITS PARAMETERS...
 
 
-# In[59]:
+# In[ ]:
 
 
 S_PCA_TEO=[0.0 for i in angle]
@@ -159,35 +169,51 @@ states=hi.all_states()
 eps=10**(-10)
 for theta in range(len(angle)):
     #PSI AND DIAGONALIZATION
-    H=rotated_CIMModel_2(angle[theta],G*DG,L,hi)
-    eig_vals_other,eig_vecs_other=np.linalg.eigh(H.to_dense())
+    H=rotated_IsingModel(angle[theta],G*DG,L,hi)
+    #H=rotated_CIMModel_Y(angle[theta],G*DG,L,hi)
+    #H=rotated_CIMModel_2(angle[theta],G*DG,L,hi)
+    #eig_vals_other,eig_vecs_other=np.linalg.eigh(H.to_dense())
+    eig_vals_other,eig_vecs_other=eigsh(H.to_sparse())
+    
     PSI_TEO[theta]=eig_vecs_other[:,0]
     EXC_PSI_TEO[theta]=eig_vecs_other[:,3]
     if PSI_TEO[theta][0]<0:
         PSI_TEO[theta]=(-1.0)*PSI_TEO[theta]
     
-    A=np.random.choice(num_states,size=1000,p=eig_vecs_other[:,0]**2)
-    B=np.array([states[a] for a in A])
-    S_PCA_TEO[theta]=class_WF.S_PCA(B,10**(-10),exvar=False)
+   # A=np.random.choice(num_states,size=1000,p=eig_vecs_other[:,0]**2)
+   # B=np.array([states[a] for a in A])
+    #S_PCA_TEO[theta]=class_WF.S_PCA(B,10**(-10),exvar=False)
     #SIGN PROBLEM
-    H_array=to_array(H)*1.0
-    off_diag_indices=np.triu_indices(2**(L),k=1)
-    aux_1=H_array[off_diag_indices]
-    aux_2=aux_1[np.abs(aux_1)>eps]
-    N_pos[theta]=np.sum((aux_2>eps)*1.0)
+    
+    #H_array=to_array(H)*1.0
+    #off_diag_indices=np.triu_indices(2**(L),k=1)
+    #aux_1=H_array[off_diag_indices]
+    #aux_2=aux_1[np.abs(aux_1)>eps]
+    #N_pos[theta]=np.sum((aux_2>eps)*1.0)
+
+    #SIGN PROBLEM SPARSE VERSION
+    H_triu = triu(H.to_sparse(), k=1)
+    # Get the data and row/col indices of non-zero entries
+    data = H_triu.data
+    # Filter elements with absolute value > eps
+    mask = np.abs(data) > eps
+    filtered_data = data[mask]
+    # Count how many are > eps (i.e., positive and above threshold)
+    N_pos[theta] = np.sum(filtered_data > eps)
+    print("step",theta,"done")
     
 sisj_z=[ PSI_TEO[0].T@Sz0Szj(0.0,L,hi,j).to_dense()@PSI_TEO[0] for j in [1,int(L/2),L-1]]
 sisj_x=[ PSI_TEO[0].T@Sx0Sxj(0.0,L,hi,j).to_dense()@PSI_TEO[0] for j in [1,int(L/2),L-1]]
 
 
 
-# In[60]:
+# In[ ]:
 
 
 N_pos
 
 
-# In[61]:
+# In[ ]:
 
 
 # INITIALIZE NETKET TOOLS
@@ -255,26 +281,80 @@ E_all[E_all>1.0]=1.0
 X=np.array(data_RBM[0][0]["Energy"]["iters"])+1.0
 
 
-# In[126]:
+# In[ ]:
 
 
 #AA=[10,11,Nangle]
-AA=[i for i in range(Nangle)]
-NMM=[[1,2,3,4],[2],[1,4]] #500
+AA=[i for i in range(Nangle+1)]
+NMM=[[0,1,2,3,4],[2],[1,4]] #500
 NMM=[[i for i in range(8)] for k in range(13)]
-NMM[0]=[0,3,4,5,7]
-NMM[3]=[1,2,3,4,5,6,7]
+#NMM[0]=[1,3,4,5,7]
+#NMM[1]=[1,2,5,7]
+#NMM[2]=[2,3,4,5,7]
+#NMM[3]=[2,3,5,7]
+#NMM[4]=[0,4]
+
+#NMM[1]=[4,6,7]
+#NMM[3]=[0,1,2,3,4,5,6,7]
 #NMM=[[0,2,4,6,7,8],[0,5,6,8,9],[0,2,3,4,5,6,7,8,9]] #170
 #NMM=[[0,1,2,3,4,5,6,7,8,9],[0,1,2,3,4,5,6,7,8,9],[0,1,2,3,4,5,6,7,8,9]]
+
+#NMM[1]=[2,5,6]
+#NMM[2]=[0,1,2,4,5,6,7]
+#NMM[3]=[0,1,3,4,6,7]
+#NMM[4]=[0,1,2,6,7]
+#NMM[6]=[0,2,3,4,5,6,7]
+#NMM[10]=[0,1,2,3,5,6,7]
+#NMM[12]=[1,2,3,4,5,6,7]
+
+#CIM_Y G 100
+#NMM[7]=[4,6,7]
+#NMM[8]=[0,2,3,5,6,7]
+#NMM[9]=[1,4,6]
+#NMM[10]=[3,5,6,7]
+
+#CIM_Y G 500
+
+#NMM[0]=[1,2,3,4,5,6,7]
+#NMM[1]=[1,2,4,5,6,7]
+#NMM[2]=[1,3,4,5,6,7]
+#NMM[3]=[1,2,3,4,6,7]
+#NMM[4]=[2,6]
+#NMM[5]=[3,5]
+#NMM[6]=[1]
+#NMM[7]=[2,3]
+#NMM[8]=[3]
+#NMM[9]=[0]
+#NMM[10]=[0]
+#NMM[11]=[1]
+#NMM[12]=[1]
+
+#CIM_Y G 50
+#NMM[12]=[1,2,3,4,5,6,7]
+#NMM[8]=[0,1,2,4,5,6,7]
+#NMM[7]=[1,2,6,7]
+#BROKENZ2G50
+#NMM[0]=[1,2,3,4,5,6,7]
+#NMM[1]=[1,2,3,4,5,6,7]
+#NMM[2]=[1,2,3,4,5,6,7]
+#NMM[10]=[1,2,3,4,5,6,7]
+#NMM[11]=[1,2,3,4,5,6,7]
+#NMM[12]=[1,2,3,4,5,6,7]
 
 
 # In[ ]:
 
 
+NMM=[[kk for kk in range(NM)] for i in range(Nangle+1)]
 
 
+# In[ ]:
 
-# In[127]:
+
+AA
+
+
+# In[ ]:
 
 
 print(E_all.shape)
@@ -294,7 +374,7 @@ for s in range(len(AA)):
     plt.savefig(MASTER_DIR+"/"+"BASIS"+basis+"L"+str(L)+"G"+str(G)+"NS"+str(NS)+"DIF_LEARNING_RATES.png")
 
 
-# In[129]:
+# In[ ]:
 
 
 #Naffec=3
@@ -317,7 +397,7 @@ E=np.array(E)
 dE=np.array(dE)
 
 
-# In[130]:
+# In[ ]:
 
 
 #Naffec=3
@@ -336,13 +416,13 @@ E=np.array(E)
 dE=np.array(dE)
 
 
-# In[131]:
+# In[349]:
 
 
 NN
 
 
-# In[132]:
+# In[350]:
 
 
 # ENERGY
@@ -355,12 +435,12 @@ X=np.array(data_RBM[0][0]["Energy"]["iters"])+1.0
 
 
 
-# In[141]:
+# In[351]:
 
 
 fig,axis=plt.subplots(1,1,figsize=(7,5))
 plt.title(basis+"$"+r"\;vs\;Iterations$"+"\n"+r"$L="+str(L)+"$ $" r"\lambda="+str(round(G*DG,1))+"$"+" $N_{samples}="+str(NS)+"$"+"\n"+"METROPOLIS HAMILTONIAN SAMPLER",fontsize=15)
-AA=[0,5,6,7,8,9,10,Nangle]
+AA=[0,5,6,7,8,9,10,12]
 
 for i in AA:
     axis.scatter(1/X,E[i],marker="*",color=cmap(i/Nangle*1.0))
@@ -379,7 +459,7 @@ plt.tight_layout()
 plt.savefig(MASTER_DIR+"/"+"BASIS"+basis+"L"+str(L)+"G"+str(G)+"NS"+str(NS)+"DIF_LEARNING_RATES.png")
 
 
-# In[134]:
+# In[352]:
 
 
 #RELATIVE ERROR LAST ITERATION
@@ -391,7 +471,7 @@ plt.savefig(MASTER_DIR+"/"+"BASIS"+basis+"L"+str(L)+"G"+str(G)+"NS"+str(NS)+"DIF
 
 
 
-# In[135]:
+# In[353]:
 
 
 Y=np.array(E)
@@ -406,7 +486,7 @@ for ii in range(Nangle+1):
 Y_err=np.array(Y_err)
 
 
-# In[136]:
+# In[354]:
 
 
 PSI_TEO=np.array(PSI_TEO)
@@ -437,18 +517,23 @@ for phi in range(Nangle+1):
         P=GET_PROB_RBM(hk,param_RBM,NSPCA-1)
         aux_param.append(np.sum(np.absolute(P)**4))
     aux_param=np.array(aux_param)
-    
-    IPR_RBM[phi]=np.mean(aux_param)
+    aux_param_2=[]
+    for jjs in aux_param:
+        if not np.isnan(jjs):
+            aux_param_2.append(jjs)
+    aux_param_2=np.array(aux_param_2)
+    print(aux_param_2)
+    IPR_RBM[phi]=np.mean(aux_param_2)
   
 
 
-# In[137]:
+# In[355]:
 
 
 PSI_TEO*PSI_TEO
 
 
-# In[138]:
+# In[356]:
 
 
 #ANGLES
@@ -462,7 +547,7 @@ for kk in range(Nangle+1):
         break
 
 
-# In[145]:
+# In[357]:
 
 
 norm_1 = mcolors.Normalize(vmin=np.abs(0), vmax=1)
@@ -470,7 +555,7 @@ colors_1 = [(0.0, 'white'),(1.0, "black")]
 cmap_1 = LinearSegmentedColormap.from_list('gray_scale', colors_1)
 
 
-# In[150]:
+# In[358]:
 
 
 N_label_freq=2
@@ -481,6 +566,7 @@ x_labels=[r"$\frac{"+str(i)+r"\pi}{"+str(2*Nangle)+"}$" for i in xticks]
 YYY=YY
 
 fig,axis=plt.subplots(1,2,figsize=(14,5))
+
 axis[0].set_title(r"$L="+str(L)+"$ $" r"\lambda="+str(round(G*DG,2))+"$"+" $N_{samples}="+str(NS)+"$"+" $N_{opt}="+str(NR)+"$"+"\n"+"ENERGY DISCREPANCY",fontsize=fsize)
 axis[0].set_xticks(xticks,x_labels,fontsize=fsize)
 axis[1].set_xticks(xticks,x_labels,fontsize=fsize)
@@ -492,10 +578,12 @@ axis[0].errorbar(ANGLES,YYY,yerr=np.sqrt(Y_err)/NN[i],marker="*",linestyle="dash
 #if Y0!=None:
 #    axis[0].fill_between(ANGLES[Y0:Nangle],np.min(YYY)/1.3,np.max(YYY)*1.3,alpha=.3)
 for i in range(Nangle+1):
-    axis[0].fill_between(ANGLES[i:i+2],np.min(YYY)/1.3,np.max(YYY)*1.3,color=cmap_1(N_pos[i]*1.0/max(N_pos)),alpha=.5,edgecolor=None)
-    axis[1].fill_between(ANGLES[i:i+2],np.min(YYY)/20,np.max(YYY)*20,color=cmap_1(N_pos[i]*1.0/max(N_pos)),alpha=.5,edgecolor=None)
+    axis[0].fill_between(ANGLES[i:i+2],np.min(YYY)/1.3,np.max(YYY)*1.5,color=cmap_1(N_pos[i]*1.0/max(N_pos)),alpha=.5,edgecolor=None)
+    axis[1].fill_between(ANGLES[i:i+2],np.min(YYY)/1000,np.max(YYY)*1000,color=cmap_1(N_pos[i]*1.0/max(N_pos)),alpha=.5,edgecolor=None)
 
-axis[0].set_ylim([np.min(YYY)/1.1,np.max(YYY)*1.3])
+axis[0].set_ylim([np.min(YYY)/1.0,np.max(YYY)*1.3])
+axis[1].set_ylim([np.min(IPR_TEO)/10.0,1.0])
+
 axis[0].set_yscale("log")
 axis[0].set_xlabel(r"$\theta$",fontsize=fsize)
 axis[0].set_ylabel(r"$\Delta\;E/E_{teo}$",fontsize=fsize)
@@ -506,6 +594,11 @@ axis[1].plot(ANGLES,IPR_TEO,color="black",linestyle="dashed",label="Exact")
 
 axis[1].set_xlabel(r"$\theta$",fontsize=fsize)
 axis[1].set_ylabel(r"$IPR$",fontsize=fsize)
+
+
+#axis[0].set_xlim([0,ANGLES[Nangle-2]])
+#axis[1].set_xlim([0,ANGLES[Nangle-2]])
+
 #if Y0!=None:
 #    axis[1].fill_between(ANGLES[Y0:Nangle],np.min(IPR_TEO)/20.0,np.max(IPR_TEO)*100.0,alpha=.3)
 plt.legend(fontsize=fsize)
@@ -521,22 +614,22 @@ plt.tight_layout()
 plt.savefig("THETA_BASIS"+basis+"L"+str(L)+"G"+str(G)+"NS"+str(NS)+"IPR_ED.jpg")
 
 
-# In[118]:
+# In[359]:
 
 
 N_pos
 
 
-# In[75]:
+# In[306]:
 
 
 phi=0
-k_right=[0,2,4]
-k_wrong=[1,3,4]
+k_right=[0]
+k_wrong=[1]
 
 #PARAMETERS OF THE RBM 
 r=k_right[0]
-w=k_wrong[2]
+w=k_wrong[0]
 r_param_RBM=data[r][phi]
 w_param_RBM=data[w][phi]
 #THEORETICAL RBM
@@ -563,7 +656,7 @@ r_P=np.real(r_PSI*np.conjugate(r_PSI))
 w_P=np.real(w_PSI*np.conjugate(w_PSI))
 
 
-# In[76]:
+# In[307]:
 
 
 plt.figure()
@@ -581,7 +674,7 @@ plt.yscale("log")
 plt.savefig(MASTER_DIR+"/DELTAP"+"AG"+str(G)+".png")
 
 
-# In[77]:
+# In[186]:
 
 
 plt.figure()
@@ -598,7 +691,7 @@ plt.yscale("log")
 plt.savefig(MASTER_DIR+"/DELTAP"+"AG"+str(G)+".png")
 
 
-# In[78]:
+# In[139]:
 
 
 plt.figure()
@@ -616,7 +709,7 @@ plt.xlim([0,50])
 plt.savefig(MASTER_DIR+"/DELTAP"+"AG"+str(G)+".png")
 
 
-# In[102]:
+# In[140]:
 
 
 plt.figure()
@@ -636,38 +729,38 @@ plt.yscale("log")
 plt.savefig(MASTER_DIR+"/DELTAP"+"AG"+str(G)+".png")
 
 
-# In[103]:
+# In[311]:
 
 
-w_perm = np.argsort(-w_P)
++w_perm = np.argsort(-w_P)
 r_perm = np.argsort(-r_P)
 
 
-# In[98]:
+# In[312]:
 
 
 hk.numbers_to_states(w_perm[2])
 
 
-# In[99]:
+# In[313]:
 
 
 hk.numbers_to_states(r_perm[4])
 
 
-# In[100]:
+# In[314]:
 
 
 hk.numbers_to_states(perm[0])
 
 
-# In[ ]:
+# In[315]:
 
 
 print(w_P[perm][0],r_P[perm][0],PSI[perm][0])
 
 
-# In[104]:
+# In[316]:
 
 
 labels=[r"$visible\;bias$",r"$dense\;bias$",r"$kernel$"]
@@ -676,7 +769,7 @@ label_par=[r"$a_i$",r"$b_i$",r"$k_{ij}$"]
 ang=Nangle
 
 
-# In[105]:
+# In[317]:
 
 
 r_Im_Z=[np.array(r_param_RBM["params"]["visible_bias"]["value"]["imag"]),np.array(r_param_RBM["params"]["Dense"]["bias"]["value"]["imag"]),np.array(r_param_RBM["params"]["Dense"]["kernel"]["value"]["imag"])]
@@ -697,7 +790,7 @@ w_Im_Z=[np.array(w_param_RBM["params"]["visible_bias"]["value"]["imag"]),np.arra
 
 
 
-# In[106]:
+# In[318]:
 
 
 # Create the 3D figure
@@ -725,7 +818,7 @@ for i in range(len(label_par)-1):
     plt.savefig(MASTER_DIR+"/"+"theta"+str(ang)+labels_name[i]+"L"+str(L)+"G"+str(G)+".png")
 
 
-# In[107]:
+# In[319]:
 
 
 # Create the 3D figure
@@ -753,7 +846,7 @@ for i in range(len(label_par)-1):
     plt.savefig(MASTER_DIR+"/"+"theta"+str(ang)+labels_name[i]+"L"+str(L)+"G"+str(G)+".png")
 
 
-# In[225]:
+# In[320]:
 
 
 C=np.array(r_param_RBM["params"]["Dense"]["kernel"]["value"]["real"])
@@ -763,7 +856,7 @@ Y = np.arange(0, int(L) , 1)  # Y values (columns)
 X_mesh, Y_mesh = np.meshgrid(X, Y)
 
 
-# In[226]:
+# In[321]:
 
 
 for i in range(NSPCA):
@@ -788,7 +881,7 @@ for i in range(NSPCA):
     plt.show()
 
 
-# In[227]:
+# In[322]:
 
 
 C=np.array(w_param_RBM["params"]["Dense"]["kernel"]["value"]["real"])
@@ -798,7 +891,7 @@ Y = np.arange(0, int(L) , 1)  # Y values (columns)
 X_mesh, Y_mesh = np.meshgrid(X, Y)
 
 
-# In[228]:
+# In[323]:
 
 
 for i in range(NSPCA):
@@ -829,10 +922,10 @@ for i in range(NSPCA):
 
 
 
-# In[ ]:
+# In[221]:
 
 
-
+np.nan
 
 
 # In[ ]:
