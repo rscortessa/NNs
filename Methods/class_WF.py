@@ -227,20 +227,19 @@ def parity_IsingModel(angle,L,hi):
     return P
 
 def Sz0Szj(angle,L,hi,j):
+    
     pseudo_sigma_z=rotated_sigmaz(angle)
-     # Initialize Hamiltonian as a LocalOperator
-    identities=[pseudo_sigma_z]+[np.eye(2) for i in range(1,j)]+[pseudo_sigma_z]+[np.eye(2) for i in range(j+1,L)]
-    identities_list=[i for i in range(0,L)]
-    P= nk.operator.LocalOperator(hi,reduce(np.kron,identities),identities_list)
+    #Initialize Hamiltonian as a LocalOperator    
+    P= nk.operator.LocalOperator(hi,np.kron(pseudo_sigma_z,pseudo_sigma_z),[0,j])
+
     return P
 
 def Sx0Sxj(angle,L,hi,j):
     pseudo_sigma_x=rotated_sigmax(angle)
      # Initialize Hamiltonian as a LocalOperator
-    identities=[pseudo_sigma_x]+[np.eye(2) for i in range(1,j)]+[pseudo_sigma_x]+[np.eye(2) for i in range(j+1,L)]
-    identities_list=[i for i in range(0,L)]
-    P= nk.operator.LocalOperator(hi,reduce(np.kron,identities),identities_list)
+    P= nk.operator.LocalOperator(hi,np.kron(pseudo_sigma_x,pseudo_sigma_x),[0,j])
     return P
+
 
 def to_array(A):
     return A.to_dense()
