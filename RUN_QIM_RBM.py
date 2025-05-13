@@ -53,10 +53,10 @@ broken_z2=False
 
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
-    sr = nk.optimizer.SR(diag_shift=0.1, holomorphic=True)
+    sr = nk.optimizer.SR(diag_shift=0.2, holomorphic=True)
 elif modelo=="RBM_REAL":
     model=nk.models.RBM(alpha=NN)
-    sr = nk.optimizer.SR(diag_shift=0.1, holomorphic=False)
+    sr = nk.optimizer.SR(diag_shift=0.2, holomorphic=False)
 
 
 angle=0
@@ -77,7 +77,7 @@ VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS
 sites_corr=[1,int(L/2),L-1]
 sites_corr=[str(x) for x in sites_corr]
 
-for tt in range(1,NMEAN):
+for tt in range(NMEAN):
     for ii in range(len(angle)):
         if angle[ii]==np.pi/(2.0):
             hi=nk.hilbert.Spin(s=1/2,N=L,constraint=class_WF.ParityConstraint())
