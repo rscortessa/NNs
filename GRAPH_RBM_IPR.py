@@ -202,8 +202,8 @@ for theta in range(len(angle)):
     N_pos[theta] = np.sum(filtered_data > eps)
     print("step",theta,"done")
     
-sisj_z=[ PSI_TEO[0].T@Sz0Szj(0.0,L,hi,j).to_dense()@PSI_TEO[0] for j in [1,int(L/2),L-1]]
-sisj_x=[ PSI_TEO[0].T@Sx0Sxj(0.0,L,hi,j).to_dense()@PSI_TEO[0] for j in [1,int(L/2),L-1]]
+sisj_z=[ PSI_TEO[0].T@Sz0Szj(0.0,L,hi,j).to_sparse()@PSI_TEO[0] for j in [1,int(L/2),L-1]]
+sisj_x=[ PSI_TEO[0].T@Sx0Sxj(0.0,L,hi,j).to_sparse()@PSI_TEO[0] for j in [1,int(L/2),L-1]]
 
 
 
