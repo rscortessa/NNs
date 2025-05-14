@@ -47,21 +47,22 @@ Nangle=parameters[6]
 NMEAN=parameters[7]
 
 learning_rate=0.05
+diag_shift=1
 basis="QIM"
 modelo="RBM_COMPLEX"
 broken_z2=False
 
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
-    sr = nk.optimizer.SR(diag_shift=0.2, holomorphic=True)
+    sr = nk.optimizer.SR(diag_shift=diag_shift*0.1, holomorphic=True)
 elif modelo=="RBM_REAL":
     model=nk.models.RBM(alpha=NN)
-    sr = nk.optimizer.SR(diag_shift=0.2, holomorphic=False)
+    sr = nk.optimizer.SR(diag_shift=diag_shift*0.1, holomorphic=False)
 
 
 angle=0
 dangle=np.pi/(2*Nangle)
-MASTER_DIR="RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)
+MASTER_DIR="RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"DS"+str(diag_shift)
 Nstates=2**L
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
