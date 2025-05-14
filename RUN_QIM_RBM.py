@@ -50,7 +50,7 @@ learning_rate=0.05
 basis="QIM"
 modelo="RBM_COMPLEX"
 broken_z2=False
-
+compute_obs=False
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
     sr = nk.optimizer.SR(diag_shift=0.2, holomorphic=True)
@@ -101,12 +101,14 @@ for tt in range(NMEAN):
         log3 = nk.logging.RuntimeLog()
     #OBSERVABLES INIT.
         obs={}
-        obs["P"]=parity_IsingModel(angle[ii],L,hi)
-        obs["M"]=rotated_m(angle[ii],L,hi)
+        if compute_obs:
+            
+            obs["P"]=parity_IsingModel(angle[ii],L,hi)
+            obs["M"]=rotated_m(angle[ii],L,hi)
     
-        for jj in sites_corr:
-            obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
-            obs["CX0"+jj]=Sx0Sxj(angle[ii],L,hi,int(jj))
+            for jj in sites_corr:
+                obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
+                obs["CX0"+jj]=Sx0Sxj(angle[ii],L,hi,int(jj))
 
         NR_eff=int(NR/NSPCA)
         for kk in range(NSPCA):
