@@ -47,21 +47,21 @@ Nangle=parameters[6]
 NMEAN=parameters[7]
 
 learning_rate=0.05
+diag_shift=1
 basis="QIM"
 modelo="RBM_COMPLEX"
 broken_z2=False
 compute_obs=False
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
-    sr = nk.optimizer.SR(diag_shift=0.2, holomorphic=True)
+    sr = nk.optimizer.SR(diag_shift=diag_shift*0.1, holomorphic=True)
 elif modelo=="RBM_REAL":
     model=nk.models.RBM(alpha=NN)
-    sr = nk.optimizer.SR(diag_shift=0.2, holomorphic=False)
+    sr = nk.optimizer.SR(diag_shift=diag_shift*0.1, holomorphic=False)
 
 
-angle=0
 dangle=np.pi/(2*Nangle)
-MASTER_DIR="RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)
+MASTER_DIR="RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"DS"+str(diag_shift)
 Nstates=2**L
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
@@ -118,10 +118,10 @@ for tt in range(NMEAN):
             PSI.save_params(kk,log2)
             #RUNNING FOR NR_EFF ITERATIONS
             PSI.run(obs=obs,n_iter=NR_eff,log=log)
-        
+            print("Nrun",tt,"angle",ii,"iter",kk)
     #LAST CALCULATION        
-        PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)    
-        PSI.save_params(kk,log2)
+        PSI.compute_PCA(10**(-8),i=NSPCA-1,log=log3,broken_z2=broken_z2)    
+        PSI.save_params(NSPCA-1,log2)
     
         log2.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+VAR_FILENAME)
         log.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+OBS_FILENAME)
