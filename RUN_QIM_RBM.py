@@ -67,7 +67,7 @@ MASTER_DIR="RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)
 Nstates=2**L
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
-num_states=[i for i in range(2**L)]
+#num_states=[i for i in range(2**L)]
 try:
     os.mkdir(MASTER_DIR)
 except:
