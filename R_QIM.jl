@@ -31,12 +31,12 @@ let
   for iter in 0:Nh
 
       
-      theta=iter
+      theta=iter*1.0
       En=zeros(NR)
       var=0
       
       println("L=$N","W=$W","G=$theta","NS=$NS ","R_QIM")
-      angle=theta*pi/Nh
+      angle=theta*pi/(2*Nh)
       os=rotated_quantum_ising(N,W,h,angle)
       H = MPO(os, sites)
       
