@@ -49,22 +49,18 @@ from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_Isin
 from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m, rotated_CIMModel, rotated_CIMModel_Y
 
 
-L=5
-NS=4096
+L=20
 G=50
 DG=0.01
 NR=500
-learning_rate=0.05
 angle=0
 Nangle=12
 dangle=np.pi/(2*Nangle)
-NSPCA=100
 basis="QIM"
 
 
 MASTER_DIR="DIAG_RUN_"+basis+"_"+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)
 Nstates=2**L
-eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
 num_states=[i for i in range(2**L)]
 
