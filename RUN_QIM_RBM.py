@@ -52,6 +52,8 @@ basis="QIM"
 modelo="RBM_COMPLEX"
 broken_z2=False
 compute_obs=False
+large=True
+
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
     sr = nk.optimizer.SR(diag_shift=diag_shift*0.1, holomorphic=True)
@@ -79,10 +81,8 @@ sites_corr=[str(x) for x in sites_corr]
 
 for tt in range(NMEAN):
     for ii in range(len(angle)):
-        if angle[ii]==np.pi/(2.0):
-            hi=nk.hilbert.Spin(s=1/2,N=L,constraint=class_WF.ParityConstraint())
-        else:
-            hi=nk.hilbert.Spin(s=1/2,N=L,constraint=class_WF.ParityConstraint())
+
+        hi=nk.hilbert.Spin(s=1/2,N=L)
 
         H=rotated_IsingModel(angle[ii],G*DG,L,hi)
 
