@@ -47,25 +47,27 @@ Nangle=parameters[6]
 NMEAN=parameters[7]
 
 learning_rate=0.05
+diag_shift=1
 basis="BROKENZ2_QIM"
 modelo="RBM_COMPLEX"
 broken_z2=False
+compute_obs=False
 
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
-    sr = nk.optimizer.SR(diag_shift=0.1, holomorphic=True)
+    sr = nk.optimizer.SR(diag_shift=diag_shift*0.1, holomorphic=True)
 elif modelo=="RBM_REAL":
     model=nk.models.RBM(alpha=NN)
-    sr = nk.optimizer.SR(diag_shift=0.1, holomorphic=False)
+    sr = nk.optimizer.SR(diag_shift=diag_shift*0.1, holomorphic=False)
 
 
 angle=0
 dangle=np.pi/(2*Nangle)
-MASTER_DIR="RUN_"+basis+"_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)
+MASTER_DIR="RUN_"+basis+"_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"DS"+str(diag_shift)
 Nstates=2**L
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
-num_states=[i for i in range(2**L)]
+
 try:
     os.mkdir(MASTER_DIR)
 except:
@@ -97,30 +99,37 @@ for tt in range(NMEAN):
         log3 = nk.logging.RuntimeLog()
     #OBSERVABLES INIT.
         obs={}
-        obs["P"]=parity_IsingModel(angle[ii],L,hi)
-        obs["M"]=rotated_m(angle[ii],L,hi)
+        if compute_obs:
+            
+            obs["P"]=parity_IsingModel(angle[ii],L,hi)
+            obs["M"]=rotated_m(angle[ii],L,hi)
     
-        for jj in sites_corr:
-            obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
-            obs["CX0"+jj]=Sx0Sxj(angle[ii],L,hi,int(jj))
+            for jj in sites_corr:
+                obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
+                obs["CX0"+jj]=Sx0Sxj(angle[ii],L,hi,int(jj))
+        
 
         NR_eff=int(NR/NSPCA)
-        for kk in range(NSPCA):
-    
+        for kk in range(NSPCA):    
         #FIRST WE COMPUTE THE PARAMETERS
-            PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)
+            if compute_pca:
+                PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)
             PSI.save_params(kk,log2)
             #RUNNING FOR NR_EFF ITERATIONS
             PSI.run(obs=obs,n_iter=NR_eff,log=log)
-        
-    #LAST CALCULATION        
-        PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)    
-        PSI.save_params(kk,log2)
-    
-        log2.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+VAR_FILENAME)
-        log.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+OBS_FILENAME)
-        log3.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+SPCA_FILENAME)
+            print("Nrun",tt,"angle",ii,"iter",kk)
 
+        #LAST CALCULATION:
+        if compute_pca:
+            PSI.compute_PCA(10**(-8),i=NSPCA-1,log=log3,broken_z2=broken_z2)    
+            log3.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+SPCA_FILENAME)
+
+        #SAVE LAST PARAMETERS:    
+        PSI.save_params(NSPCA-1,log2)
+        log2.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+VAR_FILENAME)
+        if obs!={}:
+            log.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+OBS_FILENAME)
+        
 
 
 

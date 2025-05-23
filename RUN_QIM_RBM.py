@@ -52,7 +52,7 @@ basis="QIM"
 modelo="RBM_COMPLEX"
 broken_z2=False
 compute_obs=False
-large=True
+compute_pca=False
 
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
@@ -114,18 +114,23 @@ for tt in range(NMEAN):
         for kk in range(NSPCA):
     
         #FIRST WE COMPUTE THE PARAMETERS
-            PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)
+            if compute_pca:
+                PSI.compute_PCA(10**(-8),i=kk,log=log3,broken_z2=broken_z2)
             PSI.save_params(kk,log2)
+
             #RUNNING FOR NR_EFF ITERATIONS
             PSI.run(obs=obs,n_iter=NR_eff,log=log)
             print("Nrun",tt,"angle",ii,"iter",kk)
-    #LAST CALCULATION        
-        PSI.compute_PCA(10**(-8),i=NSPCA-1,log=log3,broken_z2=broken_z2)    
+            
+        #LAST CALCULATION
+        if compute_pca:
+            PSI.compute_PCA(10**(-8),i=NSPCA-1,log=log3,broken_z2=broken_z2)    
+            log3.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+SPCA_FILENAME)    
         PSI.save_params(NSPCA-1,log2)
-    
         log2.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+VAR_FILENAME)
-        log.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+OBS_FILENAME)
-        log3.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+SPCA_FILENAME)
+        if obs!={}:
+            log.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+OBS_FILENAME)
+        
 
 
 
