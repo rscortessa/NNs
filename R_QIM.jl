@@ -18,13 +18,13 @@ let
   sites = siteinds("S=1/2", N*W)
   # Initialize a random MPS
 
-  folder="DMRG_R_QIM_L" * ARGS[1] * "W" * ARGS[2]* "NS" * ARGS[5] * "G" * ARGS[3] * "ANG0-90NANG" * ARGS[4] * "NR" * ARGS[6]
+  folder="RUN_QIM_DMRG_L" * ARGS[1] * "W" * ARGS[2]* "NS" * ARGS[5] * "G" * ARGS[3] * "ANG0-90NANG" * ARGS[4] * "NR" * ARGS[6]
   mkpath(folder)
 
 
   filename_2 = folder*"/"*"DATAM5L" * ARGS[1] * "W" * ARGS[2]* "G" * ARGS[3] * "NS" * ARGS[5] * "R_QIMMPS" * ".txt" # Output file optimization
   open(filename_2,"a") do file
-      write(file,"G","\t","E","\t","E_var","\t","OZ","\t","OZZ","\n")        
+      write(file,"G","\t","E","\t","E_var","\n")        
   end
 
    
@@ -32,10 +32,8 @@ let
 
       
       theta=iter
-
       En=zeros(NR)
-      OZ=zeros(NR)
-      OZZ=zeros(NR)
+      var=0
       
       println("L=$N","W=$W","G=$theta","NS=$NS ","R_QIM")
       angle=theta*pi/Nh
@@ -57,30 +55,26 @@ let
 
 
 	  H2 = inner(H,psi,H,psi)
-
-	  #AV_OZ=O_Z(psi,N)	  
-	  #AV_OZZ=CHAIN_O_Z(psi,N)
 	  var = H2-energy^2
-	  
 	  En[sample_iter]=energy
-	  #OZ[sample_iter]=AV_OZ
-	  #OZZ[sample_iter]=AV_OZZ
+	 
       	  println("Final energy = $energy","Final var =$var")
-      	  
-
       	  # Call the function to sample and save to the file
       	  sample_mps_to_file(psi, filename, NS)
       	  	nothing
 		
-	  
       end
-      E_mean=mean(En)
-      E_var=sqrt(var(En)/sqrt(Float64(NR)))
-      OZ_mean=mean(OZ)
-      OZZ_mean=mean(OZZ)
-      
+      if NR>1
+      		E_mean=mean(En)
+      		E_var=sqrt(var(En)/sqrt(Float64(NR)))
+	else
+		E_mean=En[1]
+		E_var=var
+	end
+	
+
       open(filename_2,"a") do file
-              write(file,"$theta","\t","$E_mean","\t","$E_var","\t","$OZ_mean","\t","$OZZ_mean","\n")
+              write(file,"$theta","\t","$E_mean","\t","$E_var","\t","\n")
       	  end
   end	
   
