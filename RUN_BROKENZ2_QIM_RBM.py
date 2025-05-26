@@ -46,6 +46,11 @@ NSPCA=parameters[5]
 Nangle=parameters[6]
 NMEAN=parameters[7]
 
+#BROKEN_Z2
+DELTA=1
+DELTA_S="D"+str(DELTA)
+
+
 learning_rate=0.05
 diag_shift=1
 basis="BROKENZ2_QIM"
@@ -63,7 +68,7 @@ elif modelo=="RBM_REAL":
 
 angle=0
 dangle=np.pi/(2*Nangle)
-MASTER_DIR="RUN_"+basis+"_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"DS"+str(diag_shift)
+MASTER_DIR="RUN_"+basis+"_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+DELTA_S+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"DS"+str(diag_shift)
 Nstates=2**L
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
@@ -72,9 +77,9 @@ try:
     os.mkdir(MASTER_DIR)
 except:
     print("DIRECTORY ALREADY CREATED")
-OBS_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"OBS"
-SPCA_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"SPCA"
-VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"VAR"
+OBS_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+DELTA_S+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"OBS"
+SPCA_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+DELTA_S+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"SPCA"
+VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+DELTA_S+"NS"+str(NS)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"VAR"
 
 sites_corr=[1,int(L/2),L-1]
 sites_corr=[str(x) for x in sites_corr]
@@ -83,7 +88,7 @@ hi=nk.hilbert.Spin(s=1/2,N=L)
 for tt in range(NMEAN):
     for ii in range(len(angle)):
         
-        H=rotated_BROKEN_Z2IsingModel(angle[ii],G*DG,L,hi)
+        H=rotated_BROKEN_Z2IsingModel(angle[ii],G*DG,L,hi,DELTA*DG)
         alpha=1
         learning_rate=0.05
         g = nk.graph.Hypercube(length=L, n_dim=1, pbc=False)

@@ -126,7 +126,7 @@ for tt in range(NMEAN):
         if compute_pca:
             PSI.compute_PCA(10**(-8),i=NSPCA-1,log=log3,broken_z2=broken_z2)    
             log3.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+SPCA_FILENAME)    
-        PSI.save_params(NSPCA-1,log2)
+        PSI.save_params(NSPCA,log2)
         log2.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+VAR_FILENAME)
         if obs!={}:
             log.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+OBS_FILENAME)

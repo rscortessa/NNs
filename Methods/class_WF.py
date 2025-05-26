@@ -58,12 +58,12 @@ def rotated_IsingModel(angle,Gamma,L,hi):
     for i in range(L):
         H -= Gamma * nk.operator.LocalOperator(hi,pseudo_sigma_x,[i])
     return H
-def rotated_BROKEN_Z2IsingModel(angle,Gamma,L,hi):
+def rotated_BROKEN_Z2IsingModel(angle,Gamma,L,hi,DELTA):
      # Initialize Hamiltonian as a LocalOperator
     pseudo_sigma_x=rotated_sigmax(angle)
     pseudo_sigma_z=rotated_sigmaz(angle)
     H = nk.operator.LocalOperator(hi)
-    eps=1*10**(-1)
+    eps=DELTA*10**(-1)
     # Add 2 body- interactions
     for i in range(L - 1):
         H -= nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i, i+1])
