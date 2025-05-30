@@ -57,7 +57,7 @@ basis="BROKENZ2_QIM"
 modelo="RBM_COMPLEX"
 broken_z2=False
 compute_obs=False
-
+compute_pca=False
 if modelo=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
     sr = nk.optimizer.SR(diag_shift=diag_shift*0.1, holomorphic=True)
