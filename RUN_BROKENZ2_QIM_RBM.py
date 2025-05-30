@@ -132,8 +132,7 @@ for tt in range(NMEAN):
         #SAVE LAST PARAMETERS:    
         PSI.save_params(NSPCA-1,log2)
         log2.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+VAR_FILENAME)
-        if obs!={}:
-            log.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+OBS_FILENAME)
+        log.serialize(MASTER_DIR+"/"+str(tt)+"NM"+str(ii)+OBS_FILENAME)
         
 
 
