@@ -47,7 +47,7 @@ Nangle=parameters[6]
 NMEAN=parameters[7]
 
 #BROKEN_Z2
-DELTA=1
+DELTA=3
 DELTA_S="D"+str(DELTA)
 
 
@@ -88,7 +88,7 @@ hi=nk.hilbert.Spin(s=1/2,N=L)
 for tt in range(NMEAN):
     for ii in range(len(angle)):
         
-        H=rotated_BROKEN_Z2IsingModel(0.0,G*DG,L,hi,angle[ii]*DG*G)
+        H=rotated_BROKEN_Z2IsingModel(0.0,G*DG,L,hi,angle[ii]*DG*G*DELTA)
         alpha=1
         learning_rate=0.05
         g = nk.graph.Hypercube(length=L, n_dim=1, pbc=False)
