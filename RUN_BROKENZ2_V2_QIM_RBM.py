@@ -67,7 +67,7 @@ elif modelo=="RBM_REAL":
 
 
 angle=0
-dangle=1/(Nangle)
+dangle=1.0/(Nangle)
 MASTER_DIR="RUN_"+basis+"_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+DELTA_S+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"DS"+str(diag_shift)
 Nstates=2**L
 eps=10**(-10)
