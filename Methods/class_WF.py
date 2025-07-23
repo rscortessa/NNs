@@ -410,7 +410,9 @@ class WF:
         self.H_space=hilbert_space
         self.user_sampler=sampler
         self.user_model=model
+
         self.user_state=nk.vqs.MCState(self.user_sampler,model,n_samples=N_samples)        
+
         self.user_optimizer=nk.optimizer.Momentum(learning_rate=0.05,beta=0.5)
         #self.user_optimizer=nk.optimizer.Sgd(learning_rate=0.05)
         #self.user_optimizer=nk.optimizer.Adam(learning_rate=0.1)
@@ -538,3 +540,54 @@ class ParityConstraint(constraint.DiscreteHilbertConstraint):
 
     def __eq__(self, other):
         return isinstance(other, ParityConstraint)
+
+
+
+class FULL_WF:
+    L:int
+    H_space: nk.hilbert.Spin
+    user_model:{}
+    user_H:nk.operator.LocalOperator
+    user_state:nk.vqs.FullSumState
+    user_optimizer:nk.optimizer.Sgd
+    user_driver:nk.driver.VMC
+    user_preconditioner:nk.optimizer.SR
+    def __init__(self,L,hilbert_space,preconditioner,optimizer,model,H):
+
+        self.L=L
+        self.H=H
+        self.H_space=hilbert_space
+        self.user_model=model
+        self.user_state=nk.vqs.FullSumState(self.H_space,self.user_model)        
+        self.user_optimizer=optimizer
+        self.user_preconditioner=preconditioner
+        self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=preconditioner)
+        
+    def advance(self,n_run):
+        self.user_driver.advance(n_run)
+        
+    def run(self,obs,n_iter,log=None):
+        if log:
+            self.user_driver.run(n_iter=n_iter,obs=obs,out=log)
+        else:
+            self.user_driver.run(n_iter=n_iter,obs=obs)
+
+    def save_params(self,i,log_var):
+        log_var(i,self.user_driver.state.variables)
+            
+    def iteration(self,n_run):
+        return self.user_driver.iter(n_run)
+        
+    def change_H(self,H):
+        self.H=H
+        self.user_driver._ham=H
+        
+    def change_state(self,new_state):
+        
+        self.user_state=new_state
+        self.user_driver=nk.driver.VMC(self.H, self.user_optimizer, variational_state=self.user_state,preconditioner=self.user_preconditioner)
+        
+    def compute_E(self):
+        E=self.user_state.expect(self.H)
+        return E.mean.real
+    
