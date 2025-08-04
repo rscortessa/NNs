@@ -27,7 +27,7 @@ import scipy.optimize as so
 from matplotlib.colors import LinearSegmentedColormap
 from functools import reduce
 
-from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel
+from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,rotated_BROKEN_Z2IsingModel
 from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m
 
 
@@ -93,7 +93,7 @@ for tt in range(NMEAN):
     for ii in range(len(angle)):
         
     
-        H = rotated_IsingModel(angle[ii],G*DG,L,hi,delta)
+        H = rotated_BROKEN_Z2IsingModel(angle[ii],G*DG,L,hi,delta)
         g = nk.graph.Hypercube(length=L, n_dim=1, pbc=False)
         PSI = class_WF.FULL_WF(L,hi,sr,optimizer,model,H)
         
