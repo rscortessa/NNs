@@ -47,7 +47,7 @@ NMEAN=parameters[6]
 eta=0.001
 learning_rate=100*eta
 diag_shift=10*eta
-basis="QIM"
+basis="CIM_2"
 modelo="RBM_COMPLEX"
 broken_z2=False
 
@@ -64,7 +64,7 @@ optimizer=nk.optimizer.Sgd(learning_rate=learning_rate)
 
 #Creation of the folder
 
-MASTER_DIR="FULL_STATE_RUN_QIM_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"SHIFT"+str(diag_shift)
+MASTER_DIR="FULL_STATE_RUN_"+basis+"_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"SHIFT"+str(diag_shift)
 
 try:
     os.mkdir(MASTER_DIR)
@@ -81,7 +81,7 @@ Nstates=2**L
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
 num_states=[i for i in range(2**L)]
-sites_corr=[1,int(L/2),L-1]
+sites_corr=[]
 sites_corr=[str(x) for x in sites_corr]
 
 # Hilbert space generation in Netket
@@ -92,8 +92,8 @@ hi=nk.hilbert.Spin(s=1/2,N=L)
 for tt in range(NMEAN):
     for ii in range(len(angle)):
         
-    
-        H = rotated_IsingModel(angle[ii],G*DG,L,hi)
+        
+        H = rotated_CIMModel_2(angle[ii],G*DG,L,hi)
         g = nk.graph.Hypercube(length=L, n_dim=1, pbc=False)
         PSI = class_WF.FULL_WF(L,hi,sr,optimizer,model,H)
         
@@ -104,13 +104,11 @@ for tt in range(NMEAN):
         
         #OBSERVABLES INIT.
         obs={}
-        obs["P"]=parity_IsingModel(angle[ii],L,hi)
-        obs["M"]=rotated_m(angle[ii],L,hi)
-    
-        for jj in sites_corr:
-            obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
-            obs["CX0"+jj]=Sx0Sxj(angle[ii],L,hi,int(jj))
-
+        if len(sites_corr)>1:
+            for jj in sites_corr:
+                obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
+                obs["CX0"+jj]=Sx0Sxj(angle[ii],L,hi,int(jj))
+            
         NR_eff=int(NR/NSPCA)
         for kk in range(NSPCA):
     
