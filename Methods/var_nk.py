@@ -1,3 +1,4 @@
+
 import netket as nk
 import jax.numpy as jnp
 import flax
@@ -5,6 +6,16 @@ import jax
 import flax.linen as nn
 import numpy as np
 import netket.nn as nknn
+from typing import Any
+
+import numpy as np
+import netket
+from jax.nn.initializers import normal
+from netket.utils import HashableArray
+from netket.utils.types import NNInitFunc
+from netket.utils.group import PermutationGroup
+
+default_kernel_init = normal(stddev=0.01)
 
 def change_to_int(x,L):
     Aux=jnp.array([2**(L-1-i) for i in range(L)])
@@ -14,7 +25,7 @@ def change_to_int(x,L):
 
 class MF(nn.Module):                                                                                                                   
     @nn.compact # What is this ?                                                                                                       
-    def __call__(self,x): #x.shape(Nsamples,L)                                                                                         
+    def __call__(self,x): #x.shape(Nsamples,L)                                                                                         hi
         lam= self.param("lambda", nn.initializers.normal(),(1,),float)                                                                 
         p= nn.log_sigmoid(lam*x) ## How does the initializers work?                                                                    
         return 0.5*jnp.sum(p,axis=-1)                                                                                                  
@@ -76,4 +87,60 @@ class SymmModel(nn.Module):
         
         return jnp.sum(y, axis=(-1,-2))
     
+
+class MODIFIED_RBM(nn.Module):
+    r"""A restricted boltzman Machine, equivalent to a 2-layer FFNN with a
+    nonlinear activation function in between.
+    """
+    phases:tuple
+    param_dtype: Any = np.float64
+    """The dtype of the weights."""
+    activation: Any = nknn.log_cosh
+    """The nonlinear activation function."""
+    alpha: float | int = 1
+    """feature density. Number of features equal to alpha * input.shape[-1]"""
+    use_hidden_bias: bool = True
+    """if True uses a bias in the dense layer (hidden layer bias)."""
+    use_visible_bias: bool = True
+    """if True adds a bias to the input not passed through the nonlinear layer."""
+    precision: Any = None
+    """numerical precision of the computation see :class:`jax.lax.Precision` for details."""
+    L : float | int = 10
+    hi: netket.hilbert.Spin = nk.hilbert.Spin(0.5, L)
     
+    kernel_init: NNInitFunc = default_kernel_init
+    """Initializer for the Dense layer matrix."""
+    hidden_bias_init: NNInitFunc = default_kernel_init
+    """Initializer for the hidden bias."""
+    visible_bias_init: NNInitFunc = default_kernel_init
+    """Initializer for the visible bias."""
+    
+    
+    
+    @nn.compact
+    def __call__(self, input):
+        x = nn.Dense(
+            name="Dense",
+            features=int(self.alpha * input.shape[-1]),
+            param_dtype=self.param_dtype,
+            precision=self.precision,
+            use_bias=self.use_hidden_bias,
+            kernel_init=self.kernel_init,
+            bias_init=self.hidden_bias_init,
+        )(input)
+        x = self.activation(x)
+        x = jnp.sum(x, axis=-1)
+        indices=self.hi.states_to_numbers(input)
+        angles=jnp.array(self.phases)[indices]
+        x+=angles
+        if self.use_visible_bias:
+            v_bias = self.param(
+                "visible_bias",
+                self.visible_bias_init,
+                (input.shape[-1],),
+                self.param_dtype,
+            )
+            out_bias = jnp.dot(input, v_bias)
+            return x + out_bias
+        else:
+            return x
