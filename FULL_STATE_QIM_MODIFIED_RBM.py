@@ -57,6 +57,7 @@ if modelo=="MODIFIED_RBM_COMPLEX":
     param_dtype=complex
     sr = nk.optimizer.SR(diag_shift=diag_shift*0.01, holomorphic=True)
 elif modelo=="MODIFIED_RBM_REAL":
+    param_dtype=np.float64
     sr = nk.optimizer.SR(diag_shift=diag_shift*0.01, holomorphic=False)
     
 optimizer=nk.optimizer.Sgd(learning_rate=learning_rate)
@@ -102,7 +103,7 @@ for tt in range(NMEAN):
             
         
         SIGNS=(GS<0)*(1j*np.pi)+(GS>=0)*(0.0)
-        model=var_nk.MODIFIED_RBM(phases=tuple(SIGNS),alpha=1,L=L)
+        model=var_nk.MODIFIED_RBM(phases=tuple(SIGNS),alpha=NN,param_dtype=param_dtype,L=L)
         
         g = nk.graph.Hypercube(length=L, n_dim=1, pbc=False)
         PSI = class_WF.FULL_WF(L,hi,sr,optimizer,model,H)
