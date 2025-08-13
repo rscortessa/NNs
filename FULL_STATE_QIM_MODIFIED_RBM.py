@@ -95,7 +95,13 @@ for tt in range(NMEAN):
         #DEFINE THE MODIFIED RBM
         eig_vals,eig_vecs=np.linalg.eigh(H.to_dense())
         GS=eig_vecs[:,0]
-        SIGNS=(GS<0)*(1j*np.pi)+(GS>0)*(0.0)
+        GS[np.abs(GS)<10**(-14)]=0.0
+        if GS[0]!=0:
+            GS=GS/GS[0]
+            GS=GS/np.linalg.norm(GS)
+            
+        
+        SIGNS=(GS<0)*(1j*np.pi)+(GS>=0)*(0.0)
         model=var_nk.MODIFIED_RBM(phases=tuple(SIGNS),alpha=1,L=L)
         
         g = nk.graph.Hypercube(length=L, n_dim=1, pbc=False)
