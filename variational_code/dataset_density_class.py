@@ -92,10 +92,10 @@ for ii in range(size):
 C=TId.neighbors(A)
 
 for jj in range(tmax):
-    Aux=TId.n_points(C,W,jj)
-    D=np.mean(Aux)
-    dD=np.std(Aux)/np.sqrt(size)
-    pub.write([dD,D])
+    Aux=W@TId.n_points(C,W,jj)
+    #D=np.mean(Aux)
+    #dD=np.std(Aux)/np.sqrt(size)
+    pub.write([0.0,Aux])
 
 pub.close()
 
