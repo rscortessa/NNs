@@ -93,6 +93,7 @@ class MODIFIED_RBM(nn.Module):
     nonlinear activation function in between.
     """
     phases:tuple
+    hi: nk.hilbert.Spin
     param_dtype: Any = np.float64
     """The dtype of the weights."""
     activation: Any = nknn.log_cosh
@@ -106,7 +107,7 @@ class MODIFIED_RBM(nn.Module):
     precision: Any = None
     """numerical precision of the computation see :class:`jax.lax.Precision` for details."""
     L : float | int = 10
-    hi: netket.hilbert.Spin = nk.hilbert.Spin(0.5, L)
+    inverse_ordering: Any|bool = False
     
     kernel_init: NNInitFunc = default_kernel_init
     """Initializer for the Dense layer matrix."""

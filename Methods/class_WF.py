@@ -118,10 +118,31 @@ def rotated_XYZModel(angle,Gamma,L,hi):
     H = nk.operator.LocalOperator(hi)
     # Add 2 body- interactions
     for i in range(L - 1):
-        H -= 2.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p,pseudo_sigma_m), [i, i+1])
-        H -= 2.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_m,pseudo_sigma_p), [i, i+1])
+        H += 2.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p,pseudo_sigma_m), [i, i+1])
+        H += 2.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_m,pseudo_sigma_p), [i, i+1])
         H += Gamma*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i, i+1])
     return H
+
+def rotated_XYZModel_2(angle,Gamma,L,hi):
+    
+    pseudo_sigma_x=rotated_sigmax(angle)
+    pseudo_sigma_z=rotated_sigmaz(angle)
+    
+    pseudo_sigma_p=(pseudo_sigma_x+isigmay())/2.0
+    pseudo_sigma_m=(pseudo_sigma_x-isigmay())/2.0
+
+    H = nk.operator.LocalOperator(hi)
+    # Add 2 body- interactions
+    for i in range(L - 1):
+        H += nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_x,pseudo_sigma_x), [i, i+1])
+        H -= nk.operator.LocalOperator(hi, np.kron(isigmay(),isigmay()), [i, i+1])
+        H += Gamma*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i, i+1])
+    return H
+
+
+
+
+
 
 def rotated_CIMModel(angle,Gamma,L,hi):
     
@@ -139,6 +160,10 @@ def rotated_CIMModel(angle,Gamma,L,hi):
     H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_p-pseudo_sigma_m,pseudo_sigma_p-pseudo_sigma_m), [L-2,L-1])     
 
     return H
+
+
+
+
 
 def rotated_CIMModel_Y(angle,Gamma,L,hi):
     
@@ -166,13 +191,10 @@ def rotated_CIMModel_2(angle,Gamma,L,hi):
     
     pseudo_sigma_x=rotated_sigmax(angle)
     pseudo_sigma_z=rotated_sigmaz(angle)
-    pseudo_sigma_p=(pseudo_sigma_x+isigmay())/2.0
-    pseudo_sigma_m=(pseudo_sigma_x-isigmay())/2.0
-    
     H=nk.operator.LocalOperator(hi)
     
     for i in range(L-2):
-        H-=1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,np.kron(pseudo_sigma_x,pseudo_sigma_z)), [i,i+1,i+2])
+        H+=1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,np.kron(pseudo_sigma_x,pseudo_sigma_z)), [i,i+1,i+2])
         H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i,i+1])     
 
     H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [L-2,L-1])     
@@ -229,15 +251,22 @@ def parity_IsingModel(angle,L,hi):
 def Sz0Szj(angle,L,hi,j):
     
     pseudo_sigma_z=rotated_sigmaz(angle)
-    #Initialize Hamiltonian as a LocalOperator    
-    P= nk.operator.LocalOperator(hi,np.kron(pseudo_sigma_z,pseudo_sigma_z),[0,j])
+    if j==0:
+        P=sigmaz(hi,0)*sigmaz(hi,0)
+    #Initialize Hamiltonian as a LocalOperator
+    else:
+        P= nk.operator.LocalOperator(hi,np.kron(pseudo_sigma_z,pseudo_sigma_z),[0,j])
 
     return P
 
 def Sx0Sxj(angle,L,hi,j):
     pseudo_sigma_x=rotated_sigmax(angle)
-     # Initialize Hamiltonian as a LocalOperator
-    P= nk.operator.LocalOperator(hi,np.kron(pseudo_sigma_x,pseudo_sigma_x),[0,j])
+    if j==0:
+        P=sigmaz(hi,0)*sigmaz(hi,0)
+    #Initialize Hamiltonian as a LocalOperator
+    else:
+    # Initialize Hamiltonian as a LocalOperator
+        P= nk.operator.LocalOperator(hi,np.kron(pseudo_sigma_x,pseudo_sigma_x),[0,j])
     return P
 
 
