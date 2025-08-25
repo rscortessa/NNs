@@ -74,11 +74,18 @@ pbc=False
 
 basis = "BROKENZ2_QIM"
 
+
+add=""
+if pbc:
+    add+="PBC"
+
+basis = "BROKENZ2_QIM"
+
 if basis == "QIM":
-    adder =""
+    add+=""
 elif basis == "BROKENZ2_QIM":
     hpar=0.01
-    adder = "HPAR"+str(round(hpar,2))
+    add+= "HPAR"+str(round(hpar,2))
 else:
     print("MODEL NOT FOUND")
     exit()
@@ -159,7 +166,7 @@ def vstate_par(data_var,it):
 
 
 for g in G:
-    SLAVE_DIR="FULL_STATE_RUN_"+basis+"_"+architecture+"NN"+str(NN)+"L"+str(L)+"G"+str(g)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"SHIFT"+str(diag_shift)+adder
+    SLAVE_DIR="FULL_STATE_RUN_"+basis+"_"+architecture+"NN"+str(NN)+"L"+str(L)+"G"+str(g)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"SHIFT"+str(diag_shift)+add
     try:
         os.mkdir(MASTER_DIR+"/"+SLAVE_DIR)
     except FileExistsError:
