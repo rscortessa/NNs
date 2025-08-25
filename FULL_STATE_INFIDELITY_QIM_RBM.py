@@ -70,6 +70,7 @@ NMEAN = parameters[5]
 
 print(n_par,parameters)
 G = [parameters[x] for x in range(6,n_par-1)]
+pbc=False
 
 basis = "BROKENZ2_QIM"
 
@@ -172,9 +173,9 @@ for combination in itertools.product(*param_lists):
     theta=np.pi/(2.0*Nangle)*combination[0]
     h=combination[1]*DG
     if basis == "QIM":
-        H=rotated_IsingModel(theta,h,L,hi)
+        H=rotated_IsingModel(theta,h,L,hi,pbc=pbc)
     elif basis == "BROKENZ2_QIM":
-        H=rotated_BROKEN_Z2IsingModel(theta,h,L,hi,hpar)
+        H=rotated_BROKEN_Z2IsingModel(theta,h,L,hi,hpar,pbc=pbc)
     
     eig_vals,eig_vecs=np.linalg.eigh(H.to_dense())
     
