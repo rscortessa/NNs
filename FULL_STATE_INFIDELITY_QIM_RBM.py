@@ -42,10 +42,10 @@ def save_params(vmc,i,log_var):
 # Create the Hilbert space and the variational states |ψ⟩ and |ϕ⟩
 
 MASTER_DIR="FIDELITY"
-if os.path.isdir(MASTER_DIR+" "):
+if not os.path.isdir(MASTER_DIR):
+    print(os.path.isdir(MASTER_DIR))
     os.mkdir(MASTER_DIR)
     print(f"Directory '{MASTER_DIR}' not found previously but created successfully.")
-
     
 else:
     print("DIRECTORY ALREADY CREATED")
