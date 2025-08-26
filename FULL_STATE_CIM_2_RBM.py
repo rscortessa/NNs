@@ -51,6 +51,8 @@ basis="CIM_2"
 modelo="RBM_COMPLEX"
 broken_z2=False
 
+hi=nk.hilbert.Spin(s=1/2,N=L,inverted_ordering=True)
+
 #Model and optimization details
 
 if modelo=="RBM_COMPLEX":
@@ -86,7 +88,7 @@ sites_corr=[str(x) for x in sites_corr]
 
 # Hilbert space generation in Netket
 
-hi=nk.hilbert.Spin(s=1/2,N=L)
+
 
 
 for tt in range(NMEAN):
@@ -94,7 +96,6 @@ for tt in range(NMEAN):
         
         
         H = rotated_CIMModel_2(angle[ii],G*DG,L,hi)
-        g = nk.graph.Hypercube(length=L, n_dim=1, pbc=False)
         PSI = class_WF.FULL_WF(L,hi,sr,optimizer,model,H)
         
         #THE OUT LOGS ARE CREATED

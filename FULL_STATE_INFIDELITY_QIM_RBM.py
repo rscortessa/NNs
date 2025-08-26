@@ -42,10 +42,10 @@ def save_params(vmc,i,log_var):
 # Create the Hilbert space and the variational states |ψ⟩ and |ϕ⟩
 
 MASTER_DIR="FIDELITY"
-if os.path.isdir(MASTER_DIR+" "):
+if not os.path.isdir(MASTER_DIR):
+    print(os.path.isdir(MASTER_DIR))
     os.mkdir(MASTER_DIR)
     print(f"Directory '{MASTER_DIR}' not found previously but created successfully.")
-
     
 else:
     print("DIRECTORY ALREADY CREATED")
@@ -70,14 +70,22 @@ NMEAN = parameters[5]
 
 print(n_par,parameters)
 G = [parameters[x] for x in range(6,n_par-1)]
+pbc=False
+
+basis = "BROKENZ2_QIM"
+
+
+add=""
+if pbc:
+    add+="PBC"
 
 basis = "BROKENZ2_QIM"
 
 if basis == "QIM":
-    adder =""
+    add+=""
 elif basis == "BROKENZ2_QIM":
     hpar=0.01
-    adder = "HPAR"+str(round(hpar,2))
+    add+= "HPAR"+str(round(hpar,2))
 else:
     print("MODEL NOT FOUND")
     exit()
@@ -158,7 +166,7 @@ def vstate_par(data_var,it):
 
 
 for g in G:
-    SLAVE_DIR="FULL_STATE_RUN_"+basis+"_"+architecture+"NN"+str(NN)+"L"+str(L)+"G"+str(g)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"SHIFT"+str(diag_shift)+adder
+    SLAVE_DIR="FULL_STATE_RUN_"+basis+"_"+architecture+"NN"+str(NN)+"L"+str(L)+"G"+str(g)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+"SHIFT"+str(diag_shift)+add
     try:
         os.mkdir(MASTER_DIR+"/"+SLAVE_DIR)
     except FileExistsError:
@@ -172,9 +180,9 @@ for combination in itertools.product(*param_lists):
     theta=np.pi/(2.0*Nangle)*combination[0]
     h=combination[1]*DG
     if basis == "QIM":
-        H=rotated_IsingModel(theta,h,L,hi)
+        H=rotated_IsingModel(theta,h,L,hi,pbc=pbc)
     elif basis == "BROKENZ2_QIM":
-        H=rotated_BROKEN_Z2IsingModel(theta,h,L,hi,hpar)
+        H=rotated_BROKEN_Z2IsingModel(theta,h,L,hi,hpar,pbc=pbc)
     
     eig_vals,eig_vecs=np.linalg.eigh(H.to_dense())
     
