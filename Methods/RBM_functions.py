@@ -2,7 +2,7 @@ import netket as nk
 import numpy as np
 import os
 import json
-
+import jax.numpy as jnp
 def GET_PROB_RBM(hi,param_RBM,j):
     
     #DEFINE THE PARAMETERS OF THE RBM
@@ -136,3 +136,42 @@ def import_net_parameters(MASTER_DIR,VAR_FILENAME,rep,ii,L,hi):
     with open(MASTER_DIR+"/"+str(rep)+"NM"+str(ii)+VAR_FILENAME+".json", "r") as f:
                 data  = json.load(f)
     return data
+
+def vstate_par(data_var,it,inverted_ordering=False):
+    
+    dense_bias_R=np.array(data_var["params"]["Dense"]["bias"]["value"]["real"][it])
+    dense_bias_I=np.array(data_var["params"]["Dense"]["bias"]["value"]["imag"][it])
+    dense_bias=np.array(dense_bias_R+1j*dense_bias_I,dtype=np.complex128)
+
+    visible_bias_R=np.array(data_var["params"]["visible_bias"]["value"]["real"][it])
+    visible_bias_I=np.array(data_var["params"]["visible_bias"]["value"]["imag"][it])
+    visible_bias=np.array(visible_bias_R+1j*visible_bias_I,dtype=np.complex128)
+
+    dense_kernel_R=np.array(data_var["params"]["Dense"]["kernel"]["value"]["real"][it])
+    dense_kernel_I=np.array(data_var["params"]["Dense"]["kernel"]["value"]["imag"][it])
+    dense_kernel=np.array(dense_kernel_R+1j*dense_kernel_I,dtype=np.complex128)
+
+    new_parameters={
+        'params': {
+            'Dense': {
+                'bias': dense_bias,
+                'kernel':dense_kernel
+            },
+            'visible_bias':visible_bias      
+        }
+    }
+
+    #hi=nk.hilbert.Spin(s=1/2,N=L,inverted_ordering = inverted_ordering)
+    #model=nk.models.RBM(alpha=NN,param_dtype=complex)
+    #vstate = nk.vqs.FullSumState(hi, model=model,variables=new_parameters)
+    return new_parameters
+
+def to_probabilities(hi,model, parameters):
+    # begin by generating all configurations in the hilbert space.
+    all_configurations = hi.all_states()
+
+    # now evaluate the model, and convert to a normalised wavefunction.
+    logpsi = model.apply(parameters, all_configurations)
+    psi = jnp.exp(logpsi)
+    psi = psi / jnp.linalg.norm(psi)
+    return psi
