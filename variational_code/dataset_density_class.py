@@ -92,11 +92,11 @@ for ii in range(size):
 C=TId.neighbors(A)
 
 for jj in range(tmax):
-    Aux=W@TId.n_points(C,W,jj)
+    D=1/(2.0)*(W@np.tril(TId.n_points(C,W,jj),k=-1))-W@(W-1.0)
+    D=2*D/(Wacc[size-1]*(Wacc[size-1]-1))
     #D=np.mean(Aux)
     #dD=np.std(Aux)/np.sqrt(size)
-    pub.write([0.0,Aux])
-
+    pub.write([0,D])
 pub.close()
 
 
