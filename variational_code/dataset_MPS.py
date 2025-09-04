@@ -38,14 +38,17 @@ n_method=5
 name_var=["DATAM","L","W","NS","NR","G"]
 var=[n_method,L,W,n_samples,n_run,parameters[2]]    
 name="DATAM"+str(n_method)+"L"+str(L)+"W"+str(W)+"NS"+str(n_samples)+"MPS"+"G"+str(parameters[2])+".txt"+str(jj)
-file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+file=pd.read_csv(name,sep='\s+',header=None,dtype="S")
 file=file.astype(float)
 
 #ITERATION OVER THE GAMMA VALUES:
 
 A=np.array(file)
 lenght=len(A)
-A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
+if lenght !=  n_samples:
+    print("an error ocurred",length,n_samples)
+
+#A[:int(lenght/2),:]=(-1)*A[:int(lenght/2),:]
 B,W=TId.sets(A)
 
 
