@@ -101,6 +101,12 @@ elif architecture=="RBM_REAL":
     sr = nk.optimizer.SR(diag_shift=diag_shift*eta, holomorphic=False)
 elif architecture=="MODIFIED_RBM_REAL" or architecture=="MODIFIED_RBM_COMPLEX":
     print("DEFINED IN ITERATIONS")
+elif architecture=="WSIGNS_RBM_COMPLEX":
+    model=nk.models.RBM(alpha=NN,param_dtype=complex)
+    sr = nk.optimizer.SR(diag_shift=diag_shift*eta, holomorphic=True)
+elif architecture=="WSIGNS_RBM_REAL":
+    model=nk.models.RBM(alpha=NN)
+    sr = nk.optimizer.SR(diag_shift=diag_shift*eta, holomorphic=False)
 else:
     print("MODEL IS NOT DEFINED")
     exit()
@@ -190,6 +196,8 @@ for combination in itertools.product(*param_lists):
     
     if eig_vecs[:,0][0]<0:
         GS=(-1.0)*eig_vecs[:,0]
+    elif architecture=="WSIGNS_RBM_COMPLEX" or architecture=="WSIGNS_RBM_REAL":
+        GS=np.abs(eig_vecs[:,0])
     else:
         GS=eig_vecs[:,0]
     GS[np.abs(GS)<10**(-10)]=0.0
