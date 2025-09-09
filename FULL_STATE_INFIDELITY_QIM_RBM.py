@@ -112,7 +112,7 @@ else:
     exit()
     
 
-NREP = [i for i in range(NR)]
+NREP = [i for i in range(NMEAN)]
 hi = nk.hilbert.Spin(0.5, L,inverted_ordering = True)
 param_lists = [angle,G,NREP]
 flat_dict = {}
