@@ -169,7 +169,7 @@ def rotated_CIMModel(angle,Gamma,L,hi):
 
 
 
-def rotated_CIMModel_Y(angle,Gamma,L,hi):
+def rotated_CIMModel_Y(angle,Gamma,L,hi,pbc=False):
     
     r_sigmaz = (1+1j*0.0)*np.array([[1, 0], [0, -1]],dtype=complex)
     r_sigmay = 1j*np.array([[0, -1], [1, 0]],dtype=complex)
@@ -185,27 +185,52 @@ def rotated_CIMModel_Y(angle,Gamma,L,hi):
     for i in range(L-2):
         H-=1.0*nk.operator.LocalOperator(hi, np.kron(r_sigmax,np.kron(pseudo_sigma_y,r_sigmax)), [i,i+1,i+2])
         H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_y,pseudo_sigma_y), [i,i+1])     
+        
+    H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_y,pseudo_sigma_y), [L-2,L-1])
 
-    H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_y,pseudo_sigma_y), [L-2,L-1])     
+    if PBC == True:
+        
+        H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_y,pseudo_sigma_y), [L-1,0])
+        H-=1.0*nk.operator.LocalOperator(hi, np.kron(r_sigmax,np.kron(pseudo_sigma_y,r_sigmax)), [L-2,L-1,0])
+        H-=1.0*nk.operator.LocalOperator(hi, np.kron(r_sigmax,np.kron(pseudo_sigma_y,r_sigmax)), [L-1,0,1])
+        
 
     return H
 
 
-def rotated_CIMModel_2(angle,Gamma,L,hi):
+def rotated_CIMModel_2(angle,Gamma,L,hi,pbc=False):
     
+    pseudo_sigma_x = rotated_sigmax(angle)
+    pseudo_sigma_z = rotated_sigmaz(angle)
+    H = nk.operator.LocalOperator(hi)
+    
+    for i in range(L-2):
+        H+= 1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,np.kron(pseudo_sigma_x,pseudo_sigma_z)), [i,i+1,i+2])
+        H-= (1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i,i+1])     
+
+    H-= (1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [L-2,L-1])     
+
+    if PBC == True:
+        
+        H-= (1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [L-1,0])
+        H+= 1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,np.kron(pseudo_sigma_x,pseudo_sigma_z)), [L-2,L-1,0])
+        H+= 1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,np.kron(pseudo_sigma_x,pseudo_sigma_z)), [L-1,0,1])
+  
+    return H
+
+def three_spin_int(angle,L,hi):
     pseudo_sigma_x=rotated_sigmax(angle)
     pseudo_sigma_z=rotated_sigmaz(angle)
     H=nk.operator.LocalOperator(hi)
-    
     for i in range(L-2):
-        H+=1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,np.kron(pseudo_sigma_x,pseudo_sigma_z)), [i,i+1,i+2])
-        H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [i,i+1])     
-
-    H-=(1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [L-2,L-1])     
-
+        H+=1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_x,np.kron(pseudo_sigma_z,pseudo_sigma_z)), [i,i+1,i+2])
+        H+=1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,np.kron(pseudo_sigma_z,pseudo_sigma_x)), [i,i+1,i+2])
     return H
-
-
+def tricritical_rotated_ising_model(angle,Gamma1,Gamma2,L,hi):
+    H=2*Gamma1*rotated_IsingModel(angle,1.0,L,hi,pbc=False)
+    H+=Gamma2*three_spin_int(angle,L,hi)
+    return H
+    
 
 
 
