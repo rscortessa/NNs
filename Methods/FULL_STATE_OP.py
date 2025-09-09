@@ -42,7 +42,7 @@ def objective_I(trial,model,psi,phi,L,hi,H,n_iter,holomorphic):
 
     optimizer = nk.optimizer.Sgd(learning_rate=learning_rate)
     preconditioner = nk.optimizer.SR(diag_shift=diag_shift, holomorphic=holomorphic)
-
+    phi.init_parameters()
     te = nkf.driver.InfidelityOptimizer(psi, optimizer, variational_state=phi, preconditioner=preconditioner, cv_coeff=cv)
 
     log = nk.logging.RuntimeLog()
