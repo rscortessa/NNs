@@ -63,7 +63,7 @@ name+=".txt"
 if n_method==5:
     name+=str(jj)
 
-file=pd.read_csv(name,delim_whitespace=True,dtype="a")
+file=pd.read_csv(name,sep='\s+',header=None,dtype="S")
 file=file.astype(float)
 size=len(file)
 
@@ -91,9 +91,16 @@ for ii in range(size):
     
 C=TId.neighbors(A)
 
-for jj in range(tmax):
-    D=1/(2.0)*(W@np.tril(TId.n_points(C,W,jj),k=-1))-W@(W-1.0)
-    D=2*D/(Wacc[size-1]*(Wacc[size-1]-1))
+
+print(C.shape,"C")
+print(Wacc[-1])
+for jj in range(tmax+1):
+    aux=TId.n_points(C,W,jj)
+    aux_2=W@aux
+    D=(aux_2-W@np.ones(size))/2.0
+    print(jj,D)
+    #+W@(W-1.0)/2.0
+    #D=2*D/(Wacc[size-1]*(Wacc[size-1]-1))
     #D=np.mean(Aux)
     #dD=np.std(Aux)/np.sqrt(size)
     pub.write([0,D])
