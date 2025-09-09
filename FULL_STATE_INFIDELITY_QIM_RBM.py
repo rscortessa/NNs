@@ -91,7 +91,7 @@ else:
     exit()
     
 
-architecture = "MODIFIED_RBM_COMPLEX"
+architecture = "WSIGNS_RBM_COMPLEX"
 
 if architecture=="RBM_COMPLEX":
     model=nk.models.RBM(alpha=NN,param_dtype=complex)
@@ -202,7 +202,7 @@ for combination in itertools.product(*param_lists):
         GS=eig_vecs[:,0]
     GS[np.abs(GS)<10**(-10)]=0.0
     GS=np.log(GS)
-    GS[GS!=GS]=-np.infty
+    GS[GS!=GS]=-np.inf
 
     # EXACT G.S
     
