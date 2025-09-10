@@ -6,6 +6,7 @@ import numpy as np
 import jax.numpy as jnp
 from netket.hilbert import constraint
 import equinox as eqx  # Used for struct field handling
+import Methods.class_WF as class_WF
 from Methods.class_WF import rotated_IsingModel
 from Methods.FULL_STATE_OP import objective
 import optuna
