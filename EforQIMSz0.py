@@ -33,7 +33,7 @@ Nangle=12
 NL=1
 #Define loop 
 NN=np.linspace(0.1,3.0,30)
-
+holomorphic=True
 
 # In[59]:
 
