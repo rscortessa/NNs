@@ -77,7 +77,7 @@ for nn in range(len(NN)):
     FILENAME=basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NN"+str(round(nn,1))+"NL"+str(NL)+"NR"+str(NRUN)
     optimizer=optimizer=nk.optimizer.Sgd(learning_rate=best_params[nn]["learning_rate"]["value"][0])
     sr=sr = nk.optimizer.SR(diag_shift=best_params[nn]["diag_shift"]["value"][0], holomorphic=holomorphic)
-    
+    model=nk.models.RBM(alpha=NN[nn],param_dtype=complex)
     PSI = class_WF.FULL_WF(L,hi,sr,optimizer,model,H)
     NR_eff=int(NRUN/NSPCA)
     
