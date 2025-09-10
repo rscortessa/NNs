@@ -69,7 +69,7 @@ for nn in range(len(NN)):
 # In[ ]:
 
 
-E=np.zeros((30,Nmean))
+E=np.zeros((30,NMEAN))
 for nn in range(len(NN)):
 
     SLAVE_DIR="FULL_STATE_RUN_"+basis+"_"+architecture+"NN"+str(round(nn,1))+"L"+str(L)+"G"+str(G)+"NSPCA"+str(NSPCA)+add
