@@ -74,13 +74,13 @@ n_iter=200
 #Model Details
 basis="QIM"
 architecture = "RBM_COMPLEX"
-pbc=False
+pbc=True
 
 add=""
 if pbc:
     add+="PBC"
 
-basis = "BROKENZ2_QIM"
+#basis = "BROKENZ2_QIM"
 
 if basis == "QIM":
     add+=""
@@ -104,7 +104,7 @@ if architecture not in architecture_set:
 
 
 #Creation of the folder
-MASTER_DIR="ENERGY"
+MASTER_DIR="INFIDELITY"
 if not os.path.isdir(MASTER_DIR):
     print(os.path.isdir(MASTER_DIR))
     os.mkdir(MASTER_DIR)
@@ -172,7 +172,7 @@ for g in G:
         # EXACT G.S
         GS[np.abs(GS)<10**(-10)]=0.0
         GS=np.log(GS)
-        GS[GS!=GS]=-np.infty
+        GS[GS!=GS]=-np.inf
         Exact_GS=EWF(L=L,eig_vec=tuple(GS))
 
 

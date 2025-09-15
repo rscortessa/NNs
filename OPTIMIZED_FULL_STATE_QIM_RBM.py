@@ -72,13 +72,12 @@ n_iter=200
 #Model Details
 basis="QIM"
 architecture = "RBM_COMPLEX"
-pbc=False
+pbc=True
 
 add=""
 if pbc:
     add+="PBC"
 
-basis = "BROKENZ2_QIM"
 
 if basis == "QIM":
     add+=""
@@ -156,7 +155,7 @@ for g in G:
             GS=eig_vecs[:,0]
         GS[np.abs(GS)<10**(-10)]=0.0
         GS=np.log(GS)
-        GS[GS!=GS]=-np.infty
+        GS[GS!=GS]=-np.inf
 
         # EXACT G.S
         Exact_GS=EWF(L=L,eig_vec=tuple(GS))
