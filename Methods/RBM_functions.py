@@ -40,6 +40,20 @@ def name_files(basis,modelo,L,G,NN,NL,NR,Nangle,NSPCA,NM,DS):
     VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"VAR"
     return MASTER_DIR,OBS_FILENAME,SPCA_FILENAME,VAR_FILENAME
 
+
+def opt_name_files(basis,modelo,L,G,NN,NL,NR,Nangle,NSPCA,NM,DS):
+    adder=""
+    MASTER_DIR="FULL_STATE_RUN_"+basis+"_"+modelo+"NN"+str(NN)+"L"+str(L)+"G"+str(G)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+adder
+    if os.path.isdir(MASTER_DIR+" "):
+        print("DIRECTORY NOT FOUND")
+    else:
+        print("DIRECTORY ALREADY CREATED")
+    OBS_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"OBS"
+    SPCA_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"SPCA"
+    VAR_FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(G)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"VAR"
+    return MASTER_DIR,OBS_FILENAME,SPCA_FILENAME,VAR_FILENAME
+
+
 def import_data_obs(MASTER_DIR,OBS_FILENAME,obs,NR,NM,Nangle):
     #How much data I want for the average
     T_CORR=1
@@ -86,6 +100,43 @@ def import_data_obs(MASTER_DIR,OBS_FILENAME,obs,NR,NM,Nangle):
     Y_err=np.array(Y_err)
     #print(EY,Y_err)
     return EY, Y_err
+
+def import_data_obs_all(MASTER_DIR,OBS_FILENAME,obs,NR,NM,Nangle):
+    #How much data I want for the average
+    T_CORR=1
+    N_SAMPLES=1
+    
+    E=[[[1.0 for k in range(NR)]  for i in range(Nangle+1)] for rep in range(NM)]
+    dE=[[[0.0 for k in range(NR)] for i in range(Nangle+1)] for rep in range(NM)]
+    data_RBM=[[[1.0 for k in range(NR)] for i in range(Nangle+1)] for rep in range(NM)]
+    AA=[i for i in range(Nangle+1)]
+    NMM=[[kk for kk in range(NM)] for i in range(Nangle+1)]
+
+    for rep in range(NM):
+        for ii in range(Nangle+1):
+            with open(MASTER_DIR+"/"+str(rep)+"NM"+str(ii)+OBS_FILENAME+".json", "r") as f:
+                data_RBM[rep][ii] = json.load(f)
+            E[rep][ii]=np.real(data_RBM[rep][ii][obs]["Mean"]["real"])
+            dE[rep][ii]=np.real(data_RBM[rep][ii][obs]["Variance"])
+    
+    E=np.array(E)
+    
+    dE=np.array(dE)
+    
+    E_mean_RBM=[]
+    dE=[]
+    NN=np.zeros(Nangle+1)
+
+    for i in range(Nangle+1):
+        E_mean_RBM.append(np.mean(E[NMM[i],i,:],axis=0))
+        dE.append(np.var(E[NMM[i],i,:],axis=0))
+        NN[i]=len(NMM[i])
+    E_mean_RBM=np.array(E_mean_RBM)
+    dE=np.array(dE)
+
+    return E,dE
+
+
 
 def import_data_obs_min(MASTER_DIR,OBS_FILENAME,obs,NR,NM,Nangle):
     #How much data I want for the average
