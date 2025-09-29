@@ -68,7 +68,7 @@ NMEAN=parameters[5]
 G = [parameters[x] for x in range(6,n_par-1)]
 
 
-n_iter=200
+n_iter=30
 #Model Details
 basis="QIM"
 architecture = "RBM_COMPLEX"
@@ -181,12 +181,12 @@ for g in G:
         optuna.logging.get_logger("optuna").addHandler(logging.StreamHandler(sys.stdout))
         study = optuna.create_study(direction="minimize",sampler=optuna.samplers.RandomSampler(),pruner=optuna.pruners.MedianPruner())
         objective_final=partial(objective,model=model,L=L,hi=hi,H=H,n_iter=n_iter,holomorphic=holomorphic)
-        study.optimize(objective_final,n_trials=50)    
+        study.optimize(objective_final,n_trials=100)    
         best_params=study.best_params
         log_best_params(ii,best_params)
         
-        optimizer=optimizer=nk.optimizer.Sgd(learning_rate=best_params["learning_rate"])
-        sr=sr = nk.optimizer.SR(diag_shift=best_params["diag_shift"], holomorphic=holomorphic)
+        optimizer = nk.optimizer.Sgd(learning_rate=best_params["learning_rate"])
+        sr = nk.optimizer.SR(diag_shift=best_params["diag_shift"], holomorphic=holomorphic)
 
         PSI = class_WF.FULL_WF(L,hi,sr,optimizer,model,H)
 

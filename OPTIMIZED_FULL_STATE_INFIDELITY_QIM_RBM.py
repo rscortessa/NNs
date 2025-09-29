@@ -60,6 +60,7 @@ n_par=len(parameters)
 parameters=[int(parameters[x]) for x in range(1,n_par)]
 
 L=parameters[0]
+W=1
 DG=0.01
 NN=parameters[1]
 NL=1
@@ -73,8 +74,11 @@ G = [parameters[x] for x in range(6,n_par-1)]
 n_iter=200
 #Model Details
 basis="QIM"
-architecture = "RBM_COMPLEX"
+architecture = "WSIGNS_RBM_COMPLEX"
 pbc=True
+
+if basis == "BI_QIM":
+    W=2
 
 add=""
 if pbc:
@@ -123,16 +127,16 @@ for g in G:
 
 angle=0
 dangle=np.pi/(2*Nangle)
-Nstates=2**L
+Nstates=2**(L*W)
 eps=10**(-10)
 angle=[dangle*i for i in range(Nangle+1)]
-num_states=[i for i in range(2**L)]
-sites_corr=[1,int(L/2),L-1]
+num_states=[i for i in range(2**(L*W))]
+sites_corr=[1,int(L*W/2),L*W-1]
 sites_corr=[str(x) for x in sites_corr]
 
 # Hilbert space generation in Netket
 
-hi=nk.hilbert.Spin(s=1/2,N=L,inverted_ordering=True)
+hi=nk.hilbert.Spin(s=1/2,N=L*W,inverted_ordering=True)
 
 
 for g in G:
@@ -145,6 +149,10 @@ for g in G:
             H=rotated_IsingModel(angle[ii],g*DG,L,hi,pbc=pbc)
         if basis == "CIM_2":
             H=rotated_CIMModel_2(angle[ii],g*DG,L,hi,pbc=pbc)
+        if basis == "BI_QIM":
+
+
+            H=bi_ladder_rotated_IsingModel(angle[ii],g*DG,g*DG,1.0,1.0,L,hi,pbc=pbc)
             
         elif basis == "BROKENZ2_QIM":
             H=rotated_BROKEN_Z2IsingModel(angle[ii],g*DG,L,hi,hpar,pbc=pbc)
@@ -173,7 +181,7 @@ for g in G:
         GS[np.abs(GS)<10**(-10)]=0.0
         GS=np.log(GS)
         GS[GS!=GS]=-np.inf
-        Exact_GS=EWF(L=L,eig_vec=tuple(GS))
+        Exact_GS=EWF(L=L*W,eig_vec=tuple(GS))
 
 
         phi = nk.vqs.FullSumState(hi, model=model)
@@ -182,7 +190,7 @@ for g in G:
            
         optuna.logging.get_logger("optuna").addHandler(logging.StreamHandler(sys.stdout))
         study = optuna.create_study(direction="minimize",sampler=optuna.samplers.RandomSampler(),pruner=optuna.pruners.MedianPruner())
-        objective_final=partial(objective_I,model=model,psi=psi,phi=phi,L=L,hi=hi,H=H,n_iter=n_iter,holomorphic=holomorphic)
+        objective_final=partial(objective_I,model=model,psi=psi,phi=phi,L=L*W,hi=hi,H=H,n_iter=n_iter,holomorphic=holomorphic)
         study.optimize(objective_final,n_trials=50)    
         best_params=study.best_params
         log_best_params(ii,best_params)
@@ -196,12 +204,12 @@ for g in G:
         obs = {}
         obs["Energy"] = H
         if basis == "QIM" or basis == "BROKENZ2_QIM":
-            obs["P"]=parity_IsingModel(angle[ii],L,hi)
-            obs["M"]=rotated_m(angle[ii],L,hi)
+            obs["P"]=parity_IsingModel(angle[ii],L*W,hi)
+            obs["M"]=rotated_m(angle[ii],L*W,hi)
     
         for jj in sites_corr:
-            obs["CZ0"+jj]=Sz0Szj(angle[ii],L,hi,int(jj))
-            obs["CX0"+jj]=Sx0Sxj(angle[ii],L,hi,int(jj))
+            obs["CZ0"+jj]=Sz0Szj(angle[ii],L*W,hi,int(jj))
+            obs["CX0"+jj]=Sx0Sxj(angle[ii],L*W,hi,int(jj))
 
         #Number of effective steps
         NR_eff=int(NR/NSPCA)

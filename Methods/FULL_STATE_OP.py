@@ -23,9 +23,9 @@ def objective(trial,model,L,hi,H,n_iter,holomorphic):
     optimizer = nk.optimizer.Sgd(learning_rate=learning_rate)
     preconditioner = nk.optimizer.SR(diag_shift=diag_shift, holomorphic=holomorphic)
     PSI = class_WF.FULL_WF(L,hi,preconditioner,optimizer,model,H)
-    PSI.run(obs={},n_iter=50,log=log)
-    for i in range(55,n_iter,10):
-        PSI.run(obs={},n_iter=10,log=log)
+    PSI.run(obs={},n_iter=5,log=log)
+    for i in range(5,n_iter):
+        PSI.run(obs={},n_iter=1,log=log)
         intermediate_score=log.data["Energy"]["Mean"][-1]
         trial.report(intermediate_score,i)
         # Handle pruning based on the intermediate value.
