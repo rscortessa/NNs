@@ -10,6 +10,7 @@ from typing import Any
 
 import numpy as np
 import netket
+from flax import struct
 from jax.nn.initializers import normal
 from netket.utils import HashableArray
 from netket.utils.types import NNInitFunc
@@ -31,17 +32,17 @@ class MF(nn.Module):
         return 0.5*jnp.sum(p,axis=-1)                                                                                                  
                                                                                                                                        
 class EWF(nn.Module):                                                                                                                  
-    eig_vec:tuple                                                                                                                      
-    L:float                                                                                                                            
+    eig_vec:tuple = struct.field(pytree_node=False)                                                                                                                
+    L:float
     def setup(self):                                                                                                                   
         self.aux=jnp.array(self.eig_vec)                                                                                               
-        self.j1=self.param("j1", nn.initializers.normal(),(1,),float)                                                                  
-                                                                                                                                       
+        self.j1=self.param("j1", nn.initializers.normal(),(1,),float)    
     def __call__(self,x):                                                                                                              
         indices = change_to_int(x,self.L)                                                                                              
         A = [self.aux[idx] for idx in indices]                                                                                         
-        return jnp.log(jnp.array(A))                                                                                                   
-                                                                                                                                       
+        return jnp.array(A) 
+
+    
 class JasShort(nn.Module):                                                                                                             
     @nn.compact                                                                                                                        
     def __call__(self,x):                                                                                                              
