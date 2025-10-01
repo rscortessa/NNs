@@ -31,7 +31,7 @@ import optuna
 import sys
 import logging
 
-from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,rotated_BROKEN_Z2IsingModel,rotated_CIMModel_2
+from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,rotated_BROKEN_Z2IsingModel,rotated_CIMModel_2,bi_ladder_rotated_IsingModel
 from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m
 from Methods.FULL_STATE_OP import objective
 def change_to_int(x,L):
@@ -69,21 +69,21 @@ NMEAN=parameters[5]
 G = [parameters[x] for x in range(6,n_par-1)]
 
 
-n_iter=30
+n_iter=200
 #Model Details
-basis="QIM"
+basis="BI_QIM"
 architecture = "RBM_COMPLEX"
-pbc=True
+pbc=False
 
 add=""
 if pbc:
     add+="PBC"
 
-if basis == "BI_QIM":
-    W=2
 
 if basis == "QIM":
     add+=""
+elif basis == "BI_QIM":
+    W=2
 elif basis == "BROKENZ2_QIM":
     hpar=0.01
     add+= "HPAR"+str(round(hpar,2))
@@ -133,7 +133,7 @@ sites_corr=[str(x) for x in sites_corr]
 
 # Hilbert space generation in Netket
 
-hi=nk.hilbert.Spin(s=1/2,N=L,inverted_ordering=True)
+hi=nk.hilbert.Spin(s=1/2,N=L*W,inverted_ordering=True)
 
 
 for g in G:
@@ -167,7 +167,7 @@ for g in G:
         GS[GS!=GS]=-np.inf
 
         # EXACT G.S
-        Exact_GS=EWF(L=L,eig_vec=tuple(GS))
+        Exact_GS=EWF(L=L*W,eig_vec=tuple(GS))
         SIGNS=(GS<0)*(1j*np.pi)+(GS>=0)*(0.0)
         if architecture=="RBM_COMPLEX":
             model=nk.models.RBM(alpha=NN,param_dtype=complex)
