@@ -31,7 +31,7 @@ import optuna
 import sys
 import logging
 
-from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,rotated_BROKEN_Z2IsingModel,rotated_CIMModel_2
+from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,rotated_BROKEN_Z2IsingModel,rotated_CIMModel_2,bi_ladder_rotated_IsingModel
 from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m
 from Methods.FULL_STATE_OP import objective
 def change_to_int(x,L):
@@ -72,9 +72,9 @@ G = [parameters[x] for x in range(7,n_par-1)]
 
 n_iter=30
 #Model Details
-basis="QIM"
+basis="BI_QIM"
 architecture = "RBM_COMPLEX"
-pbc=True
+pbc=False
 
 add=""
 if pbc:
@@ -82,8 +82,7 @@ if pbc:
 
 if basis == "BI_QIM":
     W=2
-
-if basis == "QIM":
+elif basis == "QIM":
     add+=""
 elif basis == "BROKENZ2_QIM":
     hpar=0.01
