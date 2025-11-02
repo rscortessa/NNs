@@ -14,5 +14,5 @@ python OPTIMIZATION_SEARCH_JASTROW.py $L $NN $NR $NSPCA $NMEAN $end $seed
 
 for ((i=start; i<end; i++))
 do
-  python OPTIMIZED_JASTROW_INFIDELITY_QIM_RBM.py $L $NN $NR $NSPCA $NMEAN $i $seed
+  python OPTIMIZED_JASTROW_INFIDELITY_QIM_RBM.py $L $NN $NR $NSPCA $NMEAN $i $seed &
 done
