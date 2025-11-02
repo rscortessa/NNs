@@ -34,7 +34,7 @@ def objective(trial,model,L,hi,H,n_iter,holomorphic):
     score=log.data["Energy"]["Mean"][-1]
     return score
 
-def objective_I(trial,model,psi,phi,L,hi,H,n_iter,holomorphic):    
+def objective_I(trial,model,psi,phi,L,hi,n_iter,holomorphic):    
     log = nk.logging.RuntimeLog()   
     learning_rate = trial.suggest_float("learning_rate",10**(-5),10**(-1),log=True)
     diag_shift = trial.suggest_float("diag_shift",10**(-5),10**(-1),log=True)
