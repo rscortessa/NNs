@@ -74,7 +74,13 @@ seed=parameters[6]
 n_iter=200
 #Model Details
 basis = "J"+str(seed)
-add=""
+complex_J=True
+
+if complex_J:
+    add="COMPLEXJ"
+else:
+    add=""
+    
 architecture = "RBM_COMPLEX"
 hi=nk.hilbert.Spin(s=1/2,N=L*W,inverted_ordering=True)
 
@@ -115,47 +121,61 @@ for g in range(NSAMPLES):
     FILENAME=basis+"M3L"+str(L)+"W1"+"G"+str(g)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)
     
     log_best_params=nk.logging.RuntimeLog()
-    for ii in range(NSAMPLES):
-        
-        J_couplings=list([random.random() for j in range(int(L*(L+1)/2))])
+
+    J_couplings=list([random.random() for j in range(int(L*(L+1)/2))])
+    
+    if complex_J:
+
+        J= np.array(random.sample(J_couplings, k=len(J_couplings)),dtype=complex)
+        J_couplings_COMPLEX=list([random.random() for j in range(int(L*(L+1)/2))])
+        J_COMPLEX=np.array(random.sample(J_couplings, k=len(J_couplings)),dtype=complex)
+        J=J+1j*J_COMPLEX
+    else:
         J= np.array(random.sample(J_couplings, k=len(J_couplings)))
-        rows, cols = np.triu_indices(L)
-        idxs=list(zip(rows, cols))
+        
+    rows, cols = np.triu_indices(L)
+    idxs=list(zip(rows, cols))
+    
+    if complex_J:
+        J_coeff=np.zeros((L,L),dtype=complex)
+    else:
         J_coeff=np.zeros((L,L))
 
-        for idx in range(len(idxs)):
-            J_coeff[idxs[idx][1],idxs[idx][0]]=J[idx]
-
-        GS=build_jastrow_wf(L,J_coeff,hi)
+    for idx in range(len(idxs)):
+        J_coeff[idxs[idx][1],idxs[idx][0]]=J[idx]
+        if complex_J and idxs[idx][0] == idxs[idx][1]:
+            J_coeff[idxs[idx][1],idxs[idx][0]]=np.real(J[idx])
         
-        # ARCHITECTURES
-        if architecture=="RBM_COMPLEX" or architecture == "WSIGNS_RBM_COMPLEX":
+    GS=build_jastrow_wf(L,J_coeff,hi)
+        
+    # ARCHITECTURES
+    if architecture=="RBM_COMPLEX" or architecture == "WSIGNS_RBM_COMPLEX":
             
-            model=nk.models.RBM(alpha=NN,param_dtype=complex)
-            holomorphic=True
+        model=nk.models.RBM(alpha=NN,param_dtype=complex)
+        holomorphic=True
             
-        elif architecture=="RBM_REAL" or architecture == "WSIGNS_RBM_REAL":
-            model=nk.models.RBM(alpha=NN)
-            holomorphic=False
-        if architecture == "WSIGNS_RBM_COMPLEX" or architecture == "WSIGNS_RBM_REAL":
-            GS=np.abs(GS)
+    elif architecture=="RBM_REAL" or architecture == "WSIGNS_RBM_REAL":
+        model=nk.models.RBM(alpha=NN)
+        holomorphic=False
+    if architecture == "WSIGNS_RBM_COMPLEX" or architecture == "WSIGNS_RBM_REAL":
+        GS=np.abs(GS)
             
         # EXACT G.S
-        GS[np.abs(GS)<10**(-10)]=0.0
-        GS=np.log(GS)
-        GS[GS!=GS]=-np.inf
-        Exact_GS=EWF(L=L*W,eig_vec=tuple(GS))
+    GS[np.abs(GS)<10**(-10)]=0.0
+    GS=np.log(GS)
+    GS[GS!=GS]=-np.inf
+    Exact_GS=EWF(L=L*W,eig_vec=tuple(GS))
 
-        phi = nk.vqs.FullSumState(hi, model=model)
-        psi = nk.vqs.FullSumState(hi, model=Exact_GS)
+    phi = nk.vqs.FullSumState(hi, model=model)
+    psi = nk.vqs.FullSumState(hi, model=Exact_GS)
 
 
         
-        optuna.logging.get_logger("optuna").addHandler(logging.StreamHandler(sys.stdout))
-        study = optuna.create_study(direction="minimize",sampler=optuna.samplers.RandomSampler(),pruner=optuna.pruners.MedianPruner())
-        objective_final=partial(objective_I,model=model,psi=psi,phi=phi,L=L*W,hi=hi,n_iter=n_iter,holomorphic=holomorphic)
-        study.optimize(objective_final,n_trials=50)    
-        best_params=study.best_params
-        log_best_params(ii,best_params)
+    optuna.logging.get_logger("optuna").addHandler(logging.StreamHandler(sys.stdout))
+    study = optuna.create_study(direction="minimize",sampler=optuna.samplers.RandomSampler(),pruner=optuna.pruners.MedianPruner())
+    objective_final=partial(objective_I,model=model,psi=psi,phi=phi,L=L*W,hi=hi,n_iter=n_iter,holomorphic=holomorphic)
+    study.optimize(objective_final,n_trials=50)    
+    best_params=study.best_params
+    log_best_params(0,best_params)
         
     log_best_params.serialize(MASTER_DIR+"/"+SLAVE_DIR+"/"+FILENAME+"HYP")

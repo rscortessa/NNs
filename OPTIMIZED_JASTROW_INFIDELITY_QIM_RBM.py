@@ -82,8 +82,11 @@ hi=nk.hilbert.Spin(s=1/2,N=L*W,inverted_ordering=True)
 
 n_iter=200
 #Model Details
-basis = "J"+str(seed)
-add=""
+complex_J=True
+if complex_J:
+    add="COMPLEXJ"
+else:
+    add=""
 
 architecture = "RBM_COMPLEX"
 
@@ -136,16 +139,32 @@ except:
         #CREATE A LOG TO SAVE THE HYPERPARAMETERS
 print("Hyper_parameters exist?",hyper_parameters_ready)
 
+
 for step in range(g+1):
     J_couplings=list([random.random() for j in range(int(L*(L+1)/2))])
-    J= np.array(random.sample(J_couplings, k=len(J_couplings)))
-    
+
+    if complex_J:
+        J= np.array(random.sample(J_couplings, k=len(J_couplings)),dtype=complex)
+        J_couplings_COMPLEX=list([random.random() for j in range(int(L*(L+1)/2))])
+        J_COMPLEX=np.array(random.sample(J_couplings, k=len(J_couplings)),dtype=complex)
+        J=J+1j*J_COMPLEX
+    else:
+        J= np.array(random.sample(J_couplings, k=len(J_couplings)))
+
+        
 rows, cols = np.triu_indices(L)
 idxs=list(zip(rows, cols))
-J_coeff=np.zeros((L,L))
+
+if complex_J:
+        J_coeff=np.zeros((L,L),dtype=complex)
+    else:
+        J_coeff=np.zeros((L,L))
 
 for idx in range(len(idxs)):
-    J_coeff[idxs[idx][1],idxs[idx][0]]=J[idx]
+        J_coeff[idxs[idx][1],idxs[idx][0]]=J[idx]
+        
+        if complex_J and idxs[idx][0] == idxs[idx][1]:
+            J_coeff[idxs[idx][1],idxs[idx][0]]=np.real(J[idx])
 
 GS=build_jastrow_wf(L,J_coeff,hi)
 
