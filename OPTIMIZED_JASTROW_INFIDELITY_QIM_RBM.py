@@ -157,9 +157,10 @@ idxs=list(zip(rows, cols))
 
 if complex_J:
         J_coeff=np.zeros((L,L),dtype=complex)
-    else:
+else:
         J_coeff=np.zeros((L,L))
 
+        
 for idx in range(len(idxs)):
         J_coeff[idxs[idx][1],idxs[idx][0]]=J[idx]
         
