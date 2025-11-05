@@ -43,10 +43,11 @@ def objective_I(trial,model,psi,phi,L,hi,n_iter,holomorphic):
     optimizer = nk.optimizer.Sgd(learning_rate=learning_rate)
     preconditioner = nk.optimizer.SR(diag_shift=diag_shift, holomorphic=holomorphic)
     phi.init_parameters()
+    
     te = nkf.driver.InfidelityOptimizer(psi, optimizer, variational_state=phi, preconditioner=preconditioner, cv_coeff=cv)
 
     log = nk.logging.RuntimeLog()
-    te.run(n_iter=50,out=log,show_progress=False)
+    te.run(n_iter=50,out=log,show_progress=True)
 
     for i in range(60,n_iter,10):
         te.run(n_iter=10,out=log,show_progress=False)
@@ -56,6 +57,6 @@ def objective_I(trial,model,psi,phi,L,hi,n_iter,holomorphic):
         if trial.should_prune():
             raise optuna.TrialPruned()
     score=log.data["Infidelity"]["Mean"][-1]
-    
+
     return score
 
