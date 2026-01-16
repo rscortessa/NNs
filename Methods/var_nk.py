@@ -146,3 +146,29 @@ class MODIFIED_RBM(nn.Module):
             return x + out_bias
         else:
             return x
+
+
+
+class Deep1DCNN(nn.Module):
+    # You can pass a list of features, e.g., (8, 16, 8)
+    layers_features: tuple = (8, 8) 
+    kernel_size: int = 2
+    param_dtype: any = jnp.complex64
+
+    @nn.compact
+    def __call__(self, x):
+        # 1. Reshape Input
+        x = x.reshape(x.shape[0], -1, 1)
+
+        # 2. Dynamic Layer Loop
+        # We loop through all feature sizes provided in the list
+        for feat in self.layers_features:
+            x = nn.Conv(features=feat, 
+                        kernel_size=(self.kernel_size,), 
+                        padding='SAME', # Keeps size constant
+                        param_dtype=self.param_dtype)(x)
+            
+            # Non-linearity between layers
+            x = nk.nn.log_cosh(x)
+
+        return jnp.sum(x, axis=(-1, -2))
