@@ -151,7 +151,7 @@ class MODIFIED_RBM(nn.Module):
 
 class Deep1DCNN(nn.Module):
     # You can pass a list of features, e.g., (8, 16, 8)
-    layers_features: tuple = (8, 8) 
+    layer_features: tuple = (8, 8) 
     kernel_size: int = 2
     param_dtype: any = jnp.complex64
 
@@ -162,7 +162,7 @@ class Deep1DCNN(nn.Module):
 
         # 2. Dynamic Layer Loop
         # We loop through all feature sizes provided in the list
-        for feat in self.layers_features:
+        for feat in self.layer_features:
             x = nn.Conv(features=feat, 
                         kernel_size=(self.kernel_size,), 
                         padding='SAME', # Keeps size constant

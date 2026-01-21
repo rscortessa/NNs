@@ -40,65 +40,17 @@ import json
 from Methods.class_WF import rotated_sigmax, rotated_sigmaz,isigmay,rotated_IsingModel,rotated_BROKEN_Z2IsingModel,rotated_CIMModel_2,bi_ladder_rotated_IsingModel
 from Methods.class_WF import rotated_XYZModel, parity_Matrix, parity_IsingModel, Sz0Szj, Sx0Sxj, to_array, rotated_m
 from Methods.FULL_STATE_OP import objective
-from pathlib import Path
-import random
 from netket.graph import Graph
+def save_params(vmc,i,log_var):
+        log_var(i,vmc.state.variables)
 
-
-def file_exists(directory, filename):
-    """
-    Check if a file exists using pathlib.
-    """
-    return (Path(directory) / filename).exists()
-
-
-def filenames(directory,FILENAME, tt=0):
-    """
-    Generate unique filenames for 'VAR' and 'OBS' files in a directory.
-
-    Args:
-        directory (str): Directory where files are stored.
-        angle (float): The angle (used as part of the filename).
-        FILENAME (str): Base filename prefix.
-        tt (int, optional): Initial trial number. Defaults to 0.
-
-    Returns:
-        tuple[str, str]: filevar, fileobs (unique filenames)
-    """
-    while True:
-        filevar = f"{tt}{FILENAME}VAR"
-        fileobs = f"{tt}{FILENAME}OBS"
-
-        # Check if either file already exists
-        if not (file_exists(directory, filevar+".json") or file_exists(directory, fileobs+".json")):
-            break  # both are free — good to use
-
-        tt+= 1
-
-    with open(directory+"/"+fileobs+".json","x") as f:
-            print("File generated:",fileobs)
-            
-    return filevar, fileobs
-
-
-
-def save_history_callback(step, log_data, driver, save_every, prefix):
-    if step % save_every == 0:
-        filename = f"{prefix}_step_{step}.mpack"
-        with open(filename, 'wb') as f:
-            f.write(flax.serialization.msgpack_serialize(driver.state.variables))
-            print(f"Saved: {filename}") # Optional feedback
-    return True
-
-
-        
 parameters=sys.argv
 n_par=len(parameters)
 parameters=[float(parameters[x]) for x in range(1,n_par)]
 
 L = int(parameters[0])
-W = 1
-DG = 0.01
+W=1
+DG=0.01
 NN = parameters[1]
 NL = 2
 NR = int(parameters[2])
@@ -107,12 +59,12 @@ Nangle = int(parameters[4])
 NMEAN = int(parameters[5])
 angle = int(parameters[6])
 g = int(parameters[7])
-basis = "QIM"
-add = ""
+basis="QIM"
+add=""
 
 pbc=False
 
-architecture = "GCNN_COMPLEX"
+architecture = "CNN_COMPLEX"
 
 add=""
 if pbc:
@@ -133,13 +85,16 @@ else:
     
 #Creation of the folder
 MASTER_DIR="ENERGY"
+SLAVE_DIR="FULL_STATE_RUN_"+basis+"_"+architecture+"NN"+str(NN)+"L"+str(L)+"G"+str(g)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+add
+study_name = f"MODEL{basis}ARCH{architecture}NN{NN}L{L}G{g}NA{Nangle}ANGLE{angle}BC{add}"
+storage = "sqlite:///"+MASTER_DIR+"/"+SLAVE_DIR+"/"+study_name+"optuna_study.db"
+FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(g)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)
+
+
+
 # Hilbert space generation in Netket
 hi=nk.hilbert.Spin(s=1/2,N=L*W,inverted_ordering=True)
-SLAVE_DIR="FULL_STATE_RUN_"+basis+"_"+architecture+"NN"+str(NN)+"L"+str(L)+"G"+str(g)+"NA"+str(Nangle)+"NSPCA"+str(NSPCA)+add
-FILENAME="NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(g)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)
-PARAM_DIR = str(angle)+"NANGLE"+str(Nangle)+basis+"M3L"+str(L)+"W1"+"G"+str(g)+"NN"+str(NN)+"NL"+str(NL)+"NR"+str(NR)+"VSTATE"
-
-directory = MASTER_DIR+"/"+SLAVE_DIR
+n_iter=200
 
 if architecture == "RBM_COMPLEX":
     model = nk.models.RBM(alpha=NN, param_dtype=complex)
@@ -148,13 +103,14 @@ else:
     model = nk.models.RBM(alpha=NN)
     holomorphic = False
 
-
 if architecture == "GCNN_COMPLEX":
+
     #Linear Chain
     edges = [(i,i+1) for i in range(L-1)]
     chain = Graph(edges)
     symmetries = chain.automorphisms()
-    zz= int (L*NN)
+
+    zz = int (L*NN)
     if zz == 0:
         print("PROBLEM")
         exit()
@@ -171,8 +127,7 @@ if architecture == "CNN_COMPLEX":
         feature_dims = tuple( [zz for x in range(int(NL))] )
         model = var_nk.Deep1DCNN(layer_features=feature_dims)
 
-
-    
+        
 phi = nk.vqs.FullSumState(hi, model=model)
 
 
@@ -185,38 +140,25 @@ if basis == "BROKENZ2_QIM":
 if basis == "BI_QIM":
     H=bi_ladder_rotated_IsingModel(angle*np.pi/(2*Nangle),g*DG,g*DG,1.0,1.0,L,hi,pbc=pbc)
 
-study_name = f"MODEL{basis}ARCH{architecture}NN{NN}L{L}G{g}NA{Nangle}ANGLE{angle}BC{add}"
-storage = "sqlite:///"+MASTER_DIR+"/"+SLAVE_DIR+"/"+study_name+"optuna_study.db"
+
 study = optuna.load_study(study_name=study_name, storage=storage)
-
 print(f"🔁 Loaded study '{study_name}' for angle={angle}")
-print(study.best_params)
 
-#Load Hyper-parameters
-optimizer = nk.optimizer.Sgd(learning_rate=study.best_params["learning_rate"])
-sr = nk.optimizer.SR(diag_shift=study.best_params["diag_shift"], holomorphic=holomorphic)
-PSI = class_WF.FULL_WF(L,hi,sr,optimizer,model,H)
+objective_final = partial(
+    objective,
+    model=model,
+    L=L*W,
+    hi=hi,
+    H=H,
+    n_iter=n_iter,
+    holomorphic=holomorphic,
+)
 
-#OBSERVABLES INIT.
-obs={}
-#Number of effective steps
-NR_eff=int(NR/NSPCA)
+# -------------------------------
+# ---- Run trials ----
+# -------------------------------
+print(f"🚀 Running Optuna trials for angle={angle}")
+study.optimize(objective_final, n_trials=10)
+print("✅ Finished trials for this angle.")
 
-#RESTART THE NETWORK
-vstate=PSI.user_state
-vstate.init_parameters()
-PSI.change_state(vstate)
-            
-#THE OUT LOGS ARE CREATED
-FILENAME = "NM"+str(angle)+FILENAME
-filevar, fileobs =filenames(directory,FILENAME)
-
-my_callback = partial(save_history_callback, save_every=int(NR/NSPCA), prefix=directory+"/"+filevar)
-
-log = nk.logging.JsonLog(directory+"/"+fileobs , save_params=False)
-
-PSI.run(obs=obs,n_iter=NR+1,log=log,callback=my_callback)
-        
-print("✅ Finished run for this angle:",str(angle),"and","G=",str(g))
-print("Results saved ✅ in",filevar,fileobs)
 

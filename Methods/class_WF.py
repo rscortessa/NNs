@@ -242,7 +242,7 @@ def rotated_CIMModel_2(angle,Gamma,L,hi,pbc=False):
 
     H-= (1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [L-2,L-1])     
 
-    if PBC == True:
+    if pbc == True:
         
         H-= (1.0*Gamma)*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,pseudo_sigma_z), [L-1,0])
         H+= 1.0*nk.operator.LocalOperator(hi, np.kron(pseudo_sigma_z,np.kron(pseudo_sigma_x,pseudo_sigma_z)), [L-2,L-1,0])
@@ -656,14 +656,26 @@ class FULL_WF:
     def advance(self,n_run):
         self.user_driver.advance(n_run)
         
-    def run(self,obs,n_iter,log=None):
+    def run(self,obs,n_iter,log=None,callback=None):
         if log:
-            self.user_driver.run(n_iter=n_iter,obs=obs,out=log)
+            if callback:
+                self.user_driver.run(n_iter=n_iter,obs=obs,out=log,callback=callback)
+            else:
+                self.user_driver.run(n_iter=n_iter,obs=obs,out=log)
         else:
-            self.user_driver.run(n_iter=n_iter,obs=obs)
+            if callback:
+                self.user_driver.run(n_iter=n_iter,obs=obs,callback=callback)
+            else:
+                self.user_driver.run(n_iter=n_iter,obs=obs)
 
-    def save_params(self,i,log_var):
-        log_var(i,self.user_driver.state.variables)
+    def save_params(self,i,name):
+        with open(str(i)+"iter"+name, 'wb') as file:
+            file.write(flax.serialization.to_bytes(self.user_state))
+
+    def write_params(self,i,name):
+        with open(str(i)+"iter"+name, 'rb') as file:
+            file.write(flax.serialization.to_bytes(self.user_state),file.read())
+            
             
     def iteration(self,n_run):
         return self.user_driver.iter(n_run)
