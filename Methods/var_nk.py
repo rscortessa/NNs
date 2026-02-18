@@ -154,7 +154,7 @@ class Deep1DCNN(nn.Module):
     layer_features: tuple = (8, 8) 
     kernel_size: int = 2
     param_dtype: any = jnp.complex64
-
+    padding: str = "SAME"
     @nn.compact
     def __call__(self, x):
         # 1. Reshape Input
@@ -165,7 +165,7 @@ class Deep1DCNN(nn.Module):
         for feat in self.layer_features:
             x = nn.Conv(features=feat, 
                         kernel_size=(self.kernel_size,), 
-                        padding='SAME', # Keeps size constant
+                        padding=self.padding, # Keeps size constant
                         param_dtype=self.param_dtype)(x)
             
             # Non-linearity between layers

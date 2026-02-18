@@ -668,13 +668,19 @@ class FULL_WF:
             else:
                 self.user_driver.run(n_iter=n_iter,obs=obs)
 
-    def save_params(self,i,name):
+    def save_params(self,i,name,working_dir=""):
         with open(str(i)+"iter"+name, 'wb') as file:
             file.write(flax.serialization.to_bytes(self.user_state))
 
-    def write_params(self,i,name):
-        with open(str(i)+"iter"+name, 'rb') as file:
-            file.write(flax.serialization.to_bytes(self.user_state),file.read())
+    def load_params(self,i,name,working_dir=""):
+        if working_dir == "":
+            filename=name+"VAR_step_"+str(i)+".mpack"
+        else:
+            filename=working_dir+"/"+name+"VAR_step_"+str(i)+".mpack"
+            
+        with open(filename, 'rb') as file:
+            file_content = file.read()
+        self.user_state.variables = flax.serialization.from_bytes(self.user_state.variables,file_content)
             
             
     def iteration(self,n_run):
