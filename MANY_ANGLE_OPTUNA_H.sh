@@ -16,6 +16,6 @@ do
     python V2_INIT_OPTUNA_STUDY_ENERGY.py $L $NN $NR $NSPCA $NANGLE $NMEAN $G $j
     for((i=start;i<=end;i++))
     do
-	python V2_OPTUNA_STUDY_ENERGY.py  $L $NN $NR $NSPCA $NANGLE $NMEAN $ANGLE $j &
+	python V2_OPTUNA_STUDY_ENERGY.py  $L $NN $NR $NSPCA $NANGLE $NMEAN $j $G &
     done    
 done

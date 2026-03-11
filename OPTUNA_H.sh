@@ -1,7 +1,7 @@
 #!/bin/bash
 
 start=0
-end=5
+end=4
 L=$1
 NN=$2
 NR=$3
