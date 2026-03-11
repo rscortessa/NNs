@@ -2,10 +2,11 @@ import netket as nk
 import argparse
 import flax
 import optuna
-from config import params,ROOT_DIR,working_directory,study_name,storage
-from define_models import hi,ham,model
+from config import params,ROOT_DIR
+from ground_state_search import working_directory,study_name,storage
+from define_models import hi,ham,model,cost_func
 from functools import partial
-from Methods.FULL_STATE_OP import objective
+
 # Hilbert space generation in Netket
 
 parser = argparse.ArgumentParser()
@@ -17,9 +18,10 @@ params_ = vars(args)
 
 study = optuna.load_study(study_name=study_name, storage=storage)
 if len(study.trials) < params_["trials"]:
-    objective_final = partial(objective,model=model,L=params["L"]*params["W"],hi=hi,H=ham,n_iter=params_["niter"],holomorphic=params["holomorphic"],clipping=params_["clipping"])
+    
+    objective_final = partial(cost_func,model=model,L=params["L"]*params["W"],hi=hi,H=ham,n_iter=params_["niter"],holomorphic=params["holomorphic"],clipping=params_["clipping"])
     print("🚀 Running Optuna trials for "+str(params))
-    study.optimize(objective_final, n_trials=params_["trials"]-len(study.trials))
+    study.optimize(objective_final, n_trials=params_["trials"]-len(study.trials),n_jobs=1)
     print("🚀 Running Optuna trials for "+str(params))
     print("✅ Finished trials for these parameters.")
 else:

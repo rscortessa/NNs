@@ -2,7 +2,8 @@ import netket as nk
 import argparse
 import flax
 import optuna
-from config import params,ROOT_DIR,working_directory,study_name,storage
+from config import params,ROOT_DIR
+from ground_state_search import working_directory,study_name,storage
 from define_models import hi,ham,model
 from functools import partial
 from Methods.FULL_STATE_OP import objective,filenames,save_history_callback,find_minimum_max_nr_file

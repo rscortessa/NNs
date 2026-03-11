@@ -9,7 +9,7 @@ all_NN_params["RBM_COMPLEX"]=["NN"]
 all_NN_params["spin_dependent_T"]=["n_heads","head_dim","n_patches"]
 all_NN_params["factored_attention_T"]=["n_heads","head_dim","n_patches"]
 all_NN_params["parity_CNN_COMPLEX"]=["kernel_size","features","padding"]
-
+all_NN_params["parity_CNN_REAL"]=["kernel_size","features","padding"]
 # Initialize the parser
 parser = argparse.ArgumentParser()
 
@@ -36,6 +36,11 @@ if args.architecture == "CNN_REAL":
     parser.add_argument("--padding",type=str,default="SAME")
 
 if args.architecture == "parity_CNN_COMPLEX":
+    parser.add_argument("--kernel_size",type=int,default=2)
+    parser.add_argument("--features",type=int,nargs="+",default=[2,2])
+    parser.add_argument("--padding",type=str,default="SAME")
+
+if args.architecture == "parity_CNN_REAL":
     parser.add_argument("--kernel_size",type=int,default=2)
     parser.add_argument("--features",type=int,nargs="+",default=[2,2])
     parser.add_argument("--padding",type=str,default="SAME")
@@ -69,7 +74,7 @@ params["DG"]= 0.01
 params["W"]= 1
 params["add"]=""
 
-if params["architecture"] == "CNN_REAL":
+if params["architecture"] == "CNN_REAL" or params["architecture"] == "spin_dependent_T" or params["architecture"] == "factored_attention_T" or params["architecture"] == "parity_CNN_REAL":
     params["holomorphic"] = False
 else:
     params["holomorphic"] = True
@@ -92,24 +97,24 @@ except FileExistsError:
 # NN parameters:
 NN_params = all_NN_params[params["architecture"]]
 
-identifier=params["architecture"]
-for name in NN_params:
-    identifier+=name+str(params[name])
+#identifier=params["architecture"]
+#for name in NN_params:
+#    identifier+=name+str(params[name])
 
-working_directory = "FULLSUM_"+params["model"]+identifier+"L"+str(params["L"])+"G"+str(params["g"])+"NA"+str(params["Nangle"])+"NSPCA"+str(params["NSPCA"])+"ANGLE"+str(params["angle"])+params["add"]
+#working_directory = "FULLSUM_"+params["model"]+identifier+"L"+str(params["L"])+"G"+str(params["g"])+"NA"+str(params["Nangle"])+"NSPCA"+str(params["NSPCA"])+"ANGLE"+str(params["angle"])+params["add"]
 
-try:
-    os.mkdir(ROOT_DIR+"/"+working_directory)
-except FileExistsError:
-    print(f"Root directory exists.")
+#try:
+#    os.mkdir(ROOT_DIR+"/"+working_directory)
+#except FileExistsError:
+#    print(f"Root directory exists.")
 
-study_name = ROOT_DIR+"/"+working_directory+"/"+working_directory
-storage = "sqlite:///"+study_name+".db"
+#study_name = ROOT_DIR+"/"+working_directory+"/"+working_directory
+#storage = "sqlite:///"+study_name+".db"
         
-try:
-    optuna.create_study(study_name=study_name,storage=storage,direction="minimize",sampler=optuna.samplers.RandomSampler(),pruner=optuna.pruners.MedianPruner())
-    print(f"✅ Created Optuna study: {study_name}")
-except optuna.exceptions.DuplicatedStudyError:
-    print(f"ℹ️ Study {study_name} already exists.")
+#try:
+#    optuna.create_study(study_name=study_name,storage=storage,direction="minimize",sampler=optuna.samplers.RandomSampler(),pruner=optuna.pruners.MedianPruner())
+#    print(f"✅ Created Optuna study: {study_name}")
+#except optuna.exceptions.DuplicatedStudyError:
+#    print(f"ℹ️ Study {study_name} already exists.")
 
-print(f"✅study name {study_name}, storage {storage} ")
+#print(f"✅study name {study_name}, storage {storage} ")
